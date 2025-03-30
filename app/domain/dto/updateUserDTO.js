@@ -1,13 +1,13 @@
 class UpdateUserDTO {
-	constructor(name, email, password) {
-		this.name = name || null;
+	constructor(fullName, email, password) {
+		this.fullName = fullName || null;
 		this.email = email || null;
 		this.password = password || null;
 	}
 
 	static fromRequest(requestData) {
 		return new UpdateUserDTO(
-			requestData.name,
+			requestData.fullName,
 			requestData.email,
 			requestData.password
 		);

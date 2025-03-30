@@ -1,47 +1,66 @@
-// services/userService.js
-import UserRepository from '../../data-access/repositories/userRepository';
-import Pagination from '../dto/pagination';
-import { ERROR_CODES } from '../utils/errorCodes.js'; // Import ERROR_CODES
-import CustomError from '../utils/customError.js';
+import UserRepository from '../../data-access/repositories/userRepository.js';
+import Pagination from '../dto/pagination.js';
+import UserDTO from '../dto/userDTO.js';
+import { errorCode } from '../../utils/userResponseCode.js';
+import CustomError from '../dto/customError.js';
 
 class UserService {
-	static getUsers = async (page = 1, limit = 100) => {
-		const offset = (page - 1) * limit;
+	constructor() {
+		this.userRepository = new UserRepository();
+	}
 
-		const users = await UserRepository.findAll(limit, offset);
-		const total = await UserRepository.count();
-		const totalPages = Math.ceil(total / limit);
+	async getUsers(getUserRequest) {
+		const offset = (getUserRequest.page - 1) * getUserRequest.limit;
 
-		return Pagination(users, page, limit, total, totalPages);
-	};
+		const users = await this.userRepository.findAllWithFilterAndPagination(
+			getUserRequest.filter,
+			getUserRequest.limit,
+			offset
+		);
+		const total = users.length;
+		const totalPages = Math.ceil(total / getUserRequest.limit);
+		const userResponse = users.map((user) => UserDTO.fromEntity(user));
+		return new Pagination(
+			userResponse,
+			getUserRequest.page,
+			getUserRequest.limit,
+			total,
+			totalPages,
+			getUserRequest.filter
+		);
+	}
 
-	static getUserByEmail = async (email) => {
-		const user = await UserRepository.findByEmail(email);
+	async getUserByEmail(email) {
+		const user = await this.userRepository.findOne({ email });
 		if (!user) {
-			throw new CustomError(ERROR_CODES.USER_NOT_FOUND);
+			throw new CustomError(errorCode.USER_NOT_FOUND);
 		}
 		return user;
-	};
+	}
 
-	static createUser = async (userData) => {
-		return UserRepository.create(userData);
-	};
-
-	static updateUserByEmail = async (email, userData) => {
-		const user = await UserRepository.findByEmail(email);
-		if (!user) {
-			throw new CustomError(ERROR_CODES.USER_NOT_FOUND);
+	async createUser(userData) {
+		const user = await this.userRepository.findOne({ email: userData.email });
+		if (user) {
+			throw new CustomError(errorCode.USER_ALREADY_EXISTS);
 		}
-		return UserRepository.updateByEmail(email, userData);
-	};
+		return this.userRepository.create(userData);
+	}
 
-	static deleteUserByEmail = async (email) => {
-		const user = await UserRepository.findByEmail(email);
+	async updateUserByEmail({ email }, userData) {
+		const user = await this.userRepository.findOne({ email });
 		if (!user) {
-			throw new CustomError(ERROR_CODES.USER_NOT_FOUND);
+			throw new CustomError(errorCode.USER_NOT_FOUND);
 		}
-		return UserRepository.deleteByEmail(email);
-	};
+		return this.userRepository.updateByEmail({ email }, userData);
+	}
+
+	async deleteUserByEmail(email) {
+		const user = await this.userRepository.findOne({ email });
+		if (!user) {
+			throw new CustomError(errorCode.USER_NOT_FOUND);
+		}
+		return this.userRepository.delete({ email });
+	}
 }
 
 export default UserService;

@@ -1,86 +1,99 @@
-import Product from '../../domain/models/product.js';
+import ProductService from '../../domain/services/productService.js';
+import APIResponse from '../../domain/dto/apiResponse.js';
+import CreateProductDTO from '../../domain/dto/createProductDTO.js';
+import ProductDTO from '../../domain/dto/productDTO.js';
+import GetProductRequestDTO from '../../domain/dto/getProductRequestDTO.js';
+import { successCode } from '../../utils/productResponseCode.js';
+import UpdateProductDTO from '../../domain/dto/updateProductDTO.js';
 
-// Thêm sản phẩm mới
-const createProduct = async (req, res) => {
-  const { name, description, price, stock, image } = req.body;
+class ProductController {
+	static async createProduct(req, res, next) {
+		try {
+			const productRequest = CreateProductDTO.fromRequest(req.body);
+			const product = await ProductService.createProduct(productRequest);
+			const productResponse = ProductDTO.fromEntity(product);
 
-  try {
-    const newProduct = new Product({ name, description, price, stock, image });
-    await newProduct.save();
-    res.status(201).json({
-      message: 'Product created successfully',
-      product: newProduct,
-    });
-  } catch (error) {
-    res.status(500).json({ message: 'Server Error', error: error.message });
-  }
-};
+			const response = APIResponse.success(
+				successCode.PRODUCT_CREATED.code,
+				successCode.PRODUCT_CREATED.message,
+				productResponse
+			);
+			return res.status(successCode.PRODUCT_CREATED.httpStatusCode).json(response);
+		} catch (error) {
+			next(error);
+		}
+	}
 
-// Lấy tất cả sản phẩm
-const getAllProducts = async (req, res) => {
-  try {
-    const products = await Product.find();
-    res.status(200).json(products);
-  } catch (error) {
-    res.status(500).json({ message: 'Server Error', error: error.message });
-  }
-};
+	static async getProducts(req, res, next) {
+		try {
+			const getProductRequest = GetProductRequestDTO.fromRequest(req.body);
+			const productResponse = await ProductService.getProducts(getProductRequest);
 
-// Lấy thông tin một sản phẩm theo ID
-const getProductById = async (req, res) => {
-  try {
-    const product = await Product.findById(req.params.id);
-    if (!product) {
-      return res.status(404).json({ message: 'Product not found' });
-    }
-    res.status(200).json(product);
-  } catch (error) {
-    res.status(500).json({ message: 'Server Error', error: error.message });
-  }
-};
+			const response = APIResponse.success(
+				successCode.PRODUCTS_GET_ALL.code,
+				successCode.PRODUCTS_GET_ALL.message,
+				productResponse
+			);
+			return res
+				.status(successCode.PRODUCTS_GET_ALL.httpStatusCode)
+				.json(response);
+		} catch (error) {
+			next(error);
+		}
+	}
 
-// Cập nhật thông tin sản phẩm
-const updateProduct = async (req, res) => {
-  const { name, description, price, stock, image } = req.body;
+	static async getProductById(req, res, next) {
+		try {
+			const product = await ProductService.getProductById(req.params.id);
+			const productResponse = ProductDTO.fromEntity(product);
 
-  try {
-    const product = await Product.findById(req.params.id);
-    if (!product) {
-      return res.status(404).json({ message: 'Product not found' });
-    }
+			const response = APIResponse.success(
+				successCode.PRODUCT_GET.code,
+				successCode.PRODUCT_GET.message,
+				productResponse
+			);
+			return res.status(successCode.PRODUCT_GET.httpStatusCode).json(response);
+		} catch (error) {
+			next(error);
+		}
+	}
 
-    if (name) product.name = name;
-    if (description) product.description = description;
-    if (price) product.price = price;
-    if (stock) product.stock = stock;
-    if (image) product.image = image;
+	static async updateProductById(req, res, next) {
+		try {
+			const updateProduct = UpdateProductDTO.fromRequest(req.body);
+			const product = await ProductService.updateProductById(
+				req.params.id,
+				updateProduct
+			);
 
-    await product.save();
-    res.status(200).json({ message: 'Product updated successfully', product });
-  } catch (error) {
-    res.status(500).json({ message: 'Server Error', error: error.message });
-  }
-};
+			const productResponse = ProductDTO.fromEntity(product);
+			const response = APIResponse.success(
+				successCode.PRODUCT_UPDATED.code,
+				successCode.PRODUCT_UPDATED.message,
+				productResponse
+			);
 
-// Xóa sản phẩm
-const deleteProduct = async (req, res) => {
-  try {
-    const product = await Product.findById(req.params.id);
-    if (!product) {
-      return res.status(404).json({ message: 'Product not found' });
-    }
+			return res.status(successCode.PRODUCT_UPDATED.httpStatusCode).json(response);
+		} catch (error) {
+			next(error);
+		}
+	}
 
-    await product.remove();
-    res.status(200).json({ message: 'Product deleted successfully' });
-  } catch (error) {
-    res.status(500).json({ message: 'Server Error', error: error.message });
-  }
-};
+	static async deleteProductById(req, res, next) {
+		try {
+			const product = await ProductService.getProductById(req.params.id);
 
-export {
-  createProduct,
-  getAllProducts,
-  getProductById,
-  updateProduct,
-  deleteProduct,
-};
+			await ProductService.deleteProductById(req.params.id);
+			const response = APIResponse.success(
+				successCode.PRODUCT_DELETED.code,
+				successCode.PRODUCT_DELETED.message,
+				null
+			);
+			return res.status(successCode.PRODUCT_DELETED.httpStatusCode).json(response);
+		} catch (error) {
+			next(error);
+		}
+	}
+}
+
+export default ProductController;

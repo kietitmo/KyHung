@@ -6,11 +6,12 @@ import userRoutes from './entry-points/routes/userRoutes.js';
 import productRoutes from './entry-points/routes/productRoutes.js';
 import 'module-alias/register.js';
 import passport from 'passport';
-import './config/passportConfig.js'; // Cấu hình passport
-import errorHandler from './middlewares/errorHandler.js'; // Import middleware xử lý lỗi
+import './config/passportConfig.js';
+import errorHandler from './entry-points/middlewares/error.middleware.js';
+import Config from './config/config.js';
 
 const app = express();
-const PORT = process.env.PORT || 5001;
+const PORT = Config.PORT || 5001;
 
 connectDB();
 

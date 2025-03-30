@@ -2,60 +2,53 @@ import jwt from 'jsonwebtoken';
 import bcrypt from 'bcryptjs';
 import UserRepository from '../../data-access/repositories/userRepository.js';
 import dotenv from 'dotenv';
-
+import { errorCode } from '../../utils/userResponseCode.js';
+import CustomError from '../dto/customError.js';
+import Config from '../../config/config.js';
 dotenv.config();
 
-// thieu dang ky
 class AuthService {
-	// Đăng nhập và tạo JWT
-	static async login(email, password) {
-		const user = await UserRepository.findByEmail(email);
+	constructor() {
+		this.userRepository = new UserRepository();
+	}
+
+	async login(email, password) {
+		const user = await this.userRepository.findOne({ email: email });
 
 		if (!user) {
-			throw new Error('Invalid credentials');
+			throw new CustomError(errorCode.USER_NOT_FOUND);
 		}
 
-		// Kiểm tra mật khẩu
 		const isMatch = await bcrypt.compare(password, user.password);
 		if (!isMatch) {
-			throw new Error('Invalid credentials');
+			throw new CustomError(errorCode.INVALID_PASSWORD);
 		}
 
-		// Tạo access token (JWT)
-		const payload = { email: user.email, role: user.role }; // Payload chứa thông tin cần thiết
-		const accessToken = jwt.sign(payload, process.env.JWT_SECRET, {
-			expiresIn: '1h',
+		const payload = { email: user.email, role: user.role };
+		const accessToken = jwt.sign(payload, Config.JWT_SECRET, {
+			expiresIn: Config.JWT_SECRET_EXPIRE_TIME,
 		});
 
-		// Tạo refresh token (Có thể lưu vào DB nếu cần)
-		const refreshToken = jwt.sign(payload, process.env.JWT_REFRESH_SECRET, {
-			expiresIn: '7d',
+		const refreshToken = jwt.sign(payload, Config.JWT_REFRESH_SECRET, {
+			expiresIn: Config.JWT_REFRESH_SECRET_EXPIRE_TIME,
 		});
 
 		return { accessToken, refreshToken };
 	}
 
-	// Làm mới access token từ refresh token
 	static async refreshAccessToken(refreshToken) {
 		try {
-			const decoded = jwt.verify(refreshToken, process.env.JWT_REFRESH_SECRET);
+			const decoded = jwt.verify(refreshToken, Config.JWT_REFRESH_SECRET);
 			const newAccessToken = jwt.sign(
-				{ email: user.email, role: user.role },
-				process.env.JWT_SECRET,
-				{ expiresIn: '1h' }
+				{ email: decoded.email, role: decoded.role },
+				Config.JWT_SECRET,
+				{ expiresIn: Config.JWT_SECRET_EXPIRE_TIME }
 			);
 
 			return newAccessToken;
 		} catch (err) {
-			throw new Error('Invalid or expired refresh token');
+			throw new CustomError(errorCode.INVALID_REFRESH_TOKEN);
 		}
-	}
-
-	// Mã hóa mật khẩu người dùng khi đăng ký
-	static async hashPassword(password) {
-		const salt = await bcrypt.genSalt(10);
-		const hashedPassword = await bcrypt.hash(password, salt);
-		return hashedPassword;
 	}
 }
 

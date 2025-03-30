@@ -2,10 +2,11 @@ import CustomError from '../../domain/dto/customError.js';
 import APIResponse from '../../domain/dto/apiResponse.js';
 
 const errorHandler = (err, req, res, next) => {
+	console.error(err);
 	// Nếu lỗi là một CustomError
 	if (err instanceof CustomError) {
-		return res.status(err.statusCode).json(
-			APIResponse.fail(err.message, err.errorCode) // Sử dụng APIResponse.fail
+		return res.status(err.httpStatusCode).json(
+			APIResponse.fail(err.code, err.message) // Sử dụng APIResponse.fail
 		);
 	}
 

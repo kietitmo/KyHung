@@ -1,4 +1,3 @@
-// tu define lai
 export const successCode = {
 	USER_CREATED: {
 		code: 1,
@@ -38,38 +37,48 @@ export const successCode = {
 };
 
 export const errorCode = {
+	USER_EXISTS: {
+		code: 101,
+		httpStatusCode: 400,
+		message: 'User exists',
+	},
 	USER_BAD_REQUEST: {
-		code: 17,
+		code: 102,
 		httpStatusCode: 400,
 		message: 'User bad request',
 	},
 	USER_EMAIL_INVALID: {
-		code: 17,
+		code: 103,
 		httpStatusCode: 400,
 		message: 'User email invalid',
 	},
 	USER_FULL_NAME_INVALID: {
-		code: 17,
+		code: 104,
 		httpStatusCode: 400,
 		message: 'User full name invalid',
 	},
 	USER_PASSWORD_INVALID: {
-		code: 17,
+		code: 105,
 		httpStatusCode: 400,
 		message: 'User password invalid',
 	},
+	USER_CATEGORY_INVALID: {
+		code: 105,
+		httpStatusCode: 400,
+		message: 'User category invalid',
+	},
 	USER_NOT_FOUND: {
-		code: 10,
+		code: 106,
 		httpStatusCode: 404,
 		message: 'User not found',
 	},
 	INVALID_PASSWORD: {
-		code: 11,
+		code: 107,
 		httpStatusCode: 400,
 		message: 'Invalid password',
 	},
 	USER_ALREADY_EXISTS: {
-		code: 12,
+		code: 108,
 		httpStatusCode: 400,
 		message: 'User already exists',
 	},
@@ -79,6 +88,11 @@ export const errorCode = {
 		message: 'Internal server error',
 	},
 	INVALID_TOKEN: {
+		code: 14,
+		httpStatusCode: 401,
+		message: 'Invalid token',
+	},
+	INVALID_REFRESH_TOKEN: {
 		code: 14,
 		httpStatusCode: 401,
 		message: 'Invalid token',

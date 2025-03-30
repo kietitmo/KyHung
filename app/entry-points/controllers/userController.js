@@ -2,14 +2,18 @@ import UserService from '../../domain/services/userService.js';
 import APIResponse from '../../domain/dto/apiResponse.js';
 import CreateUserDTO from '../../domain/dto/createUserDTO.js';
 import UserDTO from '../../domain/dto/userDTO.js';
-
-import { errorCode, successCode } from '../../utils/responseCode.js';
+import GetUserRequestDTO from '../../domain/dto/getUserRequestDTO.js';
+import { successCode } from '../../utils/userResponseCode.js';
 import UpdateUserDTO from '../../domain/dto/updateUserDTO.js';
+
 class UserController {
-	static async createUser(req, res, next) {
+	constructor() {
+		this.userService = new UserService();
+	}
+	async createUser(req, res, next) {
 		try {
 			const userRequest = CreateUserDTO.fromRequest(req.body);
-			const user = await UserService.createUser(userRequest);
+			const user = await this.userService.createUser(userRequest);
 			const userResponse = UserDTO.fromEntity(user);
 			const response = APIResponse.success(
 				successCode.USER_CREATED.code,
@@ -22,10 +26,11 @@ class UserController {
 		}
 	}
 
-	static async getUsers(req, res, next) {
+	async getUsers(req, res, next) {
 		try {
-			const users = await UserService.getUsers();
-			const userResponse = users.map((user) => UserDTO.fromEntity(user));
+			const getUserRequest = GetUserRequestDTO.fromRequest(req.body);
+			const userResponse = await this.userService.getUsers(getUserRequest);
+
 			const response = APIResponse.success(
 				successCode.USERS_GET_ALL.code,
 				successCode.USERS_GET_ALL.message,
@@ -37,9 +42,9 @@ class UserController {
 		}
 	}
 
-	static async getUserByEmail(req, res, next) {
+	async getUserByEmail(req, res, next) {
 		try {
-			const user = await UserService.getUserByEmail(req.params.email);
+			const user = await this.userService.getUserByEmail(req.params.email);
 			const userResponse = UserDTO.fromEntity(user);
 			const response = APIResponse.success(
 				successCode.USER_GET.code,
@@ -52,11 +57,11 @@ class UserController {
 		}
 	}
 
-	static async updateUserByEmail(req, res, next) {
+	async updateUserByEmail(req, res, next) {
 		try {
 			const updateUser = UpdateUserDTO.fromRequest(req.body);
-			const user = await UserService.updateUserByEmail(
-				updateUser.email,
+			const user = await this.userService.updateUserByEmail(
+				req.params.email,
 				updateUser
 			);
 
@@ -73,11 +78,11 @@ class UserController {
 		}
 	}
 
-	static async deleteUserByEmail(req, res, next) {
+	async deleteUserByEmail(req, res, next) {
 		try {
-			const user = await UserService.getUserByEmail(req.params.email);
+			const user = await this.userService.getUserByEmail(req.params.email);
 
-			await UserService.deleteUserByEmail(req.params.email);
+			await this.userService.deleteUserByEmail(req.params.email);
 			const response = APIResponse.success(
 				successCode.USER_DELETED.code,
 				successCode.USER_DELETED.message,

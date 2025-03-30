@@ -7,8 +7,8 @@ class CustomError extends Error {
 		super(customMessage || error.message);
 
 		this.message = customMessage || error.message;
-		this.statusCode = error.code || 500;
-		this.errorCode = error.errorCode || 'UNKNOWN_ERROR';
+		this.httpStatusCode = error.httpStatusCode || 500;
+		this.code = error.code || 'UNKNOWN_ERROR';
 
 		this.isOperational = true;
 		Error.captureStackTrace(this, this.constructor);

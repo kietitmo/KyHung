@@ -1,6 +1,6 @@
 import AuthService from '../../domain/services/authService.js';
 import APIResponse from '../../domain/dto/apiResponse.js';
-import { errorCode, successCode } from '../../utils/responseCode.js';
+import { errorCode, successCode } from '../../utils/userResponseCode.js';
 import CustomError from '../../domain/dto/customError.js';
 import LoginRequestDTO from '../../domain/dto/loginRequestDTO.js';
 import RefreshTokenRequestDTO from '../../domain/dto/refreshTokenRequestDTO.js';
@@ -9,13 +9,17 @@ import RefreshTokenResponseDTO from '../../domain/dto/refreshTokenResponseDTO.js
 
 // Đăng nhập và nhận JWT
 class AuthController {
-	static async login(req, res, next) {
+	constructor() {
+		this.authService = new AuthService();
+	}
+
+	async login(req, res, next) {
 		try {
 			// Chuyển req.body thành DTO
 			const loginRequest = new LoginRequestDTO(req.body.email, req.body.password);
 
 			// Gọi service để thực hiện login
-			const { accessToken, refreshToken } = await AuthService.login(
+			const { accessToken, refreshToken } = await this.authService.login(
 				loginRequest.email,
 				loginRequest.password
 			);
@@ -41,18 +45,19 @@ class AuthController {
 		}
 	}
 
-	static async refreshAccessToken(req, res, next) {
+	async refreshAccessToken(req, res, next) {
 		try {
 			// Lấy refresh token từ cookies và chuyển thành DTO
-			const refreshToken = new RefreshTokenRequestDTO(req.cookies.refreshToken)
-				.refreshToken;
+			const refreshToken = new RefreshTokenRequestDTO(req.cookies.refreshToken);
 
 			if (!refreshToken) {
 				throw new CustomError(errorCode.REFRESH_TOKEN_NOT_FOUND);
 			}
 
 			// Gọi service để làm mới access token
-			const newAccessToken = await AuthService.refreshAccessToken(refreshToken);
+			const newAccessToken = await this.authService.refreshAccessToken(
+				refreshToken.refreshToken
+			);
 
 			// Trả về response theo DTO
 			const refreshTokenResponse = new RefreshTokenResponseDTO(newAccessToken);

@@ -1,27 +1,36 @@
 import express from 'express';
+import ProductController from '../controllers/productController.js';
 import {
-  createProduct,
-  getAllProducts,
-  getProductById,
-  updateProduct,
-  deleteProduct,
-} from '../controllers/productController.js';
+	verifyAccessToken,
+	authorize,
+} from '../middlewares/auth.middleware.js';
+import Role from '../../domain/models/role.enum.js';
 
 const router = express.Router();
 
-// Tạo sản phẩm mới
-router.post('/', createProduct);
+router.post(
+	'/',
+	verifyAccessToken,
+	authorize([Role.ADMIN]),
+	ProductController.createProduct
+);
 
-// Lấy tất cả sản phẩm
-router.get('/', getAllProducts);
+router.get('/', ProductController.getProducts);
 
-// Lấy thông tin sản phẩm theo ID
-router.get('/:id', getProductById);
+router.get('/:id', ProductController.getProductById);
 
-// Cập nhật sản phẩm theo ID
-router.put('/:id', updateProduct);
+router.put(
+	'/:id',
+	verifyAccessToken,
+	authorize([Role.ADMIN]),
+	ProductController.updateProductById
+);
 
-// Xóa sản phẩm theo ID
-router.delete('/:id', deleteProduct);
+router.delete(
+	'/:id',
+	verifyAccessToken,
+	authorize([Role.ADMIN]),
+	ProductController.deleteProductById
+);
 
 export default router;
