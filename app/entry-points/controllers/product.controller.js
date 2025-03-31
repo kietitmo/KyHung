@@ -1,8 +1,8 @@
-import ProductService from '../../domain/services/productService.js';
-import APIResponse from '../../domain/dto/apiResponse.js';
+import ProductService from '../../domain/services/product.service.js';
+import APIResponse from '../../domain/custom/apiResponse.js';
 import CreateProductDTO from '../../domain/dto/createProductDTO.js';
 import ProductDTO from '../../domain/dto/productDTO.js';
-import GetProductRequestDTO from '../../domain/dto/getProductRequestDTO.js';
+import GetAllRequestDTO from '../../domain/dto/getAllRequestDTO.js';
 import { successCode } from '../../utils/productResponseCode.js';
 import UpdateProductDTO from '../../domain/dto/updateProductDTO.js';
 
@@ -26,7 +26,7 @@ class ProductController {
 
 	static async getProducts(req, res, next) {
 		try {
-			const getProductRequest = GetProductRequestDTO.fromRequest(req.body);
+			const getProductRequest = GetAllRequestDTO.fromRequest(req.body);
 			const productResponse = await ProductService.getProducts(getProductRequest);
 
 			const response = APIResponse.success(

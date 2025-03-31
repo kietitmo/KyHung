@@ -1,4 +1,4 @@
-import CustomError from '../../../domain/dto/customError.js';
+import CustomError from '../../../domain/custom/customError.js';
 import { errorCode } from '../../../utils/userResponseCode.js';
 import Constants from '../../../utils/constant.js';
 
@@ -21,7 +21,7 @@ const validateCreateUser = (req, res, next) => {
 	if (
 		!password ||
 		password.length < Constants.PASSWORD_MIN_LENGTH ||
-		!PASSWORD_REGEXP.test(password)
+		!Constants.PASSWORD_REGEXP.test(password)
 	) {
 		throw new CustomError(errorCode.USER_PASSWORD_INVALID);
 	}

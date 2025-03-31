@@ -3,7 +3,7 @@ import bcrypt from 'bcryptjs';
 import UserRepository from '../../data-access/repositories/userRepository.js';
 import dotenv from 'dotenv';
 import { errorCode } from '../../utils/userResponseCode.js';
-import CustomError from '../dto/customError.js';
+import CustomError from '../custom/customError.js';
 import Config from '../../config/config.js';
 dotenv.config();
 

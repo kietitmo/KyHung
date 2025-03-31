@@ -2,8 +2,9 @@ import express from 'express';
 import cors from 'cors';
 import cookieParser from 'cookie-parser';
 import connectDB from './data-access/db/db.js';
-import userRoutes from './entry-points/routes/userRoutes.js';
-import productRoutes from './entry-points/routes/productRoutes.js';
+import userRoutes from './entry-points/routes/user.routes.js';
+import productRoutes from './entry-points/routes/product.routes.js';
+import categoryRoutes from './entry-points/routes/category.routes.js';
 import 'module-alias/register.js';
 import passport from 'passport';
 import './config/passportConfig.js';
@@ -23,7 +24,7 @@ app.use(passport.initialize()); // Khởi tạo passport
 // Các route của user
 app.use('/api/users', userRoutes);
 app.use('/api/products', productRoutes);
-
+app.use('/api/categories', categoryRoutes);
 app.use(errorHandler);
 
 app.listen(PORT, () => {

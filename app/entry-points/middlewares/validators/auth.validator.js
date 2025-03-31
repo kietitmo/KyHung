@@ -1,4 +1,4 @@
-import CustomError from '../../../domain/dto/customError.js';
+import CustomError from '../../../domain/custom/customError.js';
 import { errorCode } from '../../../utils/userResponseCode.js';
 import Constants from '../../../utils/constant.js';
 

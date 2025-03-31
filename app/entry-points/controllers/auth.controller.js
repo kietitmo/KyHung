@@ -1,7 +1,7 @@
-import AuthService from '../../domain/services/authService.js';
-import APIResponse from '../../domain/dto/apiResponse.js';
+import AuthService from '../../domain/services/auth.service.js';
+import APIResponse from '../../domain/custom/apiResponse.js';
 import { errorCode, successCode } from '../../utils/userResponseCode.js';
-import CustomError from '../../domain/dto/customError.js';
+import CustomError from '../../domain/custom/customError.js';
 import LoginRequestDTO from '../../domain/dto/loginRequestDTO.js';
 import RefreshTokenRequestDTO from '../../domain/dto/refreshTokenRequestDTO.js';
 import LoginResponseDTO from '../../domain/dto/loginResponseDTO.js';

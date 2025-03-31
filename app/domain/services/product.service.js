@@ -1,31 +1,31 @@
 import ProductRepository from '../../data-access/repositories/productRepository.js';
-import Pagination from '../dto/pagination.js';
+import Pagination from '../custom/pagination.js';
 import ProductDTO from '../dto/productDTO.js';
 import { errorCode } from '../../utils/productResponseCode.js';
-import CustomError from '../dto/customError.js';
+import CustomError from '../custom/customError.js';
 
 class ProductService {
-	static getProducts = async (getProductRequest) => {
-		const offset = (getProductRequest.page - 1) * getProductRequest.limit;
+	static getProducts = async (getAllRequest) => {
+		const offset = (getAllRequest.page - 1) * getAllRequest.limit;
 
 		const products = await ProductRepository.findAllWithFilterAndPagination(
-			getProductRequest.filter,
-			getProductRequest.limit,
+			getAllRequest.filter,
+			getAllRequest.limit,
 			offset
 		);
 		const total = await ProductRepository.count();
-		const totalPages = Math.ceil(total / getProductRequest.limit);
+		const totalPages = Math.ceil(total / getAllRequest.limit);
 		const productResponse = products.map((product) =>
 			ProductDTO.fromEntity(product)
 		);
 
 		return new Pagination(
 			productResponse,
-			getProductRequest.page,
-			getProductRequest.limit,
+			getAllRequest.page,
+			getAllRequest.limit,
 			total,
 			totalPages,
-			getProductRequest.filter
+			getAllRequest.filter
 		);
 	};
 

@@ -1,4 +1,4 @@
-class GetUserRequestDTO {
+class GetAllRequestDTO {
 	constructor(filter, limit, page) {
 		this.filter = filter || {};
 		this.limit = limit || 100;
@@ -6,7 +6,7 @@ class GetUserRequestDTO {
 	}
 
 	static fromRequest(requestData) {
-		return new GetUserRequestDTO(
+		return new GetAllRequestDTO(
 			requestData.filter,
 			requestData.limit,
 			requestData.page
@@ -14,4 +14,4 @@ class GetUserRequestDTO {
 	}
 }
 
-export default GetUserRequestDTO;
+export default GetAllRequestDTO;

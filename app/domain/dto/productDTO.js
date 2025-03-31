@@ -1,18 +1,20 @@
-// productDTO.js
 class ProductDTO {
-	static fromEntity(product) {
-		return {
-			id: product._id,
-			name: product.name,
-			category: product.category,
-			price: product.price,
-			description: product.description,
-			imageUrl: product.imageUrl,
-			videoUrl: product.videoUrl,
-			createdAt: product.createdAt,
-			updatedAt: product.updatedAt,
-		};
+	constructor(product) {
+	  this.id = product._id;
+	  this.name = product.name;
+	  this.category = product.category;
+	  this.price = product.price;
+	  this.description = product.description;
+	  this.imageUrl = product.imageUrl;
+	  this.videoUrl = product.videoUrl;
+	  this.createdAt = product.createdAt;
+	  this.updatedAt = product.updatedAt;
 	}
-}
-
-export default ProductDTO;
+  
+	static fromEntity(product) {
+	  return new ProductDTO(product);
+	}
+  }
+  
+  export default ProductDTO;
+  

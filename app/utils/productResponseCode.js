@@ -67,4 +67,14 @@ export const errorCode = {
 		httpStatusCode: 400,
 		message: 'Product already exist',
 	},
+	PRODUCT_ALREADY_IN_FAVORITE: {
+		code: 102,
+		httpStatusCode: 400,
+		message: 'Product already in favorite',
+	},
+	PRODUCT_NOT_IN_FAVORITE: {
+		code: 102,
+		httpStatusCode: 400,
+		message: 'Product not in favorite',
+	},
 };

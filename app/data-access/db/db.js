@@ -1,8 +1,9 @@
 import mongoose from 'mongoose';
+import Config from '../../config/config.js'
 
 const connectDB = async () => {
   try {
-    await mongoose.connect('mongodb://localhost:27018/ky_hung', {
+    await mongoose.connect(Config.MONGODB_URI, {
       useNewUrlParser: true,
       useUnifiedTopology: true,
     });

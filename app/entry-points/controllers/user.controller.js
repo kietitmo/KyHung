@@ -1,8 +1,8 @@
-import UserService from '../../domain/services/userService.js';
-import APIResponse from '../../domain/dto/apiResponse.js';
+import UserService from '../../domain/services/user.service.js';
+import APIResponse from '../../domain/custom/apiResponse.js';
 import CreateUserDTO from '../../domain/dto/createUserDTO.js';
 import UserDTO from '../../domain/dto/userDTO.js';
-import GetUserRequestDTO from '../../domain/dto/getUserRequestDTO.js';
+import GetAllRequestDTO from '../../domain/dto/getAllRequestDTO.js';
 import { successCode } from '../../utils/userResponseCode.js';
 import UpdateUserDTO from '../../domain/dto/updateUserDTO.js';
 
@@ -28,7 +28,7 @@ class UserController {
 
 	async getUsers(req, res, next) {
 		try {
-			const getUserRequest = GetUserRequestDTO.fromRequest(req.body);
+			const getUserRequest = GetAllRequestDTO.fromRequest(req.body);
 			const userResponse = await this.userService.getUsers(getUserRequest);
 
 			const response = APIResponse.success(

@@ -1,7 +1,7 @@
 import express from 'express';
 const router = express.Router();
-import UserController from '../controllers/userController.js';
-import AuthController from '../controllers/authController.js';
+import UserController from '../controllers/user.controller.js';
+import AuthController from '../controllers/auth.controller.js';
 import {
 	verifyAccessToken,
 	authorize,
@@ -28,7 +28,7 @@ router.post(
 router.get(
 	'/',
 	verifyAccessToken,
-	authorize([Role.ADMIN]),
+	// authorize([Role.ADMIN]),
 	validateGetUser,
 	userController.getUsers.bind(userController)
 );

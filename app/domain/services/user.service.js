@@ -1,32 +1,32 @@
 import UserRepository from '../../data-access/repositories/userRepository.js';
-import Pagination from '../dto/pagination.js';
+import Pagination from '../custom/pagination.js';
 import UserDTO from '../dto/userDTO.js';
 import { errorCode } from '../../utils/userResponseCode.js';
-import CustomError from '../dto/customError.js';
+import CustomError from '../custom/customError.js';
 
 class UserService {
 	constructor() {
 		this.userRepository = new UserRepository();
 	}
 
-	async getUsers(getUserRequest) {
-		const offset = (getUserRequest.page - 1) * getUserRequest.limit;
+	async getUsers(getAllRequest) {
+		const offset = (getAllRequest.page - 1) * getAllRequest.limit;
 
 		const users = await this.userRepository.findAllWithFilterAndPagination(
-			getUserRequest.filter,
-			getUserRequest.limit,
+			getAllRequest.filter,
+			getAllRequest.limit,
 			offset
 		);
 		const total = users.length;
-		const totalPages = Math.ceil(total / getUserRequest.limit);
+		const totalPages = Math.ceil(total / getAllRequest.limit);
 		const userResponse = users.map((user) => UserDTO.fromEntity(user));
 		return new Pagination(
 			userResponse,
-			getUserRequest.page,
-			getUserRequest.limit,
+			getAllRequest.page,
+			getAllRequest.limit,
 			total,
 			totalPages,
-			getUserRequest.filter
+			getAllRequest.filter
 		);
 	}
 

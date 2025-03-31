@@ -1,5 +1,5 @@
 import passport from 'passport';
-import CustomError from '../../domain/dto/customError.js';
+import CustomError from '../../domain/custom/customError.js';
 import { errorCode } from '../../utils/userResponseCode.js';
 
 const verifyAccessToken = passport.authenticate('jwt', {

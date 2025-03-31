@@ -1,15 +1,17 @@
-// createProductDTO.js
 class CreateProductDTO {
-	static fromRequest(data) {
-		return {
-			name: data.name,
-			category: data.category,
-			price: data.price,
-			description: data.description,
-			imageUrl: data.imageUrl,
-			videoUrl: data.videoUrl,
-		};
+	constructor(data) {
+	  this.name = data.name;
+	  this.category = data.category;
+	  this.price = data.price;
+	  this.description = data.description;
+	  this.imageUrl = data.imageUrl;
+	  this.videoUrl = data.videoUrl;
 	}
-}
-
-export default CreateProductDTO;
+  
+	static fromRequest(data) {
+	  return new CreateProductDTO(data);
+	}
+  }
+  
+  export default CreateProductDTO;
+  
