@@ -5,6 +5,7 @@ import connectDB from './data-access/db/db.js';
 import userRoutes from './entry-points/routes/user.routes.js';
 import productRoutes from './entry-points/routes/product.routes.js';
 import categoryRoutes from './entry-points/routes/category.routes.js';
+import favoriteProductRoutes from './entry-points/routes/favoriteProduct.routes.js';
 import 'module-alias/register.js';
 import passport from 'passport';
 import './config/passportConfig.js';
@@ -25,6 +26,7 @@ app.use(passport.initialize()); // Khởi tạo passport
 app.use('/api/users', userRoutes);
 app.use('/api/products', productRoutes);
 app.use('/api/categories', categoryRoutes);
+app.use('/api/favoriteProduct', favoriteProductRoutes);
 app.use(errorHandler);
 
 app.listen(PORT, () => {

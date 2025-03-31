@@ -1,19 +1,22 @@
 import ProductRepository from '../../data-access/repositories/productRepository.js';
 import Pagination from '../custom/pagination.js';
-import ProductDTO from '../dto/productDTO.js';
+import ProductDTO from '../dto/product/productDTO.js';
 import { errorCode } from '../../utils/productResponseCode.js';
 import CustomError from '../custom/customError.js';
 
 class ProductService {
-	static getProducts = async (getAllRequest) => {
+	constructor() {
+		this.productRepository = new ProductRepository();
+	}
+	async getProducts(getAllRequest) {
 		const offset = (getAllRequest.page - 1) * getAllRequest.limit;
 
-		const products = await ProductRepository.findAllWithFilterAndPagination(
+		const products = await this.productRepository.findAllWithFilterAndPagination(
 			getAllRequest.filter,
 			getAllRequest.limit,
 			offset
 		);
-		const total = await ProductRepository.count();
+		const total = await this.productRepository.count();
 		const totalPages = Math.ceil(total / getAllRequest.limit);
 		const productResponse = products.map((product) =>
 			ProductDTO.fromEntity(product)
@@ -27,39 +30,41 @@ class ProductService {
 			totalPages,
 			getAllRequest.filter
 		);
-	};
+	}
 
-	static getProductById = async (id) => {
-		const product = await ProductRepository.findById(id);
+	async getProductById(id) {
+		const product = await this.productRepository.findOne({ _id: id });
 		if (!product) {
 			throw new CustomError(errorCode.PRODUCT_NOT_FOUND);
 		}
 		return product;
-	};
+	}
 
-	static createProduct = async (productData) => {
-		const product = await ProductRepository.findByName(productData.name);
+	async createProduct(productData) {
+		const product = await this.productRepository.findOne({
+			name: productData.name,
+		});
 		if (product) {
 			throw new CustomError(errorCode.PRODUCT_ALREADY_EXISTS);
 		}
-		return ProductRepository.create(productData);
-	};
+		return this.productRepository.create(productData);
+	}
 
-	static updateProductById = async (id, productData) => {
-		const product = await ProductRepository.findById(id);
+	async updateProductById(id, productData) {
+		const product = await this.productRepository.findOne({ _id: id });
 		if (!product) {
 			throw new CustomError(errorCode.PRODUCT_NOT_FOUND);
 		}
-		return ProductRepository.updateById(id, productData);
-	};
+		return this.productRepository.update({ _id: id }, productData);
+	}
 
-	static deleteProductById = async (id) => {
-		const product = await ProductRepository.findById(id);
+	async deleteProductById(id) {
+		const product = await this.productRepository.findOne({ _id: id });
 		if (!product) {
 			throw new CustomError(errorCode.PRODUCT_NOT_FOUND);
 		}
-		return ProductRepository.deleteById(id);
-	};
+		return this.productRepository.delete({ _id: id });
+	}
 }
 
 export default ProductService;

@@ -1,6 +1,6 @@
 import CustomError from '../../../domain/custom/customError.js';
 import { errorCode } from '../../../utils/userResponseCode.js';
-import Constants from '../../../utils/constant.js';
+import Config from '../../../config/config.js';
 
 const validateCreateUser = (req, res, next) => {
 	const { fullName, email, password } = req.body;
@@ -9,19 +9,19 @@ const validateCreateUser = (req, res, next) => {
 		!fullName ||
 		typeof fullName !== 'string' ||
 		fullName.trim().length === 0 ||
-		!Constants.FULL_NAME_REGEXP.test(fullName)
+		!Config.FULL_NAME_REGEXP.test(fullName)
 	) {
 		throw new CustomError(errorCode.USER_FULL_NAME_INVALID);
 	}
 
-	if (!email || !Constants.EMAIL_REGEXP.test(email)) {
+	if (!email || !Config.EMAIL_REGEXP.test(email)) {
 		throw new CustomError(errorCode.USER_EMAIL_INVALID);
 	}
 
 	if (
 		!password ||
-		password.length < Constants.PASSWORD_MIN_LENGTH ||
-		!Constants.PASSWORD_REGEXP.test(password)
+		password.length < Config.PASSWORD_MIN_LENGTH ||
+		!Config.PASSWORD_REGEXP.test(password)
 	) {
 		throw new CustomError(errorCode.USER_PASSWORD_INVALID);
 	}
@@ -32,7 +32,7 @@ const validateCreateUser = (req, res, next) => {
 const validateUpdateUser = (req, res, next) => {
 	const { fullName, email, password } = req.body;
 
-	if (req.params.email && !Constants.EMAIL_REGEXP.test(req.params.email)) {
+	if (req.params.email && !Config.EMAIL_REGEXP.test(req.params.email)) {
 		throw new CustomError(errorCode.USER_EMAIL_INVALID);
 	}
 
@@ -45,12 +45,12 @@ const validateUpdateUser = (req, res, next) => {
 		throw new CustomError(errorCode.USER_FULL_NAME_INVALID);
 	}
 
-	if (email && !Constants.EMAIL_REGEXP.test(email)) {
+	if (email && !Config.EMAIL_REGEXP.test(email)) {
 		throw new CustomError(errorCode.USER_EMAIL_INVALID);
 	}
 
 	if (password) {
-		if (password.length < Constants.PASSWORD_MIN_LENGTH) {
+		if (password.length < Config.PASSWORD_MIN_LENGTH) {
 			throw new CustomError(errorCode.USER_PASSWORD_INVALID);
 		}
 		if (!PASSWORD_REGEXP.test(password)) {
@@ -62,7 +62,7 @@ const validateUpdateUser = (req, res, next) => {
 };
 
 const validateDeleteUser = (req, res, next) => {
-	if (req.params.email && !Constants.EMAIL_REGEXP.test(req.params.email)) {
+	if (req.params.email && !Config.EMAIL_REGEXP.test(req.params.email)) {
 		throw new CustomError(errorCode.USER_EMAIL_INVALID);
 	}
 

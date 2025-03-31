@@ -1,18 +1,24 @@
 import CustomError from '../../../domain/custom/customError.js';
 import { errorCode } from '../../../utils/userResponseCode.js';
-import Constants from '../../../utils/constant.js';
+import Config from '../../../config/config.js';
 
 const validateLogin = (req, res, next) => {
 	const { email, password } = req.body;
 
-	if (!email || !Constants.EMAIL_REGEXP.test(email)) {
+	console.log(
+		email,
+		password,
+		Config.EMAIL_REGEXP,
+		!Config.EMAIL_REGEXP.test(email)
+	);
+	if (!email || !Config.EMAIL_REGEXP.test(email)) {
 		throw new CustomError(errorCode.USER_EMAIL_INVALID);
 	}
 
 	if (
 		!password ||
-		password.length < Constants.PASSWORD_MIN_LENGTH ||
-		!Constants.PASSWORD_REGEXP.test(password)
+		password.length < Config.PASSWORD_MIN_LENGTH ||
+		!Config.PASSWORD_REGEXP.test(password)
 	) {
 		throw new CustomError(errorCode.USER_PASSWORD_INVALID);
 	}

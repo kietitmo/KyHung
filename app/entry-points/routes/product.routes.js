@@ -7,30 +7,31 @@ import {
 import Role from '../../domain/models/role.enum.js';
 
 const router = express.Router();
+const productController = new ProductController();
 
 router.post(
 	'/',
 	verifyAccessToken,
 	authorize([Role.ADMIN]),
-	ProductController.createProduct
+	productController.createProduct.bind(productController)
 );
 
-router.get('/', ProductController.getProducts);
+router.get('/', productController.getProducts.bind(productController));
 
-router.get('/:id', ProductController.getProductById);
+router.get('/:id', productController.getProductById.bind(productController));
 
 router.put(
 	'/:id',
 	verifyAccessToken,
 	authorize([Role.ADMIN]),
-	ProductController.updateProductById
+	productController.updateProductById.bind(productController)
 );
 
 router.delete(
 	'/:id',
 	verifyAccessToken,
 	authorize([Role.ADMIN]),
-	ProductController.deleteProductById
+	productController.deleteProductById.bind(productController)
 );
 
 export default router;

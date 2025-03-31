@@ -1,6 +1,6 @@
 import UserRepository from '../../data-access/repositories/userRepository.js';
 import Pagination from '../custom/pagination.js';
-import UserDTO from '../dto/userDTO.js';
+import UserDTO from '../dto/user/userDTO.js';
 import { errorCode } from '../../utils/userResponseCode.js';
 import CustomError from '../custom/customError.js';
 
@@ -17,6 +17,7 @@ class UserService {
 			getAllRequest.limit,
 			offset
 		);
+
 		const total = users.length;
 		const totalPages = Math.ceil(total / getAllRequest.limit);
 		const userResponse = users.map((user) => UserDTO.fromEntity(user));

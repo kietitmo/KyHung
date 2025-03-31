@@ -34,6 +34,16 @@ export const successCode = {
 		httpStatusCode: 200,
 		message: 'Logged in',
 	},
+	USER_ADDED_FAVORITE_PRODUCT: {
+		code: 1,
+		httpStatusCode: 200,
+		message: 'User added favorite product successfully',
+	},
+	USER_REMOVED_FAVORITE_PRODUCT: {
+		code: 1,
+		httpStatusCode: 200,
+		message: 'User removed favorite product successfully',
+	},
 };
 
 export const errorCode = {

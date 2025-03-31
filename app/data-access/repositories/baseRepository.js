@@ -12,7 +12,6 @@ class BaseRepository {
 	}
 
 	async findOne(condition) {
-		console.log('this.model', this.model);
 		return this.model.findOne(condition);
 	}
 

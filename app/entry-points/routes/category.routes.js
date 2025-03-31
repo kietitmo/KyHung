@@ -7,7 +7,7 @@ import {
 import Role from '../../domain/models/role.enum.js';
 
 const router = express.Router();
-const categoryController = new CategoryController()
+const categoryController = new CategoryController();
 router.post(
 	'/',
 	verifyAccessToken,

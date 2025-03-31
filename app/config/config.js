@@ -32,6 +32,22 @@ class Config {
 	static get SALT_JWT() {
 		return process.env.SALT_JWT;
 	}
+
+	static get EMAIL_REGEXP() {
+		return new RegExp(process.env.EMAIL_REGEXP);
+	}
+
+	static get PASSWORD_REGEXP() {
+		return new RegExp(process.env.PASSWORD_REGEXP);
+	}
+
+	static get PASSWORD_MIN_LENGTH() {
+		return new RegExp(process.env.PASSWORD_MIN_LENGTH);
+	}
+
+	static get FULL_NAME_REGEXP() {
+		return new RegExp(process.env.FULL_NAME_REGEXP);
+	}
 }
 
 export default Config;

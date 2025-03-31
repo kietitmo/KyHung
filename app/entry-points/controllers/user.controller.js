@@ -1,10 +1,10 @@
 import UserService from '../../domain/services/user.service.js';
 import APIResponse from '../../domain/custom/apiResponse.js';
-import CreateUserDTO from '../../domain/dto/createUserDTO.js';
-import UserDTO from '../../domain/dto/userDTO.js';
+import CreateUserDTO from '../../domain/dto/user/createUserDTO.js';
+import UserDTO from '../../domain/dto/user/userDTO.js';
 import GetAllRequestDTO from '../../domain/dto/getAllRequestDTO.js';
 import { successCode } from '../../utils/userResponseCode.js';
-import UpdateUserDTO from '../../domain/dto/updateUserDTO.js';
+import UpdateUserDTO from '../../domain/dto/user/updateUserDTO.js';
 
 class UserController {
 	constructor() {
