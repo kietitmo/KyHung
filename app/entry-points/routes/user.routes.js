@@ -11,6 +11,7 @@ import {
 	validateUpdateUser,
 	validateGetUser,
 	validateDeleteUser,
+	validateGetOneUser,
 } from '../middlewares/validators/user.validator.js';
 import { validateLogin } from '../middlewares/validators/auth.validator.js';
 import Role from '../../domain/models/role.enum.js';
@@ -31,6 +32,14 @@ router.get(
 	// authorize([Role.ADMIN]),
 	validateGetUser,
 	userController.getUsers.bind(userController)
+);
+
+router.get(
+	'/:email',
+	verifyAccessToken,
+	authorize([Role.ADMIN]),
+	validateGetOneUser,
+	userController.getUserByEmail.bind(userController)
 );
 
 router.post(

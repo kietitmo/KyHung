@@ -14,7 +14,8 @@ class ProductService {
 		const products = await this.productRepository.findAllWithFilterAndPagination(
 			getAllRequest.filter,
 			getAllRequest.limit,
-			offset
+			offset,
+			['category']
 		);
 		const total = await this.productRepository.count();
 		const totalPages = Math.ceil(total / getAllRequest.limit);
@@ -33,7 +34,7 @@ class ProductService {
 	}
 
 	async getProductById(id) {
-		const product = await this.productRepository.findOne({ _id: id });
+		const product = await this.productRepository.findOne({ _id: id }, ['category']);
 		if (!product) {
 			throw new CustomError(errorCode.PRODUCT_NOT_FOUND);
 		}

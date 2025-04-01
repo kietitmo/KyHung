@@ -1,13 +1,15 @@
-// userDTO.js
-import ProductDTO from '../product/productDTO.js'; // Đảm bảo bạn có ProductDTO để chuyển đổi sản phẩm
+import ProductDTO from '../product/productDTO.js';
 
 class UserDTO {
 	constructor(user) {
 		this.fullName = user.fullName;
 		this.email = user.email;
+		this.role = user.role;
 		this.favoriteProducts = user.favoriteProducts.map((product) =>
 			ProductDTO.fromEntity(product)
 		);
+		this.createdAt = user.createdAt;
+		this.updatedAt = user.updatedAt;
 	}
 
 	static fromEntity(user) {

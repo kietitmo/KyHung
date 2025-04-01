@@ -6,14 +6,14 @@ class UserRepository extends BaseRepository {
 		super(User);
 	}
 
-	async findAllWithFilterAndPagination(filter = {}, limit = 10, offset = 0) {
-		return this.model
-			.find(filter)
-			.skip(offset)
-			.limit(limit)
-			.populate('favoriteProducts')
-			.exec();
-	}
+	// async findAllWithFilterAndPagination(filter = {}, limit = 10, offset = 0) {
+	// 	return this.model
+	// 		.find(filter)
+	// 		.skip(offset)
+	// 		.limit(limit)
+	// 		.populate('favoriteProducts')
+	// 		.exec();
+	// }
 }
 
 export default UserRepository;

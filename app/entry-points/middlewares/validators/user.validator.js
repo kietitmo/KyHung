@@ -40,7 +40,7 @@ const validateUpdateUser = (req, res, next) => {
 		fullName &&
 		(typeof fullName !== 'string' ||
 			fullName.trim().length === 0 ||
-			!FULL_NAME_REGEXP.test(fullName))
+			!Config.FULL_NAME_REGEXP.test(fullName))
 	) {
 		throw new CustomError(errorCode.USER_FULL_NAME_INVALID);
 	}
@@ -53,7 +53,7 @@ const validateUpdateUser = (req, res, next) => {
 		if (password.length < Config.PASSWORD_MIN_LENGTH) {
 			throw new CustomError(errorCode.USER_PASSWORD_INVALID);
 		}
-		if (!PASSWORD_REGEXP.test(password)) {
+		if (!Config.PASSWORD_REGEXP.test(password)) {
 			throw new CustomError(errorCode.USER_PASSWORD_INVALID);
 		}
 	}
@@ -62,6 +62,14 @@ const validateUpdateUser = (req, res, next) => {
 };
 
 const validateDeleteUser = (req, res, next) => {
+	if (req.params.email && !Config.EMAIL_REGEXP.test(req.params.email)) {
+		throw new CustomError(errorCode.USER_EMAIL_INVALID);
+	}
+
+	next();
+};
+
+const validateGetOneUser = (req, res, next) => {
 	if (req.params.email && !Config.EMAIL_REGEXP.test(req.params.email)) {
 		throw new CustomError(errorCode.USER_EMAIL_INVALID);
 	}
@@ -89,4 +97,5 @@ export {
 	validateUpdateUser,
 	validateDeleteUser,
 	validateGetUser,
+	validateGetOneUser
 };

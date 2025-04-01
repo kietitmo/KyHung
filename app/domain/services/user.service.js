@@ -15,7 +15,8 @@ class UserService {
 		const users = await this.userRepository.findAllWithFilterAndPagination(
 			getAllRequest.filter,
 			getAllRequest.limit,
-			offset
+			offset,
+			['favoriteProducts']
 		);
 
 		const total = users.length;
@@ -32,7 +33,7 @@ class UserService {
 	}
 
 	async getUserByEmail(email) {
-		const user = await this.userRepository.findOne({ email });
+		const user = await this.userRepository.findOne({ email }, ['favoriteProducts']);
 		if (!user) {
 			throw new CustomError(errorCode.USER_NOT_FOUND);
 		}
@@ -47,12 +48,12 @@ class UserService {
 		return this.userRepository.create(userData);
 	}
 
-	async updateUserByEmail({ email }, userData) {
+	async updateUserByEmail(email, userData) {
 		const user = await this.userRepository.findOne({ email });
 		if (!user) {
 			throw new CustomError(errorCode.USER_NOT_FOUND);
 		}
-		return this.userRepository.updateByEmail({ email }, userData);
+		return this.userRepository.update({ email }, userData);
 	}
 
 	async deleteUserByEmail(email) {

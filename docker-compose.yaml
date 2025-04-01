@@ -1,0 +1,27 @@
+version: '3.0'
+services:
+  # Dịch vụ cho ứng dụng Express
+  app:
+    build: .
+    container_name: express-app
+    ports:
+      - "3000:3000"   # Mở cổng 3000 cho ứng dụng Express
+    volumes:
+      - .:/usr/src/app  # Gắn thư mục làm việc để phát triển nhanh chóng
+    environment:
+      - MONGO_URI=mongodb://mongo:27017/mydatabase  # Cấu hình MongoDB
+    depends_on:
+      - mongo  # Đảm bảo rằng MongoDB được khởi động trước ứng dụng Express
+
+  # Dịch vụ cho MongoDB
+  mongo:
+    image: mongo:latest
+    container_name: mongo
+    ports:
+      - "27017:27017"  # Mở cổng 27017 để kết nối với MongoDB từ bên ngoài
+    volumes:
+      - mongo-data:/data/db  # Lưu trữ dữ liệu MongoDB vào volume để dữ liệu không bị mất khi container khởi động lại
+
+# Volume cho MongoDB
+volumes:
+  mongo-data:

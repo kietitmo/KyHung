@@ -1,8 +1,10 @@
+import CategoryDTO from "../category/categoryDTO.js";
+
 class ProductDTO {
 	constructor(product) {
 	  this.id = product._id;
 	  this.name = product.name;
-	  this.category = product.category;
+	  this.category = CategoryDTO.fromEntity(product.category);
 	  this.price = product.price;
 	  this.description = product.description;
 	  this.imageUrl = product.imageUrl;

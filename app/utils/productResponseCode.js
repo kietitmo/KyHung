@@ -77,4 +77,19 @@ export const errorCode = {
 		httpStatusCode: 400,
 		message: 'Product not in favorite',
 	},
+	PRODUCT_PRICE_INVALID: {
+		code: 102,
+		httpStatusCode: 400,
+		message: 'Product price invalid',
+	},
+	PRODUCT_IMAGE_URL_INVALID: {
+		code: 102,
+		httpStatusCode: 400,
+		message: 'Product image url invalid'
+	},
+	PRODUCT_VIDEO_URL_INVALID: {
+		code: 102,
+		httpStatusCode: 400,
+		message: 'Product video url invalid',
+	},
 };

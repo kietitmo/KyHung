@@ -5,12 +5,6 @@ import Config from '../../../config/config.js';
 const validateLogin = (req, res, next) => {
 	const { email, password } = req.body;
 
-	console.log(
-		email,
-		password,
-		Config.EMAIL_REGEXP,
-		!Config.EMAIL_REGEXP.test(email)
-	);
 	if (!email || !Config.EMAIL_REGEXP.test(email)) {
 		throw new CustomError(errorCode.USER_EMAIL_INVALID);
 	}

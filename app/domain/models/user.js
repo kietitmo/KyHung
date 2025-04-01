@@ -3,7 +3,7 @@ import bcrypt from 'bcryptjs';
 import Role from './role.enum.js';
 const userSchema = new mongoose.Schema(
 	{
-		fullName: { type: String, required: true, unique: true },
+		fullName: { type: String, required: true },
 		email: { type: String, required: true, unique: true },
 		password: { type: String, required: true },
 		role: {

@@ -48,6 +48,10 @@ class Config {
 	static get FULL_NAME_REGEXP() {
 		return new RegExp(process.env.FULL_NAME_REGEXP);
 	}
+
+	static get URL_REGEXP() {
+		return new RegExp(process.env.URL_REGEXP);
+	}
 }
 
 export default Config;
