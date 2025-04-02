@@ -116,6 +116,32 @@ class AuthService {
 		this.tokenRepository.delete({ tokenValue: token });
 		return updatedUser
 	}
+
+	async resendToken(email) {
+		let user = await this.tokenRepository.findOne({ email: email });
+		if (!user) {
+			throw new CustomError(authCode.USER_ALREADY_VERIFIED);
+		}
+
+		const token = await AuthHelper.generateVerificationToken()
+		const verificationTokenExpires = new Date(Date.now() + 24 * 60 * 60 * 1000); // 24 hours
+
+		const tokenData = {
+			tokenValue: token,
+			email: email,
+			expiresAt: verificationTokenExpires
+		}
+
+		const tokenInstance = await this.tokenRepository.findOne({ tokenValue: tokenData.tokenValue });
+		if (tokenInstance) {
+			throw new CustomError(authCode.INVALID_TOKEN);
+		}
+
+		await this.tokenRepository.create(tokenData);
+		this.sendVerificationEmail(user, token)
+
+		return user
+	}
 }
 
 export default AuthService;

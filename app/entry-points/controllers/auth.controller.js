@@ -135,6 +135,24 @@ class AuthController {
 		  next(error);
 		}
 	}	
+
+	async resendToken(req, res, next) {
+		try {
+			const email = req.params.email;
+			await this.authService.resendToken(email)
+
+			const response = APIResponse.success(
+				successCode.REGISTERED_VERIFY_CODE_SENT.code,
+				successCode.REGISTERED_VERIFY_CODE_SENT.message,
+				null
+			);
+
+			return res.status(successCode.REGISTERED_VERIFY_CODE_SENT.httpStatusCode).json(response);
+
+		} catch (error) {
+		  next(error);
+		}
+	}
 }
 
 export default AuthController;

@@ -68,4 +68,9 @@ export const errorCode = {
 		httpStatusCode: 404,
 		message: 'verify token expired',
 	},
+	USER_ALREADY_VERIFIED: {
+		code: 17,
+		httpStatusCode: 404,
+		message: 'User already verified',
+	}
 };

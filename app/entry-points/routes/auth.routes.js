@@ -24,6 +24,8 @@ router.post(
 );
 
 router.get('/verify-email/:token', authController.verifyEmail.bind(authController))
+router.get('/resend-token/:email', authController.resendToken.bind(authController))
+
 router.get('/google', googleLogin);
 
 router.get('/google/callback', verifyGoogleOauth, authController.loginGoogleOauth2.bind(authController));
