@@ -5,12 +5,13 @@ const userSchema = new mongoose.Schema(
 	{
 		fullName: { type: String, required: true },
 		email: { type: String, required: true, unique: true },
-		password: { type: String, required: true },
+		password: { type: String, required: false },
 		role: {
 			type: String,
 			enum: Object.values(Role),
 			default: Role.USER,
 		},
+		isVerified: {type: Boolean, required: true, default: false},
 		favoriteProducts: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Product' }],
 	},
 	{ timestamps: true }
@@ -18,7 +19,7 @@ const userSchema = new mongoose.Schema(
 
 userSchema.pre('save', async function (next) {
 	if (!this.isModified('password')) return next();
-	this.password = await bcrypt.hash(this.password, 10);
+	this.password = bcrypt.hash(this.password, 10);
 	next();
 });
 

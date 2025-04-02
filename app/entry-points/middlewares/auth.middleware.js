@@ -22,4 +22,10 @@ const authorize = (roles = []) => {
 	};
 };
 
-export { authorize, verifyAccessToken };
+const googleLogin = passport.authenticate('google', { scope: ['profile', 'email'] })
+const verifyGoogleOauth =  passport.authenticate('google', { 
+	failureRedirect: '/login',
+	session: false
+})
+
+export { authorize, verifyAccessToken, verifyGoogleOauth, googleLogin };

@@ -8,6 +8,7 @@ class UserDTO {
 		this.favoriteProducts = user.favoriteProducts.map((product) =>
 			ProductDTO.fromEntity(product)
 		);
+		this.isVerified = user.isVerified;
 		this.createdAt = user.createdAt;
 		this.updatedAt = user.updatedAt;
 	}

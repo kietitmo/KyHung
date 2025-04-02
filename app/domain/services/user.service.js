@@ -45,7 +45,10 @@ class UserService {
 		if (user) {
 			throw new CustomError(errorCode.USER_ALREADY_EXISTS);
 		}
-		return this.userRepository.create(userData);
+		return this.userRepository.create({
+			...userData,
+			isVerified: true
+		});
 	}
 
 	async updateUserByEmail(email, userData) {

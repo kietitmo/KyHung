@@ -52,6 +52,31 @@ class Config {
 	static get URL_REGEXP() {
 		return new RegExp(process.env.URL_REGEXP);
 	}
+
+	
+	static get GOOGLE_CLIENT_ID() {
+		return process.env.GOOGLE_CLIENT_ID;
+	}
+
+	static get GOOGLE_CLIENT_SECRET() {
+		return process.env.GOOGLE_CLIENT_SECRET;
+	}
+
+	static get MAIL_SERVICE() {
+		return process.env.MAIL_SERVICE;
+	}
+
+	static get MAIL_USER() {
+		return process.env.MAIL_USER;
+	}	
+
+	static get MAIL_PASSWORD() {
+		return process.env.MAIL_PASSWORD;
+	}
+
+	static get APP_HOST() {
+		return process.env.APP_HOSTNAME;
+	}
 }
 
 export default Config;
