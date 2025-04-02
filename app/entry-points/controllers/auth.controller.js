@@ -121,7 +121,6 @@ class AuthController {
 			const token = req.params.token;
 			
 			const updatedUser = await this.authService.verifyEmail(token)
-			console.log(updatedUser)
 			const responseUser = UserDTO.fromEntity(updatedUser)
 
 			const response = APIResponse.success(
