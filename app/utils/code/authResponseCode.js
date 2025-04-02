@@ -9,17 +9,21 @@ export const successCode = {
 		httpStatusCode: 200,
 		message: 'Verified token is sent to your email',
 	},
-	REGISTERED: {
+	EMAIL_VERIFIED: {
 		code: 1,
 		httpStatusCode: 200,
-		message: 'registered successfully',
+		message: 'email verified successfully',
 	},
 	ACCESS_TOKEN_REFRESH: {
 		code: 1,
 		httpStatusCode: 200,
 		message: 'Access token is refreshed successfully',
 	},
-	
+	FORGOT_PASSWORD_VERIFY_EMAIL_SENT: {
+		code: 1,
+		httpStatusCode: 200,
+		message: 'Forgot password letter is sent to your email',
+	},
 };
 
 export const errorCode = {
@@ -72,5 +76,10 @@ export const errorCode = {
 		code: 17,
 		httpStatusCode: 404,
 		message: 'User already verified',
-	}
+	},
+	INVALID_EMAIL_TEMPLATE: {
+		code: 14,
+		httpStatusCode: 401,
+		message: 'Invalid email template',
+	},
 };

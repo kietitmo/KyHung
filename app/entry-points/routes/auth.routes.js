@@ -2,9 +2,12 @@ import express from 'express';
 import AuthController from '../controllers/auth.controller.js';
 import {
 	verifyGoogleOauth,
-	googleLogin
+	googleLogin,
 } from '../middlewares/auth.middleware.js';
-import { validateLogin, validateRegister } from '../middlewares/validators/auth.validator.js';
+import {
+	validateLogin,
+	validateRegister,
+} from '../middlewares/validators/auth.validator.js';
 
 const router = express.Router();
 
@@ -23,12 +26,27 @@ router.post(
 	authController.refreshAccessToken.bind(authController).bind(authController)
 );
 
-router.get('/verify-email/:token', authController.verifyEmail.bind(authController))
-router.get('/resend-token/:email', authController.resendToken.bind(authController))
+router.get(
+	'/verify-email/:token',
+	authController.verifyEmail.bind(authController)
+);
+
+router.get(
+	'/resend-token/:email',
+	authController.resendToken.bind(authController)
+);
+
+router.get(
+	'/forgot-password/:email',
+	authController.forgotPassword.bind(authController)
+);
 
 router.get('/google', googleLogin);
 
-router.get('/google/callback', verifyGoogleOauth, authController.loginGoogleOauth2.bind(authController));
+router.get(
+	'/google/callback',
+	verifyGoogleOauth,
+	authController.loginGoogleOauth2.bind(authController)
+);
 
 export default router;
-

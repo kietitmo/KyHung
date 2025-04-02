@@ -1,8 +1,8 @@
 import UserRepository from '../../data-access/repositories/userRepository.js';
 import ProductRepository from '../../data-access/repositories/productRepository.js';
 import UserDTO from '../dto/user/userDTO.js';
-import { errorCode as userCode } from '../../utils/userResponseCode.js';
-import { errorCode as productCode } from '../../utils/productResponseCode.js';
+import { errorCode as userCode } from '../../utils/code/userResponseCode.js';
+import { errorCode as productCode } from '../../utils/code/productResponseCode.js';
 import CustomError from '../custom/customError.js';
 
 class FavoriteProductService {

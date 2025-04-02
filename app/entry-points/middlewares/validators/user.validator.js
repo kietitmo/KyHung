@@ -1,5 +1,5 @@
 import CustomError from '../../../domain/custom/customError.js';
-import { errorCode } from '../../../utils/userResponseCode.js';
+import { errorCode } from '../../../utils/code/userResponseCode.js';
 import Config from '../../../config/config.js';
 
 const validateCreateUser = (req, res, next) => {
@@ -97,5 +97,5 @@ export {
 	validateUpdateUser,
 	validateDeleteUser,
 	validateGetUser,
-	validateGetOneUser
+	validateGetOneUser,
 };

@@ -53,7 +53,6 @@ class Config {
 		return new RegExp(process.env.URL_REGEXP);
 	}
 
-	
 	static get GOOGLE_CLIENT_ID() {
 		return process.env.GOOGLE_CLIENT_ID;
 	}
@@ -68,7 +67,7 @@ class Config {
 
 	static get MAIL_USER() {
 		return process.env.MAIL_USER;
-	}	
+	}
 
 	static get MAIL_PASSWORD() {
 		return process.env.MAIL_PASSWORD;

@@ -3,10 +3,10 @@ import APIResponse from '../../domain/custom/apiResponse.js';
 import CreateUserDTO from '../../domain/dto/user/createUserDTO.js';
 import UserDTO from '../../domain/dto/user/userDTO.js';
 import GetAllRequestDTO from '../../domain/dto/getAllRequestDTO.js';
-import { successCode } from '../../utils/userResponseCode.js';
+import { successCode } from '../../utils/code/userResponseCode.js';
 import UpdateUserDTO from '../../domain/dto/user/updateUserDTO.js';
-import CustomError from '../../domain/custom/customError.js'
-import Role from '../../domain/models/role.enum.js'
+import CustomError from '../../domain/custom/customError.js';
+import Role from '../../domain/models/role.enum.js';
 class UserController {
 	constructor() {
 		this.userService = new UserService();
@@ -46,7 +46,7 @@ class UserController {
 	async getUserByEmail(req, res, next) {
 		try {
 			if (req.user.role === Role.USER && req.user.email !== req.params.email) {
-				throw new CustomError(errorCode.FORBIDDEN)
+				throw new CustomError(errorCode.FORBIDDEN);
 			}
 
 			const user = await this.userService.getUserByEmail(req.params.email);
@@ -65,7 +65,7 @@ class UserController {
 	async updateUserByEmail(req, res, next) {
 		try {
 			if (req.user.role === Role.USER && req.user.email !== req.params.email) {
-				throw new CustomError(errorCode.FORBIDDEN)
+				throw new CustomError(errorCode.FORBIDDEN);
 			}
 
 			const updateUser = UpdateUserDTO.fromRequest(req.body);

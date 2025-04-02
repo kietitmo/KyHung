@@ -1,5 +1,5 @@
 import CustomError from '../../../domain/custom/customError.js';
-import { errorCode } from '../../../utils/userResponseCode.js';
+import { errorCode } from '../../../utils/code/userResponseCode.js';
 import Config from '../../../config/config.js';
 
 const validateLogin = (req, res, next) => {
@@ -41,6 +41,5 @@ const validateRegister = (req, res, next) => {
 
 	next();
 };
-
 
 export { validateLogin, validateRegister };

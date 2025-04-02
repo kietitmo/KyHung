@@ -1,6 +1,6 @@
 import FavoriteProductService from '../../domain/services/favoriteProductservice.js';
 import APIResponse from '../../domain/custom/apiResponse.js';
-import { successCode } from '../../utils/userResponseCode.js';
+import { successCode } from '../../utils/code/userResponseCode.js';
 import FavoriteProductDTO from '../../domain/dto/favoriteProduct/favoriteProductDTO.js';
 
 class FavoriteProductController {

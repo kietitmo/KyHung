@@ -1,7 +1,7 @@
 import ProductRepository from '../../data-access/repositories/productRepository.js';
 import Pagination from '../custom/pagination.js';
 import ProductDTO from '../dto/product/productDTO.js';
-import { errorCode } from '../../utils/productResponseCode.js';
+import { errorCode } from '../../utils/code/productResponseCode.js';
 import CustomError from '../custom/customError.js';
 
 class ProductService {
@@ -34,7 +34,9 @@ class ProductService {
 	}
 
 	async getProductById(id) {
-		const product = await this.productRepository.findOne({ _id: id }, ['category']);
+		const product = await this.productRepository.findOne({ _id: id }, [
+			'category',
+		]);
 		if (!product) {
 			throw new CustomError(errorCode.PRODUCT_NOT_FOUND);
 		}

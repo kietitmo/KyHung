@@ -42,6 +42,10 @@ class BaseRepository {
 	async delete(condition) {
 		return this.model.findOneAndDelete(condition);
 	}
+
+	async deleteMany(condition) {
+		return this.model.deleteMany(condition);
+	}
 }
 
 export default BaseRepository;

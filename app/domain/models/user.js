@@ -11,7 +11,7 @@ const userSchema = new mongoose.Schema(
 			enum: Object.values(Role),
 			default: Role.USER,
 		},
-		isVerified: {type: Boolean, required: true, default: false},
+		isVerified: { type: Boolean, required: true, default: false },
 		favoriteProducts: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Product' }],
 	},
 	{ timestamps: true }

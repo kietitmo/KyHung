@@ -6,7 +6,7 @@
 // 	constructor() {
 // 		this.tokenRepository = new TokenRepository();
 // 	}
-	
+
 // 	async createToken(tokenData) {
 // 		const tokenInstance = await this.tokenRepository.findOne({ tokenValue: tokenData.tokenValue });
 // 		if (tokenInstance) {

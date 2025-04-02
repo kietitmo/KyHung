@@ -1,6 +1,6 @@
 import AuthService from '../../domain/services/auth.service.js';
 import APIResponse from '../../domain/custom/apiResponse.js';
-import { errorCode, successCode } from '../../utils/authResponseCode.js';
+import { errorCode, successCode } from '../../utils/code/authResponseCode.js';
 import CustomError from '../../domain/custom/customError.js';
 import LoginRequestDTO from '../../domain/dto/auth/loginRequestDTO.js';
 import RefreshTokenRequestDTO from '../../domain/dto/auth/refreshTokenRequestDTO.js';
@@ -49,7 +49,7 @@ class AuthController {
 	async register(req, res, next) {
 		try {
 			const registerRequestDTO = RegisterRequestDTO.fromRequest(req.body);
-			const user = await this.authService.register(registerRequestDTO)
+			const user = await this.authService.register(registerRequestDTO);
 			const registerResponseDTO = new RegisterResponseDTO(user);
 
 			const response = APIResponse.success(
@@ -57,7 +57,9 @@ class AuthController {
 				successCode.REGISTERED_VERIFY_CODE_SENT.message,
 				registerResponseDTO
 			);
-			return res.status(successCode.REGISTERED_VERIFY_CODE_SENT.httpStatusCode).json(response);
+			return res
+				.status(successCode.REGISTERED_VERIFY_CODE_SENT.httpStatusCode)
+				.json(response);
 		} catch (error) {
 			next(error);
 		}
@@ -92,10 +94,10 @@ class AuthController {
 
 	async loginGoogleOauth2(req, res, next) {
 		try {
-			const payload = { email: req.user.email, role: req.user.role }
+			const payload = { email: req.user.email, role: req.user.role };
 
-			const accessToken = await AuthHelper.generateAccessToken(payload) 
-			const refreshToken = await AuthHelper.generateRefreshToken(payload) 
+			const accessToken = await AuthHelper.generateAccessToken(payload);
+			const refreshToken = await AuthHelper.generateRefreshToken(payload);
 
 			res.cookie('refreshToken', refreshToken, {
 				httpOnly: true,
@@ -119,27 +121,26 @@ class AuthController {
 	async verifyEmail(req, res, next) {
 		try {
 			const token = req.params.token;
-			
-			const updatedUser = await this.authService.verifyEmail(token)
-			const responseUser = UserDTO.fromEntity(updatedUser)
+
+			const updatedUser = await this.authService.verifyEmail(token);
+			const responseUser = UserDTO.fromEntity(updatedUser);
 
 			const response = APIResponse.success(
-				successCode.REGISTERED.code,
-				successCode.REGISTERED.message,
+				successCode.EMAIL_VERIFIED.code,
+				successCode.EMAIL_VERIFIED.message,
 				responseUser
 			);
 
-			return res.status(successCode.REGISTERED.httpStatusCode).json(response);
-
+			return res.status(successCode.EMAIL_VERIFIED.httpStatusCode).json(response);
 		} catch (error) {
-		  next(error);
+			next(error);
 		}
-	}	
+	}
 
 	async resendToken(req, res, next) {
 		try {
 			const email = req.params.email;
-			await this.authService.resendToken(email)
+			await this.authService.resendToken(email);
 
 			const response = APIResponse.success(
 				successCode.REGISTERED_VERIFY_CODE_SENT.code,
@@ -147,10 +148,29 @@ class AuthController {
 				null
 			);
 
-			return res.status(successCode.REGISTERED_VERIFY_CODE_SENT.httpStatusCode).json(response);
-
+			return res
+				.status(successCode.REGISTERED_VERIFY_CODE_SENT.httpStatusCode)
+				.json(response);
 		} catch (error) {
-		  next(error);
+			next(error);
+		}
+	}
+
+	async forgotPassword(req, res, next) {
+		try {
+			const email = req.params.email;
+			await this.authService.forgotPassword(email);
+
+			const response = APIResponse.success(
+				successCode.FORGOT_PASSWORD_VERIFY_EMAIL_SENT.code,
+				successCode.FORGOT_PASSWORD_VERIFY_EMAIL_SENT.message,
+				null
+			);
+			return res
+				.status(successCode.FORGOT_PASSWORD_VERIFY_EMAIL_SENT.httpStatusCode)
+				.json(response);
+		} catch (error) {
+			next(error);
 		}
 	}
 }

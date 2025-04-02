@@ -1,33 +1,23 @@
 import CustomError from '../../../domain/custom/customError.js';
-import { errorCode } from '../../../utils/productResponseCode.js';
+import { errorCode } from '../../../utils/code/productResponseCode.js';
 import Config from '../../../config/config.js';
 
 const validateCreateProduct = (req, res, next) => {
-	const { name, price, imageUrl, videoUrl} = req.body;
+	const { name, price, imageUrl, videoUrl } = req.body;
 
-	if (
-		!name ||
-		typeof name !== 'string' ||
-		name.trim().length === 0
-	) {
+	if (!name || typeof name !== 'string' || name.trim().length === 0) {
 		throw new CustomError(errorCode.PRODUCT_FULL_NAME_INVALID);
 	}
 
-	if (
-		typeof price === 'string' 
-	) {
+	if (typeof price === 'string') {
 		throw new CustomError(errorCode.PRODUCT_PRICE_INVALID);
 	}
 
-    if (
-		imageUrl && !Config.URL_REGEXP.test(imageUrl)
-	) {
+	if (imageUrl && !Config.URL_REGEXP.test(imageUrl)) {
 		throw new CustomError(errorCode.PRODUCT_IMAGE_URL_INVALID);
 	}
 
-    if (
-		videoUrl && !Config.URL_REGEXP.test(videoUrl)
-	) {
+	if (videoUrl && !Config.URL_REGEXP.test(videoUrl)) {
 		throw new CustomError(errorCode.PRODUCT_VIDEO_URL_INVALID);
 	}
 
@@ -35,36 +25,26 @@ const validateCreateProduct = (req, res, next) => {
 };
 
 const validateUpdateProduct = (req, res, next) => {
-	const { name, price, imageUrl, videoUrl} = req.body;
-    const productId = req.params.id
+	const { name, price, imageUrl, videoUrl } = req.body;
+	const productId = req.params.id;
 
-    if (!productId) {
-        throw new CustomError(errorCode.PRODUCT_BAD_REQUEST)
-    }
+	if (!productId) {
+		throw new CustomError(errorCode.PRODUCT_BAD_REQUEST);
+	}
 
-	if (
-		!name ||
-		typeof name !== 'string' ||
-		name.trim().length === 0
-	) {
+	if (!name || typeof name !== 'string' || name.trim().length === 0) {
 		throw new CustomError(errorCode.PRODUCT_FULL_NAME_INVALID);
 	}
 
-	if (
-		typeof price === 'string' 
-	) {
+	if (typeof price === 'string') {
 		throw new CustomError(errorCode.PRODUCT_PRICE_INVALID);
 	}
 
-    if (
-		imageUrl && !Config.URL_REGEXP.test(imageUrl)
-	) {
+	if (imageUrl && !Config.URL_REGEXP.test(imageUrl)) {
 		throw new CustomError(errorCode.PRODUCT_IMAGE_URL_INVALID);
 	}
 
-    if (
-		videoUrl && !Config.URL_REGEXP.test(videoUrl)
-	) {
+	if (videoUrl && !Config.URL_REGEXP.test(videoUrl)) {
 		throw new CustomError(errorCode.PRODUCT_VIDEO_URL_INVALID);
 	}
 
@@ -86,8 +66,4 @@ const validateGetProduct = (req, res, next) => {
 	next();
 };
 
-export {
-	validateCreateProduct,
-	validateUpdateProduct,
-	validateGetProduct,
-};
+export { validateCreateProduct, validateUpdateProduct, validateGetProduct };

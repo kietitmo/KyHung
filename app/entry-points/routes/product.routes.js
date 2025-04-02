@@ -5,7 +5,7 @@ import {
 	authorize,
 } from '../middlewares/auth.middleware.js';
 import Role from '../../domain/models/role.enum.js';
-import { 	
+import {
 	validateCreateProduct,
 	validateUpdateProduct,
 	validateGetProduct,
@@ -22,7 +22,11 @@ router.post(
 	productController.createProduct.bind(productController)
 );
 
-router.get('/', validateGetProduct, productController.getProducts.bind(productController));
+router.get(
+	'/',
+	validateGetProduct,
+	productController.getProducts.bind(productController)
+);
 
 router.get('/:id', productController.getProductById.bind(productController));
 

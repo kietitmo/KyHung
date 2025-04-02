@@ -1,6 +1,6 @@
 import passport from 'passport';
 import CustomError from '../../domain/custom/customError.js';
-import { errorCode } from '../../utils/userResponseCode.js';
+import { errorCode } from '../../utils/code/userResponseCode.js';
 
 const verifyAccessToken = passport.authenticate('jwt', {
 	session: false,
@@ -22,10 +22,12 @@ const authorize = (roles = []) => {
 	};
 };
 
-const googleLogin = passport.authenticate('google', { scope: ['profile', 'email'] })
-const verifyGoogleOauth =  passport.authenticate('google', { 
+const googleLogin = passport.authenticate('google', {
+	scope: ['profile', 'email'],
+});
+const verifyGoogleOauth = passport.authenticate('google', {
 	failureRedirect: '/login',
-	session: false
-})
+	session: false,
+});
 
 export { authorize, verifyAccessToken, verifyGoogleOauth, googleLogin };

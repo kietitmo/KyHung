@@ -3,7 +3,7 @@ import APIResponse from '../../domain/custom/apiResponse.js';
 import CreateProductDTO from '../../domain/dto/product/createProductDTO.js';
 import ProductDTO from '../../domain/dto/product/productDTO.js';
 import GetAllRequestDTO from '../../domain/dto/getAllRequestDTO.js';
-import { successCode } from '../../utils/productResponseCode.js';
+import { successCode } from '../../utils/code/productResponseCode.js';
 import UpdateProductDTO from '../../domain/dto/product/updateProductDTO.js';
 
 class ProductController {

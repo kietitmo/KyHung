@@ -1,6 +1,6 @@
 import CategoryService from '../../domain/services/category.service.js';
 import APIResponse from '../../domain/custom/apiResponse.js';
-import { successCode } from '../../utils/categoryResponseCode.js';
+import { successCode } from '../../utils/code/categoryResponseCode.js';
 import CreateCategoryDTO from '../../domain/dto/category/createCategoryDTO.js';
 import GetAllRequestDTO from '../../domain/dto/getAllRequestDTO.js';
 import UpdateCategoryDTO from '../../domain/dto/category/updateCategoryDTO.js';

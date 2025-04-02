@@ -1,7 +1,7 @@
 import UserRepository from '../../data-access/repositories/userRepository.js';
 import Pagination from '../custom/pagination.js';
 import UserDTO from '../dto/user/userDTO.js';
-import { errorCode } from '../../utils/userResponseCode.js';
+import { errorCode } from '../../utils/code/userResponseCode.js';
 import CustomError from '../custom/customError.js';
 
 class UserService {
@@ -33,7 +33,9 @@ class UserService {
 	}
 
 	async getUserByEmail(email) {
-		const user = await this.userRepository.findOne({ email }, ['favoriteProducts']);
+		const user = await this.userRepository.findOne({ email }, [
+			'favoriteProducts',
+		]);
 		if (!user) {
 			throw new CustomError(errorCode.USER_NOT_FOUND);
 		}
@@ -47,7 +49,7 @@ class UserService {
 		}
 		return this.userRepository.create({
 			...userData,
-			isVerified: true
+			isVerified: true,
 		});
 	}
 

@@ -1,15 +1,16 @@
-import jwt from 'jsonwebtoken';
 import bcrypt from 'bcryptjs';
 import UserRepository from '../../data-access/repositories/userRepository.js';
 import dotenv from 'dotenv';
-import { errorCode as userCode } from '../../utils/userResponseCode.js';
-import { errorCode as authCode } from '../../utils/authResponseCode.js';
+import { errorCode as userCode } from '../../utils/code/userResponseCode.js';
+import { errorCode as authCode } from '../../utils/code/authResponseCode.js';
 
 import CustomError from '../custom/customError.js';
 import Config from '../../config/config.js';
-import AuthHelper from '../../utils/authHelpper.js'
-import sendEmail from '../../utils/mailer.js'
+import AuthHelper from '../../utils/authHelpper.js';
+import sendEmail from '../../utils/mailer.js';
 import TokenRepository from '../../data-access/repositories/tokenRepository.js';
+import EmailTemplateFactory from '../email-templates/emailTemplateFactory.js';
+
 dotenv.config();
 
 class AuthService {
@@ -31,8 +32,8 @@ class AuthService {
 		}
 
 		const payload = { email: user.email, role: user.role };
-		const accessToken = await AuthHelper.generateAccessToken(payload)
-		const refreshToken = await AuthHelper.generateRefreshToken(payload)
+		const accessToken = await AuthHelper.generateAccessToken(payload);
+		const refreshToken = await AuthHelper.generateRefreshToken(payload);
 
 		return { accessToken, refreshToken };
 	}
@@ -43,31 +44,46 @@ class AuthService {
 			throw new CustomError(userCode.USER_EXISTS);
 		}
 
-		const token = await AuthHelper.generateVerificationToken()
+		const token = await AuthHelper.generateVerificationToken();
 		const verificationTokenExpires = new Date(Date.now() + 24 * 60 * 60 * 1000); // 24 hours
 
 		const tokenData = {
 			tokenValue: token,
 			email: userData.email,
-			expiresAt: verificationTokenExpires
-		}
+			expiresAt: verificationTokenExpires,
+		};
 
-		const tokenInstance = await this.tokenRepository.findOne({ tokenValue: tokenData.tokenValue });
+		const tokenInstance = await this.tokenRepository.findOne({
+			tokenValue: tokenData.tokenValue,
+		});
 		if (tokenInstance) {
 			throw new CustomError(authCode.INVALID_TOKEN);
 		}
 
 		await this.tokenRepository.create(tokenData);
 		user = await this.userRepository.create(userData);
-		this.sendVerificationEmail(user, token)
 
-		return user
+		const verificationUrl = `http://${Config.APP_HOSTNAME || 'localhost:5001'}/api/auth/verify-email/${token}`;
+		const template = EmailTemplateFactory.getTemplate('register', {
+			url: verificationUrl,
+			user: user,
+		});
+
+		console.log('Suppose sent email, verification link: ', verificationUrl);
+		console.log(template);
+
+		sendEmail(user.email, 'Verify your email', template);
+
+		return user;
 	}
 
 	static async refreshAccessToken(refreshToken) {
 		try {
-			const decoded = await AuthHelper.verifyRefreshToken(refreshToken)
-			const newAccessToken = await AuthHelper.generateAccessToken({ email: decoded.email, role: decoded.role })
+			const decoded = await AuthHelper.verifyRefreshToken(refreshToken);
+			const newAccessToken = await AuthHelper.generateAccessToken({
+				email: decoded.email,
+				role: decoded.role,
+			});
 
 			return newAccessToken;
 		} catch (err) {
@@ -75,72 +91,102 @@ class AuthService {
 		}
 	}
 
-	async sendVerificationEmail (user, token) {
-		const verificationUrl = `http://${Config.APP_HOSTNAME || 'localhost:5000'}/api/auth/verify-email/${token}`;
-		const to = user.email;
-		const subject= 'Email Verification';
-		const html= `
-			<h1>Email Verification</h1>
-			<p>Hello ${user.fullName || user.email},</p>
-			<p>Thank you for registering. Please verify your email by clicking the button below:</p>
-			<a href="${verificationUrl}" style="display: inline-block; background-color: #4CAF50; color: white; padding: 10px 20px; text-decoration: none; border-radius: 4px;">Verify Email</a>
-			<p>Or copy and paste the following link in your browser:</p>
-			<p>${verificationUrl}</p>
-			<p>This link will expire in 24 hours.</p>
-			<p>If you didn't register for an account, please ignore this email.</p>
-		`
-		// suppose sent email
-		console.log("Suppose sent email, verification link: ", verificationUrl)
-		// sendEmail(to, subject, html);
-	};
-
 	async verifyEmail(token) {
-		const tokenInstance = await this.tokenRepository.findOne({ tokenValue: token });
+		const tokenInstance = await this.tokenRepository.findOne({
+			tokenValue: token,
+		});
+
 		if (!tokenInstance) {
 			throw new CustomError(authCode.VERIFY_TOKEN_NOT_FOUND);
 		}
-					
+
 		if (tokenInstance.expiresAt < Date.now()) {
 			throw new CustomError(authCode.VERIFY_TOKEN_EXPIRED);
 		}
-	
-		const user = await this.userRepository.findOne({ email:tokenInstance.email });
-		
+
+		const user = await this.userRepository.findOne({
+			email: tokenInstance.email,
+		});
+
 		if (!user) {
 			throw new CustomError(userCode.USER_NOT_FOUND);
 		}
-		
+
 		user.isVerified = true;
-		const updatedUser = await this.userRepository.update({email: user.email}, user);
-		
-		this.tokenRepository.delete({ tokenValue: token });
-		return updatedUser
+		const updatedUser = await this.userRepository.update(
+			{ email: user.email },
+			user
+		);
+
+		this.tokenRepository.deleteMany({ email: tokenInstance.email });
+		return updatedUser;
 	}
 
 	async resendToken(email) {
-		let user = await this.tokenRepository.findOne({ email: email });
-		if (!user) {
+		let token = await this.tokenRepository.findOne({ email: email });
+		if (!token) {
 			throw new CustomError(authCode.USER_ALREADY_VERIFIED);
 		}
 
-		const token = await AuthHelper.generateVerificationToken()
+		const user = this.userRepository.findOne({ email: email });
+		if (!user) {
+			throw new CustomError(userCode.USER_NOT_FOUND);
+		}
+
+		const newToken = await AuthHelper.generateVerificationToken();
 		const verificationTokenExpires = new Date(Date.now() + 24 * 60 * 60 * 1000); // 24 hours
 
 		const tokenData = {
-			tokenValue: token,
+			tokenValue: newToken,
 			email: email,
-			expiresAt: verificationTokenExpires
-		}
-
-		const tokenInstance = await this.tokenRepository.findOne({ tokenValue: tokenData.tokenValue });
-		if (tokenInstance) {
-			throw new CustomError(authCode.INVALID_TOKEN);
-		}
+			expiresAt: verificationTokenExpires,
+		};
 
 		await this.tokenRepository.create(tokenData);
-		this.sendVerificationEmail(user, token)
 
-		return user
+		const verificationUrl = `http://${Config.APP_HOSTNAME || 'localhost:5001'}/api/auth/verify-email/${newToken}`;
+		const template = EmailTemplateFactory.getTemplate('register', {
+			url: verificationUrl,
+			user: user,
+		});
+
+		console.log('Suppose sent email, verification link: ', verificationUrl);
+		console.log(template);
+
+		sendEmail(user.email, 'Verify your email', template);
+
+		return user;
+	}
+
+	async forgotPassword(email) {
+		const user = this.userRepository.findOne({ email: email });
+		if (!user) {
+			throw new CustomError(userCode.USER_NOT_FOUND);
+		}
+
+		const newToken = await AuthHelper.generateVerificationToken();
+		const verificationTokenExpires = new Date(Date.now() + 24 * 60 * 60 * 1000); // 24 hours
+
+		const tokenData = {
+			tokenValue: newToken,
+			email: email,
+			expiresAt: verificationTokenExpires,
+		};
+
+		await this.tokenRepository.create(tokenData);
+
+		const resetUrl = `http://${Config.APP_HOSTNAME || 'localhost:5001'}/api/auth/verify-email/${newToken}`;
+		const template = EmailTemplateFactory.getTemplate('forgotPassword', {
+			url: resetUrl,
+			user: user,
+		});
+
+		console.log('Suppose sent email, verification link: ', resetUrl);
+		console.log(template);
+
+		sendEmail(user.email, 'Verify your email', template);
+
+		return user;
 	}
 }
 

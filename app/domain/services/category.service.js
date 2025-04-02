@@ -1,7 +1,7 @@
 import CategoryRepository from '../../data-access/repositories/categoryRepository.js';
 import Pagination from '../custom/pagination.js';
 import CategoryDTO from '../dto/category/categoryDTO.js';
-import { errorCode } from '../../utils/categoryResponseCode.js';
+import { errorCode } from '../../utils/code/categoryResponseCode.js';
 import CustomError from '../custom/customError.js';
 
 class CategoryService {
