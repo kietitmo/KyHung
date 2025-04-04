@@ -4,13 +4,13 @@ import CustomError from '../../../domain/custom/customError.js';
 import { errorCode as userCode } from '../../../utils/code/userResponseCode.js';
 import { errorCode as productCode } from '../../../utils/code/productResponseCode.js';
 
-import Config from '../../../config/config.js';
+import env from '../../../config/env.js';
 import Roles from '../../../domain/models/role.enum.js';
 
 const validateFavoriteProduct = (req, res, next) => {
 	const { email, productId } = req.body;
 
-	if (!email || !Config.EMAIL_REGEXP.test(email)) {
+	if (!email || !env.EMAIL_REGEXP.test(email)) {
 		throw new CustomError(userCode.USER_EMAIL_INVALID);
 	}
 

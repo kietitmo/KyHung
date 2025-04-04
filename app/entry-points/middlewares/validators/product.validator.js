@@ -1,6 +1,6 @@
 import CustomError from '../../../domain/custom/customError.js';
 import { errorCode } from '../../../utils/code/productResponseCode.js';
-import Config from '../../../config/config.js';
+import env from '../../../config/env.js';
 
 const validateCreateProduct = (req, res, next) => {
 	const { name, price, imageUrl, videoUrl } = req.body;
@@ -13,11 +13,11 @@ const validateCreateProduct = (req, res, next) => {
 		throw new CustomError(errorCode.PRODUCT_PRICE_INVALID);
 	}
 
-	if (imageUrl && !Config.URL_REGEXP.test(imageUrl)) {
+	if (imageUrl && !env.URL_REGEXP.test(imageUrl)) {
 		throw new CustomError(errorCode.PRODUCT_IMAGE_URL_INVALID);
 	}
 
-	if (videoUrl && !Config.URL_REGEXP.test(videoUrl)) {
+	if (videoUrl && !env.URL_REGEXP.test(videoUrl)) {
 		throw new CustomError(errorCode.PRODUCT_VIDEO_URL_INVALID);
 	}
 
@@ -40,11 +40,11 @@ const validateUpdateProduct = (req, res, next) => {
 		throw new CustomError(errorCode.PRODUCT_PRICE_INVALID);
 	}
 
-	if (imageUrl && !Config.URL_REGEXP.test(imageUrl)) {
+	if (imageUrl && !env.URL_REGEXP.test(imageUrl)) {
 		throw new CustomError(errorCode.PRODUCT_IMAGE_URL_INVALID);
 	}
 
-	if (videoUrl && !Config.URL_REGEXP.test(videoUrl)) {
+	if (videoUrl && !env.URL_REGEXP.test(videoUrl)) {
 		throw new CustomError(errorCode.PRODUCT_VIDEO_URL_INVALID);
 	}
 

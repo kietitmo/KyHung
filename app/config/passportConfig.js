@@ -2,21 +2,18 @@ import passport from 'passport';
 import { ExtractJwt, Strategy as JwtStrategy } from 'passport-jwt';
 import { Strategy as GoogleStrategy } from 'passport-google-oauth20';
 
-import dotenv from 'dotenv';
 import UserService from '../domain/services/user.service.js';
-import Config from './config.js';
-
-dotenv.config();
+import env from './env.js';
 
 const opts = {
 	jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
-	secretOrKey: Config.JWT_SECRET,
+	secretOrKey: env.JWT_SECRET,
 };
 
 passport.use(new GoogleStrategy({
-    clientID: Config.GOOGLE_CLIENT_ID,
-    clientSecret: Config.GOOGLE_CLIENT_SECRET,
-    callbackURL: "/api/auth/google/callback",
+    clientID: env.GOOGLE_CLIENT_ID,
+    clientSecret: env.GOOGLE_CLIENT_SECRET,
+    callbackURL: env.GOOGLE_CALLBACK_URL,
     scope: ['profile', 'email']
   	},
 	async (accessToken, refreshToken, profile, done) => {
@@ -32,7 +29,7 @@ passport.use(new GoogleStrategy({
 					fullName: profile.displayName
 				}
 
-				const newUser = new userService.createUser(user);
+				const newUser = await userService.createUser(user);
 				
 				return done(null, newUser);
 			}

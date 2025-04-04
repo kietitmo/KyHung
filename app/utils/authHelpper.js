@@ -1,30 +1,30 @@
 import bcrypt from 'bcryptjs';
-import Constants from '../config/config.js';
 import jwt from 'jsonwebtoken';
-import crypto from 'crypto'
-import Config from '../config/config.js';
+import crypto from 'crypto';
+import env from '../config/env.js';
+
 class AuthHelper {
 	static async hashPassword(password) {
-		const salt = bcrypt.genSalt(Constants.SALT_JWT);
+		const salt = await bcrypt.genSalt(env.SALT_JWT);
 
-		const hashedPassword = bcrypt.hash(password, salt);
+		const hashedPassword = await bcrypt.hash(password, salt);
 		return hashedPassword;
 	}
 
 	static async generateAccessToken(payload) {
-		return jwt.sign(payload, Config.JWT_SECRET, {
-			expiresIn: Config.JWT_SECRET_EXPIRE_TIME,
+		return jwt.sign(payload, env.JWT_SECRET, {
+			expiresIn: env.JWT_SECRET_EXPIRE_TIME,
 		});
 	}
 
 	static async generateRefreshToken(payload) {
-		return jwt.sign(payload, Config.JWT_REFRESH_SECRET, {
-			expiresIn: Config.JWT_REFRESH_SECRET_EXPIRE_TIME,
+		return jwt.sign(payload, env.JWT_REFRESH_SECRET, {
+			expiresIn: env.JWT_REFRESH_SECRET_EXPIRE_TIME,
 		});
 	}
 
 	static async verifyRefreshToken(refreshToken) {
-		return jwt.verify(refreshToken, Config.JWT_REFRESH_SECRET);
+		return jwt.verify(refreshToken, env.JWT_REFRESH_SECRET);
 	}
 
 	static async generateVerificationToken() {

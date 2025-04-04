@@ -1,6 +1,6 @@
 import CustomError from '../../../domain/custom/customError.js';
 import { errorCode } from '../../../utils/code/userResponseCode.js';
-import Config from '../../../config/config.js';
+import env from '../../../config/env.js';
 
 const validateCreateUser = (req, res, next) => {
 	const { fullName, email, password } = req.body;
@@ -9,19 +9,19 @@ const validateCreateUser = (req, res, next) => {
 		!fullName ||
 		typeof fullName !== 'string' ||
 		fullName.trim().length === 0 ||
-		!Config.FULL_NAME_REGEXP.test(fullName)
+		!env.FULL_NAME_REGEXP.test(fullName)
 	) {
 		throw new CustomError(errorCode.USER_FULL_NAME_INVALID);
 	}
 
-	if (!email || !Config.EMAIL_REGEXP.test(email)) {
+	if (!email || !env.EMAIL_REGEXP.test(email)) {
 		throw new CustomError(errorCode.USER_EMAIL_INVALID);
 	}
 
 	if (
 		!password ||
-		password.length < Config.PASSWORD_MIN_LENGTH ||
-		!Config.PASSWORD_REGEXP.test(password)
+		password.length < env.PASSWORD_MIN_LENGTH ||
+		!env.PASSWORD_REGEXP.test(password)
 	) {
 		throw new CustomError(errorCode.USER_PASSWORD_INVALID);
 	}
@@ -32,7 +32,7 @@ const validateCreateUser = (req, res, next) => {
 const validateUpdateUser = (req, res, next) => {
 	const { fullName, email, password } = req.body;
 
-	if (req.params.email && !Config.EMAIL_REGEXP.test(req.params.email)) {
+	if (req.params.email && !env.EMAIL_REGEXP.test(req.params.email)) {
 		throw new CustomError(errorCode.USER_EMAIL_INVALID);
 	}
 
@@ -40,20 +40,20 @@ const validateUpdateUser = (req, res, next) => {
 		fullName &&
 		(typeof fullName !== 'string' ||
 			fullName.trim().length === 0 ||
-			!Config.FULL_NAME_REGEXP.test(fullName))
+			!env.FULL_NAME_REGEXP.test(fullName))
 	) {
 		throw new CustomError(errorCode.USER_FULL_NAME_INVALID);
 	}
 
-	if (email && !Config.EMAIL_REGEXP.test(email)) {
+	if (email && !env.EMAIL_REGEXP.test(email)) {
 		throw new CustomError(errorCode.USER_EMAIL_INVALID);
 	}
 
 	if (password) {
-		if (password.length < Config.PASSWORD_MIN_LENGTH) {
+		if (password.length < env.PASSWORD_MIN_LENGTH) {
 			throw new CustomError(errorCode.USER_PASSWORD_INVALID);
 		}
-		if (!Config.PASSWORD_REGEXP.test(password)) {
+		if (!env.PASSWORD_REGEXP.test(password)) {
 			throw new CustomError(errorCode.USER_PASSWORD_INVALID);
 		}
 	}
@@ -62,7 +62,7 @@ const validateUpdateUser = (req, res, next) => {
 };
 
 const validateDeleteUser = (req, res, next) => {
-	if (req.params.email && !Config.EMAIL_REGEXP.test(req.params.email)) {
+	if (req.params.email && !env.EMAIL_REGEXP.test(req.params.email)) {
 		throw new CustomError(errorCode.USER_EMAIL_INVALID);
 	}
 
@@ -70,7 +70,7 @@ const validateDeleteUser = (req, res, next) => {
 };
 
 const validateGetOneUser = (req, res, next) => {
-	if (req.params.email && !Config.EMAIL_REGEXP.test(req.params.email)) {
+	if (req.params.email && !env.EMAIL_REGEXP.test(req.params.email)) {
 		throw new CustomError(errorCode.USER_EMAIL_INVALID);
 	}
 

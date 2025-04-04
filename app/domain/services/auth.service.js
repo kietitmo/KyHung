@@ -5,11 +5,12 @@ import { errorCode as userCode } from '../../utils/code/userResponseCode.js';
 import { errorCode as authCode } from '../../utils/code/authResponseCode.js';
 
 import CustomError from '../custom/customError.js';
-import Config from '../../config/config.js';
+import env from '../../config/env.js';
 import AuthHelper from '../../utils/authHelpper.js';
 import sendEmail from '../../utils/mailer.js';
 import TokenRepository from '../../data-access/repositories/tokenRepository.js';
 import EmailTemplateFactory from '../email-templates/emailTemplateFactory.js';
+import TokenType from '../models/tokenType.enum.js';
 
 dotenv.config();
 
@@ -51,10 +52,12 @@ class AuthService {
 			tokenValue: token,
 			email: userData.email,
 			expiresAt: verificationTokenExpires,
+			type: TokenType.VERIFICATION
 		};
 
 		const tokenInstance = await this.tokenRepository.findOne({
 			tokenValue: tokenData.tokenValue,
+			type: TokenType.VERIFICATION
 		});
 		if (tokenInstance) {
 			throw new CustomError(authCode.INVALID_TOKEN);
@@ -63,7 +66,7 @@ class AuthService {
 		await this.tokenRepository.create(tokenData);
 		user = await this.userRepository.create(userData);
 
-		const verificationUrl = `http://${Config.APP_HOSTNAME || 'localhost:5001'}/api/auth/verify-email/${token}`;
+		const verificationUrl = `http://${env.APP_HOSTNAME || 'localhost:5001'}/api/auth/verify-email/${token}`;
 		const template = EmailTemplateFactory.getTemplate('register', {
 			url: verificationUrl,
 			user: user,
@@ -94,6 +97,7 @@ class AuthService {
 	async verifyEmail(token) {
 		const tokenInstance = await this.tokenRepository.findOne({
 			tokenValue: token,
+			type: TokenType.VERIFICATION
 		});
 
 		if (!tokenInstance) {
@@ -140,11 +144,12 @@ class AuthService {
 			tokenValue: newToken,
 			email: email,
 			expiresAt: verificationTokenExpires,
+			type: TokenType.VERIFICATION
 		};
 
 		await this.tokenRepository.create(tokenData);
 
-		const verificationUrl = `http://${Config.APP_HOSTNAME || 'localhost:5001'}/api/auth/verify-email/${newToken}`;
+		const verificationUrl = `http://${env.APP_HOSTNAME || 'localhost:5001'}/api/auth/verify-email/${newToken}`;
 		const template = EmailTemplateFactory.getTemplate('register', {
 			url: verificationUrl,
 			user: user,
@@ -159,36 +164,36 @@ class AuthService {
 	}
 
 	async forgotPassword(email) {
-		const user = this.userRepository.findOne({ email: email });
+		const user = await this.userRepository.findOne({ email: email });
 		if (!user) {
 			throw new CustomError(userCode.USER_NOT_FOUND);
 		}
 
 		const newToken = await AuthHelper.generateVerificationToken();
-		const verificationTokenExpires = new Date(Date.now() + 24 * 60 * 60 * 1000); // 24 hours
+		const verificationTokenExpires = new Date(Date.now() + 60 * 30 * 1000); // 30 minutes
 
 		const tokenData = {
 			tokenValue: newToken,
 			email: email,
 			expiresAt: verificationTokenExpires,
-			type: 'password_reset'
+			type: TokenType.FORGOT_PASSWORD
 		};
 
 		// Delete any existing password reset tokens for this user
-		await this.tokenRepository.deleteMany({ email, type: 'password_reset' });
+		await this.tokenRepository.deleteMany({ email, type: TokenType.FORGOT_PASSWORD });
 
 		await this.tokenRepository.create(tokenData);
 
-		const resetUrl = `http://${Config.APP_HOSTNAME || 'localhost:5001'}/api/auth/verify-email/${newToken}`;
+
 		const template = EmailTemplateFactory.getTemplate('forgotPassword', {
-			url: resetUrl,
+			token: newToken,
 			user: user,
 		});
 
-		console.log('Suppose sent email, verification link: ', resetUrl);
+		console.log('Suppose sent email');
 		console.log(template);
 
-		sendEmail(user.email, 'Verify your email', template);
+		sendEmail(user.email, 'Reset your password', template);
 
 		return user;
 	}
@@ -196,7 +201,7 @@ class AuthService {
 	async resetPassword(token, newPassword) {
 		const tokenInstance = await this.tokenRepository.findOne({ 
 			tokenValue: token,
-			type: 'password_reset'
+			type: TokenType.FORGOT_PASSWORD
 		});
 
 		if (!tokenInstance) {
@@ -221,6 +226,16 @@ class AuthService {
 
 		// Delete the used token
 		await this.tokenRepository.deleteMany({ tokenValue: token });
+
+		// Send confirmation email
+		const template = EmailTemplateFactory.getTemplate('passwordResetConfirmation', {
+			user: user,
+		});
+
+		console.log('Sending password reset confirmation email');
+		console.log(template);
+
+		sendEmail(user.email, 'Password Reset Successful', template);
 
 		return true;
 	}

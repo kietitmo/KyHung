@@ -5,6 +5,7 @@ const tokenSchema = new mongoose.Schema(
 		tokenValue: { type: String, required: true },
 		email: { type: String, required: false },
 		expiresAt: { type: Date, required: true },
+		type: { type: String, required: true }
 	},
 	{ timestamps: true }
 );

@@ -18,15 +18,18 @@ import favoriteProductRoutes from './entry-points/routes/favoriteProduct.routes.
 
 // Middleware
 import errorHandler from './entry-points/middlewares/error.middleware.js';
+import { apiLimiter, authLimiter } from './entry-points/middlewares/rateLimiter.middleware.js';
+import applySecurityMiddleware from './entry-points/middlewares/security.middleware.js';
+import logger from './entry-points/middlewares/logger.middleware.js';
 
 // Configuration
 import './config/passportConfig.js';
-import Config from './config/config.js';
+import env from './config/env.js';
 
 class App {
 	constructor() {
 		this.app = express();
-		this.port = Config.PORT || 5000;
+		this.port = env.PORT || 5000;
 
 		this.initializeDatabase();
 		this.initializeMiddleware();
@@ -36,27 +39,63 @@ class App {
 
 	// Initialize database connection
 	initializeDatabase() {
-		connectDB();
+		connectDB(env.MONGODB_URI);
 	}
 
 	// Initialize middleware
 	initializeMiddleware() {
-		this.app.use(cors());
-		this.app.use(express.json());
+		// Apply security middleware
+		applySecurityMiddleware(this.app);
+		
+		// Apply logger
+		logger(this.app);
+		
+		// Parse JSON bodies
+		this.app.use(express.json({ limit: '10kb' }));
+		
+		// Parse URL-encoded bodies
+		this.app.use(express.urlencoded({ extended: true, limit: '10kb' }));
+		
+		// Parse cookies
 		this.app.use(cookieParser());
+		
+		// Initialize passport
 		this.app.use(passport.initialize());
+		
+		// Apply rate limiting
+		this.app.use('/api/auth/login', authLimiter);
+		this.app.use('/api/auth/register', authLimiter);
+		this.app.use('/api', apiLimiter);
 	}
 
 	// Initialize routes
 	initializeRoutes() {
+		// Health check endpoint
+		this.app.get('/health', (req, res) => {
+			res.status(200).json({ 
+				status: 'ok', 
+				timestamp: new Date().toISOString(),
+				environment: env.NODE_ENV
+			});
+		});
+		
 		// Swagger UI
 		this.app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 		
+		// API routes
 		this.app.use('/api/auth', authRoutes);
 		this.app.use('/api/users', userRoutes);
 		this.app.use('/api/products', productRoutes);
 		this.app.use('/api/categories', categoryRoutes);
 		this.app.use('/api/favoriteProduct', favoriteProductRoutes);
+		
+		// Handle 404 routes
+		this.app.use('*', (req, res) => {
+			res.status(404).json({
+				status: 'fail',
+				message: `Can't find ${req.originalUrl} on this server!`
+			});
+		});
 	}
 
 	// Initialize error handling
@@ -67,8 +106,7 @@ class App {
 	// Start the server
 	listen() {
 		this.app.listen(this.port, () => {
-			console.log(`Server is running on port ${this.port}`);
-			console.log(`API Documentation available at http://localhost:${this.port}/api-docs`);
+			console.log(`Server running in ${env.NODE_ENV} mode on port ${this.port}`);
 		});
 	}
 }

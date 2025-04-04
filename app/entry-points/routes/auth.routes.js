@@ -145,25 +145,23 @@ router.post(
  *           schema:
  *             type: object
  *             required:
- *               - email
  *               - token
  *               - newPassword
  *             properties:
- *               email:
- *                 type: string
- *                 format: email
  *               token:
  *                 type: string
+ *                 description: Password reset token received via email
  *               newPassword:
  *                 type: string
  *                 format: password
+ *                 description: New password to set
  *     responses:
  *       200:
  *         description: Password reset successful
  *       400:
  *         description: Invalid input data
  *       401:
- *         description: Invalid token
+ *         description: Invalid or expired token
  */
 router.post(
 	'/reset-password',
@@ -231,9 +229,10 @@ router.get(
  *         schema:
  *           type: string
  *           format: email
+ *         description: Email address associated with the account
  *     responses:
  *       200:
- *         description: Reset link sent successfully
+ *         description: Reset link sent successfully to the provided email
  *       404:
  *         description: User not found
  */
