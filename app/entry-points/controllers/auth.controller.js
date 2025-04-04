@@ -11,6 +11,7 @@ import RegisterResponseDTO from '../../domain/dto/auth/registerResponseDTO.js';
 import UserService from '../../domain/services/user.service.js';
 import UserDTO from '../../domain/dto/user/userDTO.js';
 import BaseController from './base.controller.js';
+import env from '../../config/env.js';
 
 class AuthController extends BaseController {
 	constructor() {
@@ -183,7 +184,7 @@ class AuthController extends BaseController {
 			httpOnly: true,
 			secure: true,
 			sameSite: 'Strict',
-			maxAge: 60 * 60 * 24 * 7 * 1000, // 7 days
+			maxAge: env.REFRESH_TOKEN_MAX_AGE_MS,
 		});
 	}
 

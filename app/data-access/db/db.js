@@ -15,7 +15,7 @@ const connectDB = async (uri = env.MONGODB_URI) => {
 		await mongoose.connect(uri, {
 			useNewUrlParser: true,
 			useUnifiedTopology: true,
-			serverSelectionTimeoutMS: 5000, // Timeout after 5s instead of 30s
+			serverSelectionTimeoutMS: env.DB_CONNECTION_TIMEOUT_MS, // Timeout after configured time
 		});
 		
 		console.log(`MongoDB connected successfully in ${env.NODE_ENV} environment`);
@@ -48,11 +48,11 @@ const connectDB = async (uri = env.MONGODB_URI) => {
 		return mongoose.connection;
 	} catch (error) {
 		console.error('Error connecting to MongoDB:', error);
-		// Retry connection after 5 seconds
+		// Retry connection after configured delay
 		setTimeout(() => {
 			console.log('Retrying MongoDB connection...');
 			connectDB(uri);
-		}, 5000);
+		}, env.DB_RETRY_DELAY_MS);
 	}
 };
 

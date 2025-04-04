@@ -1,4 +1,5 @@
 import APIResponse from '../../domain/custom/apiResponse.js';
+import env from '../../config/env.js';
 
 class BaseController {
     // Send success response
@@ -25,7 +26,7 @@ class BaseController {
     // Handle pagination
     getPaginationParams(req) {
         const page = parseInt(req.query.page) || 1;
-        const limit = parseInt(req.query.limit) || 10;
+        const limit = parseInt(req.query.limit) || env.DEFAULT_PAGE_SIZE;
         const skip = (page - 1) * limit;
 
         return { page, limit, skip };
