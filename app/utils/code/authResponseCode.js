@@ -24,6 +24,16 @@ export const successCode = {
 		httpStatusCode: 200,
 		message: 'Forgot password letter is sent to your email',
 	},
+	LOGGED_OUT: {
+		code: 1,
+		httpStatusCode: 200,
+		message: 'Logged out successfully',
+	},
+	PASSWORD_RESET_SUCCESS: {
+		code: 1,
+		httpStatusCode: 200,
+		message: 'Password reset successfully',
+	},
 };
 
 export const errorCode = {
@@ -81,5 +91,15 @@ export const errorCode = {
 		code: 14,
 		httpStatusCode: 401,
 		message: 'Invalid email template',
+	},
+	PASSWORD_RESET_TOKEN_INVALID: {
+		code: 18,
+		httpStatusCode: 400,
+		message: 'Password reset token is invalid',
+	},
+	PASSWORD_RESET_TOKEN_EXPIRED: {
+		code: 19,
+		httpStatusCode: 400,
+		message: 'Password reset token has expired',
 	},
 };

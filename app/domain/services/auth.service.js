@@ -171,7 +171,11 @@ class AuthService {
 			tokenValue: newToken,
 			email: email,
 			expiresAt: verificationTokenExpires,
+			type: 'password_reset'
 		};
+
+		// Delete any existing password reset tokens for this user
+		await this.tokenRepository.deleteMany({ email, type: 'password_reset' });
 
 		await this.tokenRepository.create(tokenData);
 
@@ -187,6 +191,46 @@ class AuthService {
 		sendEmail(user.email, 'Verify your email', template);
 
 		return user;
+	}
+
+	async resetPassword(token, newPassword) {
+		const tokenInstance = await this.tokenRepository.findOne({ 
+			tokenValue: token,
+			type: 'password_reset'
+		});
+
+		if (!tokenInstance) {
+			throw new CustomError(authCode.PASSWORD_RESET_TOKEN_INVALID);
+		}
+
+		if (tokenInstance.expiresAt < Date.now()) {
+			throw new CustomError(authCode.PASSWORD_RESET_TOKEN_EXPIRED);
+		}
+
+		const user = await this.userRepository.findOne({ email: tokenInstance.email });
+		if (!user) {
+			throw new CustomError(userCode.USER_NOT_FOUND);
+		}
+
+		// Hash the new password
+		const hashedPassword = await AuthHelper.hashPassword(newPassword);
+		
+		// Update the user's password
+		user.password = hashedPassword;
+		await this.userRepository.update({ email: user.email }, user);
+
+		// Delete the used token
+		await this.tokenRepository.deleteMany({ tokenValue: token });
+
+		return true;
+	}
+
+	async invalidateRefreshToken(userId) {
+		// If you're storing refresh tokens in a database, implement this method
+		// to invalidate all refresh tokens for a user
+		// For example:
+		// await this.refreshTokenRepository.delete({ userId });
+		return true;
 	}
 }
 

@@ -1,81 +1,63 @@
 import dotenv from 'dotenv';
-import path from 'path';
+import validateConfig from './configValidator.js';
 
-const envPath = path.resolve(new URL(import.meta.url).pathname, '../../.env');
-dotenv.config({ path: envPath });
+// Load environment variables
+dotenv.config();
 
-class Config {
-	static get PORT() {
-		return process.env.PORT;
-	}
+// Regular expressions for validation
+const REGEXP = {
+	EMAIL: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
+	PASSWORD: /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/,
+	FULL_NAME: /^[a-zA-Z\s]{2,30}$/,
+	PHONE: /^\+?[1-9]\d{1,14}$/,
+};
 
-	static get MONGODB_URI() {
-		return process.env.MONGODB_URI;
-	}
+// Validate environment variables
+const validatedConfig = validateConfig(process.env);
 
-	static get JWT_SECRET() {
-		return process.env.JWT_SECRET;
-	}
+const Config = {
+	// Server configuration
+	NODE_ENV: validatedConfig.NODE_ENV,
+	PORT: validatedConfig.PORT,
+	APP_HOSTNAME: validatedConfig.APP_HOSTNAME,
 
-	static get JWT_SECRET_EXPIRE_TIME() {
-		return process.env.JWT_SECRET_EXPIRE_TIME;
-	}
+	// Database configuration
+	MONGODB_URI: validatedConfig.MONGODB_URI,
 
-	static get JWT_REFRESH_SECRET() {
-		return process.env.JWT_REFRESH_SECRET;
-	}
+	// JWT configuration
+	JWT_SECRET: validatedConfig.JWT_SECRET,
+	JWT_REFRESH_SECRET: validatedConfig.JWT_REFRESH_SECRET,
+	JWT_SECRET_EXPIRE_TIME: validatedConfig.JWT_SECRET_EXPIRE_TIME,
+	JWT_REFRESH_SECRET_EXPIRE_TIME: validatedConfig.JWT_REFRESH_SECRET_EXPIRE_TIME,
 
-	static get JWT_REFRESH_SECRET_EXPIRE_TIME() {
-		return process.env.JWT_REFRESH_SECRET_EXPIRE_TIME;
-	}
+	// Email configuration
+	EMAIL_HOST: validatedConfig.EMAIL_HOST,
+	EMAIL_PORT: validatedConfig.EMAIL_PORT,
+	EMAIL_USER: validatedConfig.EMAIL_USER,
+	EMAIL_PASS: validatedConfig.EMAIL_PASS,
 
-	static get SALT_JWT() {
-		return process.env.SALT_JWT;
-	}
+	// Google OAuth configuration
+	GOOGLE_CLIENT_ID: validatedConfig.GOOGLE_CLIENT_ID,
+	GOOGLE_CLIENT_SECRET: validatedConfig.GOOGLE_CLIENT_SECRET,
+	GOOGLE_CALLBACK_URL: validatedConfig.GOOGLE_CALLBACK_URL,
 
-	static get EMAIL_REGEXP() {
-		return new RegExp(process.env.EMAIL_REGEXP);
-	}
+	// Password configuration
+	PASSWORD_MIN_LENGTH: validatedConfig.PASSWORD_MIN_LENGTH,
+	SALT_JWT: validatedConfig.SALT_JWT,
 
-	static get PASSWORD_REGEXP() {
-		return new RegExp(process.env.PASSWORD_REGEXP);
-	}
+	// Regular expressions
+	EMAIL_REGEXP: REGEXP.EMAIL,
+	PASSWORD_REGEXP: REGEXP.PASSWORD,
+	FULL_NAME_REGEXP: REGEXP.FULL_NAME,
+	PHONE_REGEXP: REGEXP.PHONE,
 
-	static get PASSWORD_MIN_LENGTH() {
-		return new RegExp(process.env.PASSWORD_MIN_LENGTH);
-	}
-
-	static get FULL_NAME_REGEXP() {
-		return new RegExp(process.env.FULL_NAME_REGEXP);
-	}
-
-	static get URL_REGEXP() {
-		return new RegExp(process.env.URL_REGEXP);
-	}
-
-	static get GOOGLE_CLIENT_ID() {
-		return process.env.GOOGLE_CLIENT_ID;
-	}
-
-	static get GOOGLE_CLIENT_SECRET() {
-		return process.env.GOOGLE_CLIENT_SECRET;
-	}
-
-	static get MAIL_SERVICE() {
-		return process.env.MAIL_SERVICE;
-	}
-
-	static get MAIL_USER() {
-		return process.env.MAIL_USER;
-	}
-
-	static get MAIL_PASSWORD() {
-		return process.env.MAIL_PASSWORD;
-	}
-
-	static get APP_HOST() {
-		return process.env.APP_HOSTNAME;
-	}
-}
+	// Cookie configuration
+	COOKIE_OPTIONS: {
+		httpOnly: true,
+		secure: process.env.NODE_ENV === 'production',
+		sameSite: 'Strict',
+		maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
+	},
+};
 
 export default Config;

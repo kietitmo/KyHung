@@ -42,4 +42,22 @@ const validateRegister = (req, res, next) => {
 	next();
 };
 
-export { validateLogin, validateRegister };
+const validateResetPassword = (req, res, next) => {
+	const { token, newPassword } = req.body;
+
+	if (!token) {
+		throw new CustomError(errorCode.PASSWORD_RESET_TOKEN_INVALID);
+	}
+
+	if (
+		!newPassword ||
+		newPassword.length < Config.PASSWORD_MIN_LENGTH ||
+		!Config.PASSWORD_REGEXP.test(newPassword)
+	) {
+		throw new CustomError(errorCode.USER_PASSWORD_INVALID);
+	}
+
+	next();
+};
+
+export { validateLogin, validateRegister, validateResetPassword };

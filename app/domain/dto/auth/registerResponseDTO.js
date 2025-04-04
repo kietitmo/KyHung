@@ -1,4 +1,4 @@
-class ResponseRequestDTO {
+class RegisterResponseDTO {
   constructor(user) {
 		this.fullName = user.fullName;
 		this.email = user.email;
@@ -7,8 +7,8 @@ class ResponseRequestDTO {
 	}
 
 	static fromEntity(user) {
-		return new ResponseRequestDTO(user);
+		return new RegisterResponseDTO(user);
 	}
 }
-export default ResponseRequestDTO;
+export default RegisterResponseDTO;
   

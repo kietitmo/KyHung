@@ -1,6 +1,5 @@
 import AuthService from '../../domain/services/auth.service.js';
-import APIResponse from '../../domain/custom/apiResponse.js';
-import { errorCode, successCode } from '../../utils/code/authResponseCode.js';
+import { successCode } from '../../utils/code/authResponseCode.js';
 import CustomError from '../../domain/custom/customError.js';
 import LoginRequestDTO from '../../domain/dto/auth/loginRequestDTO.js';
 import RefreshTokenRequestDTO from '../../domain/dto/auth/refreshTokenRequestDTO.js';
@@ -11,167 +10,190 @@ import RegisterRequestDTO from '../../domain/dto/auth/registerRequestDTO.js';
 import RegisterResponseDTO from '../../domain/dto/auth/registerResponseDTO.js';
 import UserService from '../../domain/services/user.service.js';
 import UserDTO from '../../domain/dto/user/userDTO.js';
+import BaseController from './base.controller.js';
 
-class AuthController {
+class AuthController extends BaseController {
 	constructor() {
+		super();
 		this.authService = new AuthService();
 		this.userService = new UserService();
 	}
 
+	// Handle user login
 	async login(req, res, next) {
-		try {
+		await this.handleAsync(req, res, next, async () => {
 			const loginRequest = new LoginRequestDTO(req.body.email, req.body.password);
-
 			const { accessToken, refreshToken } = await this.authService.login(
 				loginRequest.email,
 				loginRequest.password
 			);
 
-			res.cookie('refreshToken', refreshToken, {
-				httpOnly: true,
-				secure: true,
-				sameSite: 'Strict',
-				maxAge: 60 * 60 * 24 * 7 * 1000,
-			});
-
+			this.setRefreshTokenCookie(res, refreshToken);
 			const loginResponse = new LoginResponseDTO(accessToken, refreshToken);
-			const response = APIResponse.success(
+			
+			this.sendSuccess(
+				res,
 				successCode.LOGGED_IN.code,
 				successCode.LOGGED_IN.message,
-				loginResponse
+				loginResponse,
+				successCode.LOGGED_IN.httpStatusCode
 			);
-			return res.status(successCode.LOGGED_IN.httpStatusCode).json(response);
-		} catch (error) {
-			next(error);
-		}
+		});
 	}
 
+	// Handle user registration
 	async register(req, res, next) {
-		try {
+		await this.handleAsync(req, res, next, async () => {
 			const registerRequestDTO = RegisterRequestDTO.fromRequest(req.body);
 			const user = await this.authService.register(registerRequestDTO);
 			const registerResponseDTO = new RegisterResponseDTO(user);
 
-			const response = APIResponse.success(
+			this.sendSuccess(
+				res,
 				successCode.REGISTERED_VERIFY_CODE_SENT.code,
 				successCode.REGISTERED_VERIFY_CODE_SENT.message,
-				registerResponseDTO
+				registerResponseDTO,
+				successCode.REGISTERED_VERIFY_CODE_SENT.httpStatusCode
 			);
-			return res
-				.status(successCode.REGISTERED_VERIFY_CODE_SENT.httpStatusCode)
-				.json(response);
-		} catch (error) {
-			next(error);
-		}
+		});
 	}
 
+	// Handle access token refresh
 	async refreshAccessToken(req, res, next) {
-		try {
+		await this.handleAsync(req, res, next, async () => {
 			const refreshToken = new RefreshTokenRequestDTO(req.cookies.refreshToken);
-
-			if (!refreshToken) {
-				throw new CustomError(errorCode.REFRESH_TOKEN_NOT_FOUND);
-			}
-
 			const newAccessToken = await this.authService.refreshAccessToken(
 				refreshToken.refreshToken
 			);
 
 			const refreshTokenResponse = new RefreshTokenResponseDTO(newAccessToken);
-			const response = APIResponse.success(
+			this.sendSuccess(
+				res,
 				successCode.ACCESS_TOKEN_REFRESH.code,
 				successCode.ACCESS_TOKEN_REFRESH.message,
-				refreshTokenResponse
+				refreshTokenResponse,
+				successCode.ACCESS_TOKEN_REFRESH.httpStatusCode
 			);
-
-			return res
-				.status(successCode.ACCESS_TOKEN_REFRESH.httpStatusCode)
-				.json(response);
-		} catch (error) {
-			next(error);
-		}
+		});
 	}
 
+	// Handle Google OAuth2 login
 	async loginGoogleOauth2(req, res, next) {
-		try {
+		await this.handleAsync(req, res, next, async () => {
 			const payload = { email: req.user.email, role: req.user.role };
-
 			const accessToken = await AuthHelper.generateAccessToken(payload);
 			const refreshToken = await AuthHelper.generateRefreshToken(payload);
 
-			res.cookie('refreshToken', refreshToken, {
-				httpOnly: true,
-				secure: true,
-				sameSite: 'Strict',
-				maxAge: 60 * 60 * 24 * 7 * 1000,
-			});
-
+			this.setRefreshTokenCookie(res, refreshToken);
 			const loginResponse = new LoginResponseDTO(accessToken, refreshToken);
-			const response = APIResponse.success(
+			
+			this.sendSuccess(
+				res,
 				successCode.LOGGED_IN.code,
 				successCode.LOGGED_IN.message,
-				loginResponse
+				loginResponse,
+				successCode.LOGGED_IN.httpStatusCode
 			);
-			return res.status(successCode.LOGGED_IN.httpStatusCode).json(response);
-		} catch (error) {
-			next(error);
-		}
+		});
 	}
 
+	// Handle email verification
 	async verifyEmail(req, res, next) {
-		try {
+		await this.handleAsync(req, res, next, async () => {
 			const token = req.params.token;
-
 			const updatedUser = await this.authService.verifyEmail(token);
 			const responseUser = UserDTO.fromEntity(updatedUser);
 
-			const response = APIResponse.success(
+			this.sendSuccess(
+				res,
 				successCode.EMAIL_VERIFIED.code,
 				successCode.EMAIL_VERIFIED.message,
-				responseUser
+				responseUser,
+				successCode.EMAIL_VERIFIED.httpStatusCode
 			);
-
-			return res.status(successCode.EMAIL_VERIFIED.httpStatusCode).json(response);
-		} catch (error) {
-			next(error);
-		}
+		});
 	}
 
+	// Handle verification token resend
 	async resendToken(req, res, next) {
-		try {
+		await this.handleAsync(req, res, next, async () => {
 			const email = req.params.email;
 			await this.authService.resendToken(email);
 
-			const response = APIResponse.success(
+			this.sendSuccess(
+				res,
 				successCode.REGISTERED_VERIFY_CODE_SENT.code,
 				successCode.REGISTERED_VERIFY_CODE_SENT.message,
-				null
+				null,
+				successCode.REGISTERED_VERIFY_CODE_SENT.httpStatusCode
 			);
-
-			return res
-				.status(successCode.REGISTERED_VERIFY_CODE_SENT.httpStatusCode)
-				.json(response);
-		} catch (error) {
-			next(error);
-		}
+		});
 	}
 
+	// Handle forgot password request
 	async forgotPassword(req, res, next) {
-		try {
+		await this.handleAsync(req, res, next, async () => {
 			const email = req.params.email;
 			await this.authService.forgotPassword(email);
 
-			const response = APIResponse.success(
+			this.sendSuccess(
+				res,
 				successCode.FORGOT_PASSWORD_VERIFY_EMAIL_SENT.code,
 				successCode.FORGOT_PASSWORD_VERIFY_EMAIL_SENT.message,
-				null
+				null,
+				successCode.FORGOT_PASSWORD_VERIFY_EMAIL_SENT.httpStatusCode
 			);
-			return res
-				.status(successCode.FORGOT_PASSWORD_VERIFY_EMAIL_SENT.httpStatusCode)
-				.json(response);
-		} catch (error) {
-			next(error);
-		}
+		});
+	}
+
+	// Handle password reset
+	async resetPassword(req, res, next) {
+		await this.handleAsync(req, res, next, async () => {
+			const { token, newPassword } = req.body;
+			await this.authService.resetPassword(token, newPassword);
+
+			this.sendSuccess(
+				res,
+				successCode.PASSWORD_RESET_SUCCESS.code,
+				successCode.PASSWORD_RESET_SUCCESS.message,
+				null,
+				successCode.PASSWORD_RESET_SUCCESS.httpStatusCode
+			);
+		});
+	}
+
+	// Handle user logout
+	async logout(req, res, next) {
+		await this.handleAsync(req, res, next, async () => {
+			this.clearRefreshTokenCookie(res);
+			
+			this.sendSuccess(
+				res,
+				successCode.LOGGED_OUT.code,
+				successCode.LOGGED_OUT.message,
+				null,
+				successCode.LOGGED_OUT.httpStatusCode
+			);
+		});
+	}
+
+	// Helper method to set refresh token cookie
+	setRefreshTokenCookie(res, refreshToken) {
+		res.cookie('refreshToken', refreshToken, {
+			httpOnly: true,
+			secure: true,
+			sameSite: 'Strict',
+			maxAge: 60 * 60 * 24 * 7 * 1000, // 7 days
+		});
+	}
+
+	// Helper method to clear refresh token cookie
+	clearRefreshTokenCookie(res) {
+		res.clearCookie('refreshToken', {
+			httpOnly: true,
+			secure: true,
+			sameSite: 'Strict'
+		});
 	}
 }
 
