@@ -1,0 +1,56 @@
+{
+	"name": "kyhung-backend",
+	"version": "1.0.0",
+	"main": "app/app.js",
+	"type": "module",
+	"scripts": {
+		"test": "echo \"Error: no test specified\" && exit 1",
+		"start": "node app/app.js",
+		"dev": "cross-env NODE_ENV=development nodemon -r dotenv/config app/app.js dotenv_config_path=.env.development",
+		"test:env": "cross-env NODE_ENV=test node -r dotenv/config app/app.js dotenv_config_path=.env.test",
+		"prod": "cross-env NODE_ENV=production node -r dotenv/config app/app.js dotenv_config_path=.env.production",
+		"format": "npx prettier --write ."
+	},
+	"author": "",
+	"license": "ISC",
+	"description": "Backend API for KyHung application",
+	"_moduleAliases": {
+		"~": "./app"
+	},
+	"dependencies": {
+		"barbel": "^0.0.9",
+		"bcryptjs": "^3.0.2",
+		"cookie-parser": "^1.4.7",
+		"cors": "^2.8.5",
+		"crypto-js": "^4.2.0",
+		"dotenv": "^16.4.7",
+		"esm": "^3.2.25",
+		"express": "^4.21.2",
+		"express-mongo-sanitize": "^2.2.0",
+		"express-rate-limit": "^7.5.0",
+		"helmet": "^8.1.0",
+		"hpp": "^0.2.3",
+		"joi": "^17.13.3",
+		"jsonwebtoken": "^9.0.2",
+		"module-alias": "^2.2.3",
+		"mongoose": "^8.12.2",
+		"morgan": "^1.10.0",
+		"nodemailer": "^6.10.0",
+		"passport": "^0.7.0",
+		"passport-google-oauth20": "^2.0.0",
+		"passport-jwt": "^4.0.1",
+		"passport-local": "^1.0.0",
+		"swagger-jsdoc": "^6.2.8",
+		"swagger-ui-express": "^5.0.1",
+		"xss-clean": "^0.1.4"
+	},
+	"devDependencies": {
+		"@eslint/js": "^9.23.0",
+		"cross-env": "^7.0.3",
+		"eslint": "^9.23.0",
+		"eslint-config-prettier": "^10.1.1",
+		"eslint-plugin-prettier": "^5.2.3",
+		"globals": "^16.0.0",
+		"nodemon": "^3.1.9"
+	}
+}
