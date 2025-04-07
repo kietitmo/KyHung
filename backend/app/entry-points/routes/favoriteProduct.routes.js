@@ -77,4 +77,22 @@ router.delete(
 	favoriteListController.removeFavoriteProduct.bind(favoriteListController)
 );
 
+/**
+ * @swagger
+ * /api/favoriteProduct:
+ *   get:
+ *     summary: Get all favorite products
+ *     tags: [Favorite Products]
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: Favorite products retrieved successfully
+ */
+router.get(
+	'/',
+	verifyAccessToken,
+	favoriteListController.getFavoriteProducts.bind(favoriteListController)
+);
+
 export default router;

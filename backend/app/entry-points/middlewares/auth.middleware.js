@@ -1,6 +1,7 @@
 import passport from 'passport';
 import CustomError from '../../domain/custom/customError.js';
-import { errorCode } from '../../utils/code/userResponseCode.js';
+import { errorCode } from '../../utils/code/authResponseCode.js';
+import { errorCode as userCode } from '../../utils/code/userResponseCode.js';
 
 const verifyAccessToken = passport.authenticate('jwt', {
 	session: false,
@@ -15,7 +16,7 @@ const authorize = (roles = []) => {
 		}
 
 		if (!user.isVerified) {
-			throw new CustomError(errorCode.USER_NOT_VERIFIED);
+			throw new CustomError(userCode.USER_INACTIVE);
 		}
 
 		if (roles.length && !roles.includes(user.role)) {

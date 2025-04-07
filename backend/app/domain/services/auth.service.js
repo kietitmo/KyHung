@@ -21,7 +21,15 @@ class AuthService {
 	}
 
 	async login(email, password) {
-		const user = await this.userRepository.findOne({ email: email });
+		const user = await this.userRepository.findOne({ email: email }, [
+			{
+				path: 'favoriteProducts',
+				populate: {
+					path: 'category',
+					model: 'Category',
+				},
+			},
+		]);
 
 		if (!user) {
 			throw new CustomError(userCode.USER_NOT_FOUND);
@@ -29,14 +37,14 @@ class AuthService {
 
 		const isMatch = await bcrypt.compare(password, user.password);
 		if (!isMatch) {
-			throw new CustomError(userCode.INVALID_PASSWORD);
+			throw new CustomError(authCode.INVALID_PASSWORD);
 		}
 
 		const payload = { email: user.email, role: user.role };
 		const accessToken = await AuthHelper.generateAccessToken(payload);
 		const refreshToken = await AuthHelper.generateRefreshToken(payload);
 
-		return { accessToken, refreshToken };
+		return { accessToken, refreshToken, user };
 	}
 
 	async register(userData) {
@@ -52,12 +60,12 @@ class AuthService {
 			tokenValue: token,
 			email: userData.email,
 			expiresAt: verificationTokenExpires,
-			type: TokenType.VERIFICATION
+			type: TokenType.VERIFICATION,
 		};
 
 		const tokenInstance = await this.tokenRepository.findOne({
 			tokenValue: tokenData.tokenValue,
-			type: TokenType.VERIFICATION
+			type: TokenType.VERIFICATION,
 		});
 		if (tokenInstance) {
 			throw new CustomError(authCode.INVALID_TOKEN);
@@ -97,7 +105,7 @@ class AuthService {
 	async verifyEmail(token) {
 		const tokenInstance = await this.tokenRepository.findOne({
 			tokenValue: token,
-			type: TokenType.VERIFICATION
+			type: TokenType.VERIFICATION,
 		});
 
 		if (!tokenInstance) {
@@ -132,7 +140,7 @@ class AuthService {
 			throw new CustomError(authCode.USER_ALREADY_VERIFIED);
 		}
 
-		const user = this.userRepository.findOne({ email: email });
+		const user = await this.userRepository.findOne({ email: email });
 		if (!user) {
 			throw new CustomError(userCode.USER_NOT_FOUND);
 		}
@@ -144,7 +152,7 @@ class AuthService {
 			tokenValue: newToken,
 			email: email,
 			expiresAt: verificationTokenExpires,
-			type: TokenType.VERIFICATION
+			type: TokenType.VERIFICATION,
 		};
 
 		await this.tokenRepository.create(tokenData);
@@ -176,14 +184,16 @@ class AuthService {
 			tokenValue: newToken,
 			email: email,
 			expiresAt: verificationTokenExpires,
-			type: TokenType.FORGOT_PASSWORD
+			type: TokenType.FORGOT_PASSWORD,
 		};
 
 		// Delete any existing password reset tokens for this user
-		await this.tokenRepository.deleteMany({ email, type: TokenType.FORGOT_PASSWORD });
+		await this.tokenRepository.deleteMany({
+			email,
+			type: TokenType.FORGOT_PASSWORD,
+		});
 
 		await this.tokenRepository.create(tokenData);
-
 
 		const template = EmailTemplateFactory.getTemplate('forgotPassword', {
 			token: newToken,
@@ -199,9 +209,9 @@ class AuthService {
 	}
 
 	async resetPassword(token, newPassword) {
-		const tokenInstance = await this.tokenRepository.findOne({ 
+		const tokenInstance = await this.tokenRepository.findOne({
 			tokenValue: token,
-			type: TokenType.FORGOT_PASSWORD
+			type: TokenType.FORGOT_PASSWORD,
 		});
 
 		if (!tokenInstance) {
@@ -212,14 +222,16 @@ class AuthService {
 			throw new CustomError(authCode.PASSWORD_RESET_TOKEN_EXPIRED);
 		}
 
-		const user = await this.userRepository.findOne({ email: tokenInstance.email });
+		const user = await this.userRepository.findOne({
+			email: tokenInstance.email,
+		});
 		if (!user) {
 			throw new CustomError(userCode.USER_NOT_FOUND);
 		}
 
 		// Hash the new password
 		const hashedPassword = await AuthHelper.hashPassword(newPassword);
-		
+
 		// Update the user's password
 		user.password = hashedPassword;
 		await this.userRepository.update({ email: user.email }, user);
@@ -228,9 +240,12 @@ class AuthService {
 		await this.tokenRepository.deleteMany({ tokenValue: token });
 
 		// Send confirmation email
-		const template = EmailTemplateFactory.getTemplate('passwordResetConfirmation', {
-			user: user,
-		});
+		const template = EmailTemplateFactory.getTemplate(
+			'passwordResetConfirmation',
+			{
+				user: user,
+			}
+		);
 
 		console.log('Sending password reset confirmation email');
 		console.log(template);
@@ -246,6 +261,69 @@ class AuthService {
 		// For example:
 		// await this.refreshTokenRepository.delete({ userId });
 		return true;
+	}
+
+	async blockUser(email, reason) {
+		const user = await this.userRepository.findOne({ email: email });
+		if (!user) {
+			throw new CustomError(userCode.USER_NOT_FOUND);
+		}
+
+		user.isBlocked = true;
+		user.blockedReason = reason;
+		user.blockedAt = new Date();
+
+		await this.userRepository.update({ email: user.email }, user);
+
+		return user;
+	}
+
+	async unblockUser(email) {
+		const user = await this.userRepository.findOne({ email: email });
+		if (!user) {
+			throw new CustomError(userCode.USER_NOT_FOUND);
+		}
+
+		user.isBlocked = false;
+		user.blockedReason = null;
+		user.blockedAt = null;
+
+		await this.userRepository.update({ email: user.email }, user);
+
+		return user;
+	}
+
+	async getBlockedUsers() {
+		const users = await this.userRepository.findMany({ isBlocked: true });
+
+		return users;
+	}
+
+	async getProfile(email) {
+		const user = await this.userRepository.findOne({ email: email }, [
+			{
+				path: 'favoriteProducts',
+				populate: {
+					path: 'category',
+					model: 'Category',
+				},
+			},
+		]);
+		if (!user) {
+			throw new CustomError(userCode.USER_NOT_FOUND);
+		}
+		return user;
+	}
+
+	async updateProfile(email, userData) {
+		const user = await this.userRepository.findOne({ email: email });
+		if (!user) {
+			throw new CustomError(userCode.USER_NOT_FOUND);
+		}
+
+		await this.userRepository.update({ email: user.email }, userData);
+
+		return user;
 	}
 }
 

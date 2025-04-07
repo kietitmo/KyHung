@@ -4,6 +4,7 @@ import UserDTO from '../dto/user/userDTO.js';
 import { errorCode as userCode } from '../../utils/code/userResponseCode.js';
 import { errorCode as productCode } from '../../utils/code/productResponseCode.js';
 import CustomError from '../custom/customError.js';
+import FavoriteProductDTO from '../dto/favoriteProduct/favoriteProductDTO.js';
 
 class FavoriteProductService {
 	constructor() {
@@ -13,7 +14,7 @@ class FavoriteProductService {
 
 	async createFavoriteProduct(favoriteProduct) {
 		const { productId, email } = favoriteProduct;
-		const user = await this.userRepository.findOne({ email });
+		let user = await this.userRepository.findOne({ email }, ['favoriteProducts']);
 		if (!user) {
 			throw new CustomError(userCode.USER_NOT_FOUND);
 		}
@@ -23,20 +24,24 @@ class FavoriteProductService {
 			throw new CustomError(productCode.PRODUCT_NOT_FOUND);
 		}
 
-		if (user.favoriteProducts.includes(product._id)) {
+		if (user.favoriteProducts.some((fav) => fav._id.equals(product._id))) {
 			throw new CustomError(productCode.PRODUCT_ALREADY_IN_FAVORITE);
 		}
 
 		user.favoriteProducts.push(product._id);
-		this.userRepository.update({ email: user.email }, user);
-		const userResponse = UserDTO.fromEntity(user);
+		user = await this.userRepository.update({ email: user.email }, user);
 
-		return userResponse;
+		const productFav = new FavoriteProductDTO({
+			email: user.email,
+			productId: product._id,
+		});
+
+		return productFav;
 	}
 
 	async removeFavoriteProduct(favoriteProduct) {
 		const { productId, email } = favoriteProduct;
-		const user = await this.userRepository.findOne({ email });
+		let user = await this.userRepository.findOne({ email }, ['favoriteProducts']);
 		if (!user) {
 			throw new CustomError(userCode.USER_NOT_FOUND);
 		}
@@ -46,16 +51,31 @@ class FavoriteProductService {
 			throw new CustomError(productCode.PRODUCT_NOT_FOUND);
 		}
 
-		if (!user.favoriteProducts.includes(product._id)) {
+		if (!user.favoriteProducts.some((fav) => fav._id.equals(product._id))) {
 			throw new CustomError(productCode.PRODUCT_NOT_IN_FAVORITE);
 		}
 
 		user.favoriteProducts.pull(product._id);
 		this.userRepository.update({ email: user.email }, user);
-		const userResponse = UserDTO.fromEntity(user);
+		const productFav = new FavoriteProductDTO({
+			email: user.email,
+			productId: product._id,
+		});
 
-		return userResponse;
+		return productFav;
+	}
+
+	async getFavoriteProducts(email) {
+		const user = await this.userRepository.findOne({ email }, [
+			'favoriteProducts',
+		]);
+		if (!user) {
+			throw new CustomError(userCode.USER_NOT_FOUND);
+		}
+
+		// const productResponse = ProductDTO.fromEntity(user.favoriteProducts);
+
+		return user.favoriteProducts;
 	}
 }
-
 export default FavoriteProductService;

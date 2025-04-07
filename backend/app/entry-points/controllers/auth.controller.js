@@ -12,7 +12,9 @@ import UserService from '../../domain/services/user.service.js';
 import UserDTO from '../../domain/dto/user/userDTO.js';
 import BaseController from './base.controller.js';
 import env from '../../config/env.js';
-
+import BlockUserRequestDTO from '../../domain/dto/auth/blockUserRequestDTO.js';
+import UnblockUserRequestDTO from '../../domain/dto/auth/unblockUserRequestDTO.js';
+import ResetPasswordRequestDTO from '../../domain/dto/auth/resetPasswordRequestDTO.js';
 class AuthController extends BaseController {
 	constructor() {
 		super();
@@ -24,14 +26,19 @@ class AuthController extends BaseController {
 	async login(req, res, next) {
 		await this.handleAsync(req, res, next, async () => {
 			const loginRequest = new LoginRequestDTO(req.body.email, req.body.password);
-			const { accessToken, refreshToken } = await this.authService.login(
+			const { accessToken, refreshToken, user } = await this.authService.login(
 				loginRequest.email,
 				loginRequest.password
 			);
+			const userDTO = UserDTO.fromEntity(user);
 
 			this.setRefreshTokenCookie(res, refreshToken);
-			const loginResponse = new LoginResponseDTO(accessToken, refreshToken);
-			
+			const loginResponse = new LoginResponseDTO(
+				accessToken,
+				refreshToken,
+				userDTO
+			);
+
 			this.sendSuccess(
 				res,
 				successCode.LOGGED_IN.code,
@@ -84,10 +91,14 @@ class AuthController extends BaseController {
 			const payload = { email: req.user.email, role: req.user.role };
 			const accessToken = await AuthHelper.generateAccessToken(payload);
 			const refreshToken = await AuthHelper.generateRefreshToken(payload);
-
+			const userDTO = UserDTO.fromEntity(req.user);
 			this.setRefreshTokenCookie(res, refreshToken);
-			const loginResponse = new LoginResponseDTO(accessToken, refreshToken);
-			
+			const loginResponse = new LoginResponseDTO(
+				accessToken,
+				refreshToken,
+				userDTO
+			);
+
 			this.sendSuccess(
 				res,
 				successCode.LOGGED_IN.code,
@@ -99,17 +110,25 @@ class AuthController extends BaseController {
 	}
 
 	// Handle email verification
-	async verifyEmail(req, res, next) {
+	async verifyEmailAndLogin(req, res, next) {
 		await this.handleAsync(req, res, next, async () => {
 			const token = req.params.token;
 			const updatedUser = await this.authService.verifyEmail(token);
-			const responseUser = UserDTO.fromEntity(updatedUser);
+			const userDTO = UserDTO.fromEntity(updatedUser);
+			const payload = { email: updatedUser.email, role: updatedUser.role };
+			const accessToken = await AuthHelper.generateAccessToken(payload);
+			const refreshToken = await AuthHelper.generateRefreshToken(payload);
 
+			const loginResponse = new LoginResponseDTO(
+				accessToken,
+				refreshToken,
+				userDTO
+			);
 			this.sendSuccess(
 				res,
 				successCode.EMAIL_VERIFIED.code,
 				successCode.EMAIL_VERIFIED.message,
-				responseUser,
+				loginResponse,
 				successCode.EMAIL_VERIFIED.httpStatusCode
 			);
 		});
@@ -150,8 +169,13 @@ class AuthController extends BaseController {
 	// Handle password reset
 	async resetPassword(req, res, next) {
 		await this.handleAsync(req, res, next, async () => {
-			const { token, newPassword } = req.body;
-			await this.authService.resetPassword(token, newPassword);
+			const resetPasswordRequestDTO = ResetPasswordRequestDTO.fromRequest(
+				req.body
+			);
+			await this.authService.resetPassword(
+				resetPasswordRequestDTO.token,
+				resetPasswordRequestDTO.newPassword
+			);
 
 			this.sendSuccess(
 				res,
@@ -167,7 +191,7 @@ class AuthController extends BaseController {
 	async logout(req, res, next) {
 		await this.handleAsync(req, res, next, async () => {
 			this.clearRefreshTokenCookie(res);
-			
+
 			this.sendSuccess(
 				res,
 				successCode.LOGGED_OUT.code,
@@ -193,7 +217,87 @@ class AuthController extends BaseController {
 		res.clearCookie('refreshToken', {
 			httpOnly: true,
 			secure: true,
-			sameSite: 'Strict'
+			sameSite: 'Strict',
+		});
+	}
+
+	async blockUser(req, res, next) {
+		await this.handleAsync(req, res, next, async () => {
+			const blockUserRequestDTO = BlockUserRequestDTO.fromRequest(req.body);
+			const user = await this.authService.blockUser(
+				blockUserRequestDTO.email,
+				blockUserRequestDTO.reason
+			);
+			const userDTO = UserDTO.fromEntity(user);
+
+			this.sendSuccess(
+				res,
+				successCode.USER_BLOCKED.code,
+				successCode.USER_BLOCKED.message,
+				userDTO,
+				successCode.USER_BLOCKED.httpStatusCode
+			);
+		});
+	}
+
+	async unblockUser(req, res, next) {
+		await this.handleAsync(req, res, next, async () => {
+			const unblockUserRequestDTO = UnblockUserRequestDTO.fromRequest(req.body);
+			const user = await this.authService.unblockUser(unblockUserRequestDTO.email);
+			const userDTO = UserDTO.fromEntity(user);
+			this.sendSuccess(
+				res,
+				successCode.USER_UNBLOCKED.code,
+				successCode.USER_UNBLOCKED.message,
+				userDTO,
+				successCode.USER_UNBLOCKED.httpStatusCode
+			);
+		});
+	}
+
+	async getBlockedUsers(req, res, next) {
+		await this.handleAsync(req, res, next, async () => {
+			const users = await this.authService.getBlockedUsers();
+			const userDTOs = users.map((user) => UserDTO.fromEntity(user));
+			this.sendSuccess(
+				res,
+				successCode.BLOCKED_USERS_FETCHED.code,
+				successCode.BLOCKED_USERS_FETCHED.message,
+				userDTOs,
+				successCode.BLOCKED_USERS_FETCHED.httpStatusCode
+			);
+		});
+	}
+
+	async getProfile(req, res, next) {
+		await this.handleAsync(req, res, next, async () => {
+			const email = req.user.email;
+			const user = await this.authService.getProfile(email);
+			const userDTO = UserDTO.fromEntity(user);
+			this.sendSuccess(
+				res,
+				successCode.USER_PROFILE_FETCHED.code,
+				successCode.USER_PROFILE_FETCHED.message,
+				userDTO,
+				successCode.USER_PROFILE_FETCHED.httpStatusCode
+			);
+		});
+	}
+
+	async updateProfile(req, res, next) {
+		await this.handleAsync(req, res, next, async () => {
+			const email = req.user.email;
+			const userData = req.body;
+			const updatedUser = await this.authService.updateProfile(email, userData);
+			const userDTO = UserDTO.fromEntity(updatedUser);
+
+			this.sendSuccess(
+				res,
+				successCode.USER_PROFILE_UPDATED.code,
+				successCode.USER_PROFILE_UPDATED.message,
+				userDTO,
+				successCode.USER_PROFILE_UPDATED.httpStatusCode
+			);
 		});
 	}
 }

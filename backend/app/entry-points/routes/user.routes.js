@@ -38,23 +38,11 @@ const userController = new UserController();
  *           default: 10
  *         description: Number of items per page
  *       - in: query
- *         name: sortBy
+ *         name: filter
  *         schema:
- *           type: string
- *           default: createdAt
- *         description: Field to sort by
- *       - in: query
- *         name: sortOrder
- *         schema:
- *           type: string
- *           enum: [asc, desc]
- *           default: desc
- *         description: Sort order
- *       - in: query
- *         name: search
- *         schema:
- *           type: string
- *         description: Search term
+ *           type: object
+ *           default: {}
+ *         description: filter
  *     responses:
  *       200:
  *         description: List of users
@@ -64,7 +52,7 @@ const userController = new UserController();
 router.get(
 	'/',
 	verifyAccessToken,
-	// authorize([Role.ADMIN]),
+	authorize([Role.ADMIN]),
 	validateGetUser,
 	userController.getUsers.bind(userController)
 );

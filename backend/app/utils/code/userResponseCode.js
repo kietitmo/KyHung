@@ -67,6 +67,12 @@ export const successCode = {
 		message: 'Password changed successfully',
 		status: 'success',
 	},
+	USER_GET_FAVORITE_PRODUCTS: {
+		code: APP_STATUS.SUCCESS,
+		httpStatusCode: HTTP_STATUS.OK,
+		message: 'Favorite products retrieved successfully',
+		status: 'success',
+	},
 };
 
 // User Error Codes (400-499)

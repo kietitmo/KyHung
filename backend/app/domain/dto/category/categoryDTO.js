@@ -1,10 +1,10 @@
 class CategoryDTO {
 	constructor(cat) {
-        this.id= cat._id,
-		this.name = cat.name;
-		this.description = cat.description;
-        this.createdAt = cat.createdAt,
-        this.updatedAt = cat.updatedAt
+		this.id = cat._id || null;
+		this.name = cat.name || null;
+		this.description = cat.description || null;
+		this.createdAt = cat.createdAt || null;
+		this.updatedAt = cat.updatedAt || null;
 	}
 
 	static fromEntity(cat) {

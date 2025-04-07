@@ -11,6 +11,77 @@ const categoryController = new CategoryController();
 
 /**
  * @swagger
+ * components:
+ *   schemas:
+ *     Category:
+ *       type: object
+ *       required:
+ *         - name
+ *         - description
+ *       properties:
+ *         id:
+ *           type: string
+ *           description: The auto-generated id of the category
+ *         name:
+ *           type: string
+ *           description: The category name
+ *         description:
+ *           type: string
+ *           description: The category description
+ *         createdAt:
+ *           type: string
+ *           format: date-time
+ *           description: The date the category was created
+ *         updatedAt:
+ *           type: string
+ *           format: date-time
+ *           description: The date the category was last updated
+ *     CategoryResponse:
+ *       type: object
+ *       properties:
+ *         status:
+ *           type: string
+ *           example: success
+ *         code:
+ *           type: number
+ *           example: 200
+ *         message:
+ *           type: string
+ *           example: Category retrieved successfully
+ *         data:
+ *           $ref: '#/components/schemas/Category'
+ *     CategoryListResponse:
+ *       type: object
+ *       properties:
+ *         status:
+ *           type: string
+ *           example: success
+ *         code:
+ *           type: number
+ *           example: 200
+ *         message:
+ *           type: string
+ *           example: Categories retrieved successfully
+ *         data:
+ *           type: object
+ *           properties:
+ *             data:
+ *               type: array
+ *               items:
+ *                 $ref: '#/components/schemas/Category'
+ *             total:
+ *               type: number
+ *               description: Total number of categories
+ *             page:
+ *               type: number
+ *               description: Current page number
+ *             limit:
+ *               type: number
+ *               description: Number of items per page
+ */
+
+/**
+ * @swagger
  * /api/categories:
  *   post:
  *     summary: Create a new category
@@ -29,17 +100,70 @@ const categoryController = new CategoryController();
  *             properties:
  *               name:
  *                 type: string
+ *                 example: "Electronics"
  *               description:
  *                 type: string
+ *                 example: "Electronic devices and accessories"
  *     responses:
  *       201:
  *         description: Category created successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/CategoryResponse'
  *       400:
- *         description: Invalid input data
+ *         $ref: '#/components/responses/Error'
  *       401:
- *         description: Unauthorized
+ *         $ref: '#/components/responses/UnauthorizedError'
  *       403:
- *         description: Forbidden
+ *         description: Forbidden - User does not have required role
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
+ *   get:
+ *     summary: Get all categories
+ *     tags: [Categories]
+ *     parameters:
+ *       - in: query
+ *         name: page
+ *         schema:
+ *           type: integer
+ *           default: 1
+ *         description: Page number
+ *       - in: query
+ *         name: limit
+ *         schema:
+ *           type: integer
+ *           default: 10
+ *         description: Number of items per page
+ *       - in: query
+ *         name: sort
+ *         schema:
+ *           type: string
+ *           default: createdAt
+ *         description: Field to sort by
+ *       - in: query
+ *         name: order
+ *         schema:
+ *           type: string
+ *           enum: [asc, desc]
+ *           default: desc
+ *         description: Sort order
+ *       - in: query
+ *         name: search
+ *         schema:
+ *           type: string
+ *         description: Search term
+ *     responses:
+ *       200:
+ *         description: List of categories
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/CategoryListResponse'
+ *       400:
+ *         $ref: '#/components/responses/Error'
  */
 router.post(
 	'/',

@@ -2,7 +2,7 @@ import FavoriteProductService from '../../domain/services/favoriteProductservice
 import APIResponse from '../../domain/custom/apiResponse.js';
 import { successCode } from '../../utils/code/userResponseCode.js';
 import FavoriteProductDTO from '../../domain/dto/favoriteProduct/favoriteProductDTO.js';
-
+import ProductDTO from '../../domain/dto/product/productDTO.js';
 class FavoriteProductController {
 	constructor() {
 		this.favoriteProductService = new FavoriteProductService();
@@ -44,6 +44,26 @@ class FavoriteProductController {
 			);
 			return res
 				.status(successCode.USER_REMOVED_FAVORITE_PRODUCT.httpStatusCode)
+				.json(response);
+		} catch (error) {
+			next(error);
+		}
+	}
+
+	async getFavoriteProducts(req, res, next) {
+		try {
+			const favoriteProducts =
+				await this.favoriteProductService.getFavoriteProducts(req.user.email);
+			const productResponse = favoriteProducts.map((product) =>
+				ProductDTO.fromEntity(product)
+			);
+			const response = APIResponse.success(
+				successCode.USER_GET_FAVORITE_PRODUCTS.code,
+				successCode.USER_GET_FAVORITE_PRODUCTS.message,
+				productResponse
+			);
+			return res
+				.status(successCode.USER_GET_FAVORITE_PRODUCTS.httpStatusCode)
 				.json(response);
 		} catch (error) {
 			next(error);

@@ -61,6 +61,36 @@ export const successCode = {
 		message: 'Password reset successfully',
 		status: 'success',
 	},
+	USER_BLOCKED: {
+		code: APP_STATUS.SUCCESS,
+		httpStatusCode: HTTP_STATUS.OK,
+		message: 'User blocked successfully',
+		status: 'success',
+	},
+	USER_UNBLOCKED: {
+		code: APP_STATUS.SUCCESS,
+		httpStatusCode: HTTP_STATUS.OK,
+		message: 'User unblocked successfully',
+		status: 'success',
+	},
+	USER_PROFILE_UPDATED: {
+		code: APP_STATUS.SUCCESS,
+		httpStatusCode: HTTP_STATUS.OK,
+		message: 'User profile updated successfully',
+		status: 'success',
+	},
+	USER_PROFILE_FETCHED: {
+		code: APP_STATUS.SUCCESS,
+		httpStatusCode: HTTP_STATUS.OK,
+		message: 'User profile fetched successfully',
+		status: 'success',
+	},
+	BLOCKED_USERS_FETCHED: {
+		code: APP_STATUS.SUCCESS,
+		httpStatusCode: HTTP_STATUS.OK,
+		message: 'Blocked users fetched successfully',
+		status: 'success',
+	},
 };
 
 // Auth Error Codes (300-399)

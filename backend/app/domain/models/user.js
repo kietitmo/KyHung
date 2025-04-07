@@ -1,17 +1,31 @@
 import mongoose from 'mongoose';
 import bcrypt from 'bcryptjs';
 import Role from './role.enum.js';
+import Gender from './gender.enum.js';
 const userSchema = new mongoose.Schema(
 	{
 		fullName: { type: String, required: true },
 		email: { type: String, required: true, unique: true },
 		password: { type: String, required: false },
+		gender: {
+			type: String,
+			enum: Object.values(Gender),
+			required: true,
+			default: Gender.OTHER,
+		},
+		phoneNumber: { type: String, required: false },
+		address: { type: String, required: false },
+		city: { type: String, required: false },
+		country: { type: String, required: false },
 		role: {
 			type: String,
 			enum: Object.values(Role),
 			default: Role.USER,
 		},
 		isVerified: { type: Boolean, required: true, default: false },
+		isBlocked: { type: Boolean, required: true, default: false },
+		blockedReason: { type: String, required: false },
+		blockedAt: { type: Date, required: false },
 		favoriteProducts: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Product' }],
 	},
 	{ timestamps: true }
