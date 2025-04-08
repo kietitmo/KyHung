@@ -276,21 +276,21 @@ router.get(
 	authController.loginGoogleOauth2.bind(authController)
 );
 
-router.post(
+router.put(
 	'/block-user',
 	verifyAccessToken,
 	authorize([Role.ADMIN]),
 	authController.blockUser.bind(authController)
 );
 
-router.post(
+router.put(
 	'/unblock-user',
 	verifyAccessToken,
 	authorize([Role.ADMIN]),
 	authController.unblockUser.bind(authController)
 );
 
-router.get(
+router.put(
 	'/blocked-users',
 	verifyAccessToken,
 	authorize([Role.ADMIN]),

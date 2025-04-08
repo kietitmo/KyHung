@@ -264,7 +264,15 @@ class AuthService {
 	}
 
 	async blockUser(email, reason) {
-		const user = await this.userRepository.findOne({ email: email });
+		const user = await this.userRepository.findOne({ email: email }, [
+			{
+				path: 'favoriteProducts',
+				populate: {
+					path: 'category',
+					model: 'Category',
+				},
+			},
+		]);
 		if (!user) {
 			throw new CustomError(userCode.USER_NOT_FOUND);
 		}
@@ -279,7 +287,16 @@ class AuthService {
 	}
 
 	async unblockUser(email) {
-		const user = await this.userRepository.findOne({ email: email });
+		const user = await this.userRepository.findOne({ email: email }, [
+			{
+				path: 'favoriteProducts',
+				populate: {
+					path: 'category',
+					model: 'Category',
+				},
+			},
+		]);
+
 		if (!user) {
 			throw new CustomError(userCode.USER_NOT_FOUND);
 		}
