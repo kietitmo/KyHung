@@ -5,6 +5,7 @@ import { errorCode as userCode } from '../../utils/code/userResponseCode.js';
 import { errorCode as productCode } from '../../utils/code/productResponseCode.js';
 import CustomError from '../custom/customError.js';
 import FavoriteProductDTO from '../dto/favoriteProduct/favoriteProductDTO.js';
+import ProductDTO from '../dto/product/productDTO.js';
 
 class FavoriteProductService {
 	constructor() {
@@ -67,13 +68,17 @@ class FavoriteProductService {
 
 	async getFavoriteProducts(email) {
 		const user = await this.userRepository.findOne({ email }, [
-			'favoriteProducts',
+			{
+				path: 'favoriteProducts',
+				populate: {
+					path: 'category',
+					model: 'Category',
+				},
+			},
 		]);
 		if (!user) {
 			throw new CustomError(userCode.USER_NOT_FOUND);
 		}
-
-		// const productResponse = ProductDTO.fromEntity(user.favoriteProducts);
 
 		return user.favoriteProducts;
 	}

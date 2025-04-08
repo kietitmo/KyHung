@@ -53,7 +53,7 @@ class FavoriteProductController {
 	async getFavoriteProducts(req, res, next) {
 		try {
 			const favoriteProducts =
-				await this.favoriteProductService.getFavoriteProducts(req.user.email);
+				await this.favoriteProductService.getFavoriteProducts(req.params.email);
 			const productResponse = favoriteProducts.map((product) =>
 				ProductDTO.fromEntity(product)
 			);

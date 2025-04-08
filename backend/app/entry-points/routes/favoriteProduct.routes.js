@@ -79,18 +79,27 @@ router.delete(
 
 /**
  * @swagger
- * /api/favoriteProduct:
+ * /api/favoriteProduct/{email}:
  *   get:
  *     summary: Get all favorite products
  *     tags: [Favorite Products]
  *     security:
  *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: email
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: Email of the user
+ *         example: "user@example.com"
  *     responses:
  *       200:
  *         description: Favorite products retrieved successfully
  */
+
 router.get(
-	'/',
+	'/:email',
 	verifyAccessToken,
 	favoriteListController.getFavoriteProducts.bind(favoriteListController)
 );
