@@ -1,20 +1,51 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import api from "../../services/api";
 
-// Get initial state from localStorage
-const getInitialState = () => {
-  const accessToken = localStorage.getItem("access_token");
-  const refreshToken = localStorage.getItem("refresh_token");
-  const user = JSON.parse(localStorage.getItem("user") || "null");
+// Storage helpers
+const storage = {
+  get: (key) => {
+    if (key === "user") {
+      return JSON.parse(localStorage.getItem(key) || "null");
+    }
+    return localStorage.getItem(key);
+  },
+  set: (key, value) => {
+    if (key === "user") {
+      localStorage.setItem(key, JSON.stringify(value));
+    } else {
+      localStorage.setItem(key, value);
+    }
+  },
+  remove: (key) => localStorage.removeItem(key),
+  clear: () => {
+    localStorage.removeItem("access_token");
+    localStorage.removeItem("refresh_token");
+    localStorage.removeItem("user");
+  },
+};
 
-  return {
-    user,
-    accessToken,
-    refreshToken,
-    isAuthenticated: !!accessToken,
-    loading: false,
-    error: null,
-  };
+// Get initial state from localStorage
+const getInitialState = () => ({
+  user: storage.get("user"),
+  accessToken: storage.get("access_token"),
+  refreshToken: storage.get("refresh_token"),
+  isAuthenticated: !!storage.get("access_token"),
+  loading: false,
+  error: null,
+});
+
+// Helper to update auth state and storage
+const updateAuthState = (state, { user, accessToken, refreshToken }) => {
+  state.user = user;
+  state.accessToken = accessToken;
+  state.refreshToken = refreshToken;
+  state.isAuthenticated = true;
+  state.loading = false;
+  state.error = null;
+
+  storage.set("user", user);
+  storage.set("access_token", accessToken);
+  storage.set("refresh_token", refreshToken);
 };
 
 // Async thunks
@@ -22,10 +53,31 @@ export const login = createAsyncThunk(
   "auth/login",
   async (credentials, { rejectWithValue }) => {
     try {
+      console.log("Login attempt with:", credentials);
       const response = await api.post("/auth/login", credentials);
+      console.log("Login response:", response.data);
+
+      // Check if the response has the expected structure
+      if (!response.data || !response.data.data) {
+        console.error("Invalid response format:", response.data);
+        return rejectWithValue("Invalid response format from server");
+      }
+
       const { user, accessToken, refreshToken } = response.data.data;
-      return { user, accessToken, refreshToken };
+
+      // Validate required fields
+      if (!user || !accessToken || !refreshToken) {
+        console.error("Missing required fields:", {
+          user,
+          accessToken,
+          refreshToken,
+        });
+        return rejectWithValue("Missing required authentication data");
+      }
+
+      return response.data.data;
     } catch (error) {
+      console.error("Login error:", error);
       return rejectWithValue(error.response?.data?.message || "Login failed");
     }
   }
@@ -36,8 +88,7 @@ export const register = createAsyncThunk(
   async (userData, { rejectWithValue }) => {
     try {
       const response = await api.post("/auth/register", userData);
-      const { user, accessToken, refreshToken } = response.data.data;
-      return { user, accessToken, refreshToken };
+      return response.data.data;
     } catch (error) {
       return rejectWithValue(
         error.response?.data?.message || "Registration failed"
@@ -47,7 +98,7 @@ export const register = createAsyncThunk(
 );
 
 export const checkAuth = createAsyncThunk(
-  "auth/checkAuth",
+  "auth/profile",
   async (_, { rejectWithValue }) => {
     try {
       const response = await api.get("/auth/profile");
@@ -65,17 +116,7 @@ const authSlice = createSlice({
   initialState: getInitialState(),
   reducers: {
     setCredentials: (state, action) => {
-      const { user, accessToken, refreshToken } = action.payload;
-      state.user = user;
-      state.accessToken = accessToken;
-      state.refreshToken = refreshToken;
-      state.isAuthenticated = true;
-      state.error = null;
-
-      // Update localStorage
-      localStorage.setItem("access_token", accessToken);
-      localStorage.setItem("refresh_token", refreshToken);
-      localStorage.setItem("user", JSON.stringify(user));
+      updateAuthState(state, action.payload);
     },
     setLoading: (state, action) => {
       state.loading = action.payload;
@@ -93,15 +134,11 @@ const authSlice = createSlice({
       state.refreshToken = null;
       state.isAuthenticated = false;
       state.error = null;
-
-      // Clear localStorage
-      localStorage.removeItem("access_token");
-      localStorage.removeItem("refresh_token");
-      localStorage.removeItem("user");
+      storage.clear();
     },
     updateUser: (state, action) => {
       state.user = action.payload;
-      localStorage.setItem("user", JSON.stringify(action.payload));
+      storage.set("user", action.payload);
     },
   },
   extraReducers: (builder) => {
@@ -112,18 +149,7 @@ const authSlice = createSlice({
         state.error = null;
       })
       .addCase(login.fulfilled, (state, action) => {
-        const { user, accessToken, refreshToken } = action.payload;
-        state.user = user;
-        state.accessToken = accessToken;
-        state.refreshToken = refreshToken;
-        state.isAuthenticated = true;
-        state.loading = false;
-        state.error = null;
-
-        // Update localStorage
-        localStorage.setItem("access_token", accessToken);
-        localStorage.setItem("refresh_token", refreshToken);
-        localStorage.setItem("user", JSON.stringify(user));
+        updateAuthState(state, action.payload);
       })
       .addCase(login.rejected, (state, action) => {
         state.loading = false;
@@ -135,18 +161,7 @@ const authSlice = createSlice({
         state.error = null;
       })
       .addCase(register.fulfilled, (state, action) => {
-        const { user, accessToken, refreshToken } = action.payload;
-        state.user = user;
-        state.accessToken = accessToken;
-        state.refreshToken = refreshToken;
-        state.isAuthenticated = true;
-        state.loading = false;
-        state.error = null;
-
-        // Update localStorage
-        localStorage.setItem("access_token", accessToken);
-        localStorage.setItem("refresh_token", refreshToken);
-        localStorage.setItem("user", JSON.stringify(user));
+        updateAuthState(state, action.payload);
       })
       .addCase(register.rejected, (state, action) => {
         state.loading = false;
@@ -157,9 +172,19 @@ const authSlice = createSlice({
         state.loading = true;
       })
       .addCase(checkAuth.fulfilled, (state, action) => {
-        state.user = action.payload;
-        state.loading = false;
-        state.error = null;
+        if (action.payload) {
+          state.user = action.payload;
+          state.loading = false;
+          state.error = null;
+          storage.set("user", action.payload);
+        } else {
+          state.loading = false;
+          state.user = null;
+          state.accessToken = null;
+          state.refreshToken = null;
+          state.isAuthenticated = false;
+          storage.clear();
+        }
       })
       .addCase(checkAuth.rejected, (state) => {
         state.loading = false;
@@ -167,11 +192,7 @@ const authSlice = createSlice({
         state.accessToken = null;
         state.refreshToken = null;
         state.isAuthenticated = false;
-
-        // Clear localStorage
-        localStorage.removeItem("access_token");
-        localStorage.removeItem("refresh_token");
-        localStorage.removeItem("user");
+        storage.clear();
       });
   },
 });
@@ -185,12 +206,13 @@ export const {
   updateUser,
 } = authSlice.actions;
 
-// Selectors
-export const selectCurrentUser = (state) => state.auth.user;
+// Export the reducer
+export const reducer = authSlice.reducer;
+
+// Export selectors
+export const selectUser = (state) => state.auth.user;
 export const selectIsAuthenticated = (state) => state.auth.isAuthenticated;
-export const selectAuthLoading = (state) => state.auth.loading;
-export const selectAuthError = (state) => state.auth.error;
 export const selectAccessToken = (state) => state.auth.accessToken;
 export const selectRefreshToken = (state) => state.auth.refreshToken;
-
-export default authSlice.reducer;
+export const selectLoading = (state) => state.auth.loading;
+export const selectError = (state) => state.auth.error;

@@ -100,7 +100,7 @@ const mechanicalTheme = createTheme({
     MuiPaper: {
       styleOverrides: {
         root: {
-          borderRadius: "8px",
+          borderRadius: "0px",
           boxShadow: "0 4px 8px rgba(0,0,0,0.1)",
         },
       },

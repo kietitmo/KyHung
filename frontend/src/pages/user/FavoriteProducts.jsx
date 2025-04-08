@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useCallback, useEffect, useRef } from "react";
 import {
   Container,
   Grid,
@@ -10,29 +10,66 @@ import {
   Box,
   CircularProgress,
   Alert,
+  Button,
 } from "@mui/material";
-import FavoriteIcon from "@mui/icons-material/Favorite";
 import DeleteIcon from "@mui/icons-material/Delete";
-import { useAuth } from "../../hooks/useAuth";
+import { useSelector } from "react-redux";
 import { useFavorites } from "../../hooks/useFavorites";
+import { Link as RouterLink } from "react-router-dom";
 
 const FavoriteProducts = () => {
-  const { user } = useAuth();
-  const { favorites, loading, error, removeFavorite } = useFavorites();
+  const { user, isAuthenticated } = useSelector((state) => state.auth);
+  const { favorites, removeFromFavorites, loading, error, fetchFavorites } =
+    useFavorites();
   const [removeError, setRemoveError] = useState("");
+  const mountedRef = useRef(false);
 
-  const handleRemoveFavorite = async (productId) => {
-    try {
-      await removeFavorite(productId);
-    } catch (err) {
-      setRemoveError("Failed to remove product from favorites");
+  // Only fetch on mount if authenticated
+  useEffect(() => {
+    mountedRef.current = true;
+
+    if (isAuthenticated && user?.email) {
+      fetchFavorites();
     }
-  };
 
-  if (!user) {
+    return () => {
+      mountedRef.current = false;
+    };
+  }, [isAuthenticated, user?.email, fetchFavorites]);
+
+  const handleRemoveFavorite = useCallback(
+    async (productId) => {
+      if (!mountedRef.current) return;
+
+      try {
+        await removeFromFavorites({ email: user.email, productId });
+        setRemoveError("");
+      } catch (err) {
+        if (mountedRef.current) {
+          setRemoveError("Failed to remove product from favorites");
+        }
+      }
+    },
+    [user?.email, removeFromFavorites]
+  );
+
+  if (!isAuthenticated) {
     return (
       <Container>
-        <Typography>Please log in to view your favorite products.</Typography>
+        <Box sx={{ textAlign: "center", my: 4 }}>
+          <Typography variant="h5" gutterBottom>
+            Please log in to view your favorite products
+          </Typography>
+          <Button
+            component={RouterLink}
+            to="/login"
+            variant="contained"
+            color="primary"
+            sx={{ mt: 2 }}
+          >
+            Login
+          </Button>
+        </Box>
       </Container>
     );
   }
@@ -48,7 +85,18 @@ const FavoriteProducts = () => {
   if (error) {
     return (
       <Container>
-        <Alert severity="error">{error}</Alert>
+        <Alert severity="error" sx={{ mb: 2 }}>
+          {error}
+        </Alert>
+        <Button
+          component={RouterLink}
+          to="/login"
+          variant="contained"
+          color="primary"
+          sx={{ mt: 2 }}
+        >
+          Login Again
+        </Button>
       </Container>
     );
   }
@@ -70,12 +118,12 @@ const FavoriteProducts = () => {
       ) : (
         <Grid container spacing={3}>
           {favorites.map((product) => (
-            <Grid item xs={12} sm={6} md={4} key={product._id}>
+            <Grid item xs={12} sm={6} md={4} key={product.id}>
               <Card>
                 <CardMedia
                   component="img"
                   height="200"
-                  image={product.image}
+                  image={product.imageUrl}
                   alt={product.name}
                 />
                 <CardContent>
@@ -91,7 +139,7 @@ const FavoriteProducts = () => {
                     </Typography>
                     <IconButton
                       color="error"
-                      onClick={() => handleRemoveFavorite(product._id)}
+                      onClick={() => handleRemoveFavorite(product.id)}
                     >
                       <DeleteIcon />
                     </IconButton>

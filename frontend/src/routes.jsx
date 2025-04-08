@@ -21,9 +21,10 @@ import Dashboard from "./pages/admin/Dashboard";
 import UserManagement from "./pages/admin/UserManagement";
 import ProductManagement from "./pages/admin/ProductManagement";
 
+import { useSelector } from "react-redux";
 // Private Route Component
 const PrivateRoute = ({ children, adminOnly = false }) => {
-  const { isAuthenticated, user, loading } = useAuth();
+  const { isAuthenticated, user, loading } = useSelector((state) => state.auth);
 
   if (loading) {
     return <div>Loading...</div>;

@@ -1,9 +1,10 @@
 import axios from "axios";
-import { store } from "../store";
+import { store } from "../store/index.jsx";
 import {
   selectAccessToken,
   selectRefreshToken,
   logout,
+  setCredentials,
 } from "../store/slices/authSlice";
 import logger from "../utils/logger";
 

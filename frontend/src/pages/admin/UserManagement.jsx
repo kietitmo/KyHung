@@ -77,7 +77,6 @@ const UserManagement = () => {
     try {
       await updateUser(selectedUser._id, editFormData);
       setEditDialogOpen(false);
-      fetchUsers();
     } catch (err) {
       setActionError("Failed to update user");
     }
@@ -87,7 +86,6 @@ const UserManagement = () => {
     if (window.confirm("Are you sure you want to delete this user?")) {
       try {
         await deleteUser(userId);
-        fetchUsers();
       } catch (err) {
         setActionError("Failed to delete user");
       }
@@ -101,7 +99,6 @@ const UserManagement = () => {
       } else {
         await blockUser(userId);
       }
-      fetchUsers();
     } catch (err) {
       setActionError("Failed to update user status");
     }

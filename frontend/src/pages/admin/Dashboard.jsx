@@ -21,13 +21,13 @@ import {
   Inventory as InventoryIcon,
   TrendingUp as TrendingUpIcon,
 } from "@mui/icons-material";
-import { useAuth } from "../../hooks/useAuth";
 import { useAdmin } from "../../hooks/useAdmin";
+import { useSelector } from "react-redux";
 
 const Dashboard = () => {
   const navigate = useNavigate();
-  const { user } = useAuth();
-  const { stats, recentUsers, recentProducts, loading } = useAdmin();
+  const { user } = useSelector((state) => state.auth);
+  const { users, products } = useAdmin();
 
   if (!user || user.role !== "admin") {
     return (
@@ -36,32 +36,33 @@ const Dashboard = () => {
       </Container>
     );
   }
+  console.log("Rendering Dashboard component...");
 
   const statCards = [
     {
       title: "Total Users",
-      value: stats?.totalUsers || 0,
+      value: users?.length || 0,
       icon: <PeopleIcon sx={{ fontSize: 40 }} />,
       color: "#1976d2",
     },
     {
       title: "Total Products",
-      value: stats?.totalProducts || 0,
+      value: products?.length || 0,
       icon: <InventoryIcon sx={{ fontSize: 40 }} />,
       color: "#2e7d32",
     },
-    {
-      title: "Total Orders",
-      value: stats?.totalOrders || 0,
-      icon: <ShoppingCartIcon sx={{ fontSize: 40 }} />,
-      color: "#ed6c02",
-    },
-    {
-      title: "Revenue",
-      value: `$${stats?.totalRevenue?.toFixed(2) || "0.00"}`,
-      icon: <TrendingUpIcon sx={{ fontSize: 40 }} />,
-      color: "#9c27b0",
-    },
+    // {
+    //   title: "Total Orders",
+    //   value: stats?.totalOrders || 0,
+    //   icon: <ShoppingCartIcon sx={{ fontSize: 40 }} />,
+    //   color: "#ed6c02",
+    // },
+    // {
+    //   title: "Revenue",
+    //   value: `$${stats?.totalRevenue?.toFixed(2) || "0.00"}`,
+    //   icon: <TrendingUpIcon sx={{ fontSize: 40 }} />,
+    //   color: "#9c27b0",
+    // },
   ];
 
   return (
@@ -103,8 +104,8 @@ const Dashboard = () => {
               </Button>
             </Box>
             <List>
-              {recentUsers?.map((user) => (
-                <React.Fragment key={user._id}>
+              {users?.map((user) => (
+                <React.Fragment key={user.email}>
                   <ListItem>
                     <ListItemText
                       primary={`${user.firstName} ${user.lastName}`}
@@ -130,8 +131,8 @@ const Dashboard = () => {
               </Button>
             </Box>
             <List>
-              {recentProducts?.map((product) => (
-                <React.Fragment key={product._id}>
+              {products?.map((product) => (
+                <React.Fragment key={product.id}>
                   <ListItem>
                     <ListItemText
                       primary={product.name}

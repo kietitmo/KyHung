@@ -165,6 +165,17 @@ const MainLayout = () => {
                         </Link>
                       </Typography>
                     </MenuItem>
+                    <MenuItem onClick={handleCloseUserMenu}>
+                      <Typography textAlign="center">
+                        <Link
+                          component={RouterLink}
+                          to="/favorites"
+                          color="inherit"
+                        >
+                          Favorite Products
+                        </Link>
+                      </Typography>
+                    </MenuItem>
                     <MenuItem onClick={handleLogout}>
                       <Typography textAlign="center">Logout</Typography>
                     </MenuItem>

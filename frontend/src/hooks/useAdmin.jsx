@@ -1,46 +1,46 @@
-import { useState, useEffect } from "react";
-import { useAuth } from "./useAuth";
+import { useState, useEffect, useCallback, useRef } from "react";
+import { useSelector } from "react-redux";
 import api from "../services/api";
 
 export const useAdmin = () => {
-  const { user } = useAuth();
+  const { user, isAuthenticated } = useSelector((state) => state.auth);
   const [users, setUsers] = useState([]);
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
-  const fetchUsers = async () => {
+  const fetchUsers = useCallback(async () => {
     try {
       setLoading(true);
-      const response = await api.get("/admin/users");
-      setUsers(response.data);
+      const response = await api.get("/users");
+      setUsers(response.data.data);
       setError(null);
     } catch (err) {
       setError(err.response?.data?.message || "Failed to fetch users");
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
 
-  const fetchProducts = async () => {
+  const fetchProducts = useCallback(async () => {
     try {
       setLoading(true);
-      const response = await api.get("/admin/products");
-      setProducts(response.data);
+      const response = await api.get("/products");
+      setProducts(response.data.data);
       setError(null);
     } catch (err) {
       setError(err.response?.data?.message || "Failed to fetch products");
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
 
-  const updateUser = async (userId, userData) => {
+  const updateUser = async (email, userData) => {
     try {
       setLoading(true);
-      const response = await api.put(`/admin/users/${userId}`, userData);
+      const response = await api.put(`/users/${email}`, userData);
       setUsers(
-        users.map((user) => (user._id === userId ? response.data : user))
+        users.map((user) => (user.email === email ? response.data : user))
       );
       setError(null);
       return response.data;
@@ -52,11 +52,11 @@ export const useAdmin = () => {
     }
   };
 
-  const deleteUser = async (userId) => {
+  const deleteUser = async (email) => {
     try {
       setLoading(true);
-      await api.delete(`/admin/users/${userId}`);
-      setUsers(users.filter((user) => user._id !== userId));
+      await api.delete(`/users/${email}`);
+      setUsers(users.filter((user) => user.email !== email));
       setError(null);
     } catch (err) {
       setError(err.response?.data?.message || "Failed to delete user");
@@ -66,12 +66,12 @@ export const useAdmin = () => {
     }
   };
 
-  const blockUser = async (userId) => {
+  const blockUser = async (email) => {
     try {
       setLoading(true);
-      const response = await api.put(`/admin/users/${userId}/block`);
+      const response = await api.put(`/users/block-user/${email}`);
       setUsers(
-        users.map((user) => (user._id === userId ? response.data : user))
+        users.map((user) => (user.email === email ? response.data : user))
       );
       setError(null);
       return response.data;
@@ -83,12 +83,12 @@ export const useAdmin = () => {
     }
   };
 
-  const unblockUser = async (userId) => {
+  const unblockUser = async (email) => {
     try {
       setLoading(true);
-      const response = await api.put(`/admin/users/${userId}/unblock`);
+      const response = await api.put(`/users/unblock-user/${email}/`);
       setUsers(
-        users.map((user) => (user._id === userId ? response.data : user))
+        users.map((user) => (user.email === email ? response.data : user))
       );
       setError(null);
       return response.data;
@@ -103,10 +103,10 @@ export const useAdmin = () => {
   const createProduct = async (productData) => {
     try {
       setLoading(true);
-      const response = await api.post("/admin/products", productData);
-      setProducts([...products, response.data]);
+      const response = await api.post("/products", productData);
+      setProducts([...products, response.data.data]);
       setError(null);
-      return response.data;
+      return response.data.data;
     } catch (err) {
       setError(err.response?.data?.message || "Failed to create product");
       throw err;
@@ -118,13 +118,10 @@ export const useAdmin = () => {
   const updateProduct = async (productId, productData) => {
     try {
       setLoading(true);
-      const response = await api.put(
-        `/admin/products/${productId}`,
-        productData
-      );
+      const response = await api.put(`/products/${productId}`, productData);
       setProducts(
         products.map((product) =>
-          product._id === productId ? response.data : product
+          product.id === productId ? response.data : product
         )
       );
       setError(null);
@@ -140,8 +137,8 @@ export const useAdmin = () => {
   const deleteProduct = async (productId) => {
     try {
       setLoading(true);
-      await api.delete(`/admin/products/${productId}`);
-      setProducts(products.filter((product) => product._id !== productId));
+      await api.delete(`/products/${productId}`);
+      setProducts(products.filter((product) => product.id !== productId));
       setError(null);
     } catch (err) {
       setError(err.response?.data?.message || "Failed to delete product");
@@ -151,12 +148,16 @@ export const useAdmin = () => {
     }
   };
 
+  const hasFetched = useRef(false);
+
   useEffect(() => {
-    if (user?.role === "admin") {
+    if (!hasFetched.current && user?.role === "admin" && isAuthenticated) {
+      console.log("Fetching admin data once...");
       fetchUsers();
       fetchProducts();
+      hasFetched.current = true;
     }
-  }, [user]);
+  }, [user?.role, isAuthenticated, fetchUsers, fetchProducts]);
 
   return {
     users,

@@ -18,17 +18,18 @@ import {
   InputLabel,
   Select,
   MenuItem,
+  Zoom,
 } from "@mui/material";
 import SearchIcon from "@mui/icons-material/Search";
 import FavoriteIcon from "@mui/icons-material/Favorite";
 import FavoriteBorderIcon from "@mui/icons-material/FavoriteBorder";
-import { useAuth } from "../hooks/useAuth";
+import { useSelector } from "react-redux";
 import { useFavorites } from "../hooks/useFavorites";
 import api from "../services/api";
 
 const ProductList = () => {
-  const { user } = useAuth();
-  const { favorites, addToFavorites, removeFromFavorites, isFavorite } =
+  const { user } = useSelector((state) => state.auth);
+  const { addToFavorites, removeFromFavorites, isFavorite, favorites } =
     useFavorites();
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -39,6 +40,12 @@ const ProductList = () => {
   const [category, setCategory] = useState("all");
   const [categories, setCategories] = useState({ data: { data: [] } });
   const [categoriesLoading, setCategoriesLoading] = useState(true);
+  const [favoriteIds, setFavoriteIds] = useState(new Set());
+
+  useEffect(() => {
+    const newSet = new Set(favorites.map((item) => item.id));
+    setFavoriteIds(newSet);
+  }, [favorites]);
 
   // Fetch categories on component mount
   useEffect(() => {
@@ -105,17 +112,18 @@ const ProductList = () => {
   };
 
   const handleToggleFavorite = async (productId) => {
-    if (!user) {
-      // Redirect to login or show login modal
-      return;
-    }
+    if (!user) return;
 
+    const newSet = new Set(favoriteIds);
     try {
-      if (isFavorite(productId)) {
-        await removeFromFavorites(productId);
+      if (newSet.has(productId)) {
+        await removeFromFavorites({ email: user.email, productId });
+        newSet.delete(productId);
       } else {
-        await addToFavorites(productId);
+        await addToFavorites({ email: user.email, productId });
+        newSet.add(productId);
       }
+      setFavoriteIds(newSet); // cập nhật local state tạm thời
     } catch (err) {
       console.error("Error toggling favorite:", err);
     }
@@ -171,7 +179,8 @@ const ProductList = () => {
                 disabled={categoriesLoading}
               >
                 <MenuItem value="all">All Categories</MenuItem>
-                {Array.isArray(categories.data.data) &&
+                {categories.data !== null &&
+                  Array.isArray(categories.data.data) &&
                   categories.data.data.map((cat) => (
                     <MenuItem key={cat.id} value={cat.id}>
                       {cat.name}
@@ -222,11 +231,13 @@ const ProductList = () => {
                         color="primary"
                         onClick={() => handleToggleFavorite(product.id)}
                       >
-                        {isFavorite(product.id) ? (
-                          <FavoriteIcon />
-                        ) : (
-                          <FavoriteBorderIcon />
-                        )}
+                        <Zoom in={true}>
+                          {favoriteIds.has(product.id) ? (
+                            <FavoriteIcon />
+                          ) : (
+                            <FavoriteBorderIcon />
+                          )}
+                        </Zoom>
                       </IconButton>
                     </Box>
                     <Typography
