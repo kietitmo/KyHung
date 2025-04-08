@@ -46,8 +46,7 @@ const UserManagement = () => {
   const [editDialogOpen, setEditDialogOpen] = useState(false);
   const [selectedUser, setSelectedUser] = useState(null);
   const [editFormData, setEditFormData] = useState({
-    firstName: "",
-    lastName: "",
+    fullName: "",
     email: "",
     role: "",
   });
@@ -65,8 +64,7 @@ const UserManagement = () => {
   const handleEditClick = (user) => {
     setSelectedUser(user);
     setEditFormData({
-      firstName: user.firstName,
-      lastName: user.lastName,
+      fullName: user.fullName,
       email: user.email,
       role: user.role,
     });
@@ -75,29 +73,29 @@ const UserManagement = () => {
 
   const handleEditSubmit = async () => {
     try {
-      await updateUser(selectedUser._id, editFormData);
+      await updateUser(selectedUser.email, editFormData);
       setEditDialogOpen(false);
     } catch (err) {
       setActionError("Failed to update user");
     }
   };
 
-  const handleDeleteUser = async (userId) => {
+  const handleDeleteUser = async (email) => {
     if (window.confirm("Are you sure you want to delete this user?")) {
       try {
-        await deleteUser(userId);
+        await deleteUser(email);
       } catch (err) {
         setActionError("Failed to delete user");
       }
     }
   };
 
-  const handleBlockUser = async (userId, isBlocked) => {
+  const handleBlockUser = async (email, isBlocked, reason) => {
     try {
       if (isBlocked) {
-        await unblockUser(userId);
+        await unblockUser(email);
       } else {
-        await blockUser(userId);
+        await blockUser(email, reason);
       }
     } catch (err) {
       setActionError("Failed to update user status");
@@ -144,16 +142,14 @@ const UserManagement = () => {
             </TableRow>
           </TableHead>
           <TableBody>
-            {users
-              .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
+            {users?.data
+              ?.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
               .map((user) => (
-                <TableRow key={user._id}>
-                  <TableCell>
-                    {user.firstName} {user.lastName}
-                  </TableCell>
+                <TableRow key={user.email}>
+                  <TableCell>{user.fullName}</TableCell>
                   <TableCell>{user.email}</TableCell>
                   <TableCell>{user.role}</TableCell>
-                  <TableCell>{user.isBlocked ? "Blocked" : "Active"}</TableCell>
+                  <TableCell>{user.isBlocked ? "True" : "False"}</TableCell>
                   <TableCell>
                     <IconButton
                       color="primary"
@@ -163,13 +159,15 @@ const UserManagement = () => {
                     </IconButton>
                     <IconButton
                       color={user.isBlocked ? "success" : "warning"}
-                      onClick={() => handleBlockUser(user._id, user.isBlocked)}
+                      onClick={() =>
+                        handleBlockUser(user.email, user.isBlocked, "null")
+                      }
                     >
                       {user.isBlocked ? <CheckCircleIcon /> : <BlockIcon />}
                     </IconButton>
                     <IconButton
                       color="error"
-                      onClick={() => handleDeleteUser(user._id)}
+                      onClick={() => handleDeleteUser(user.email)}
                     >
                       <DeleteIcon />
                     </IconButton>
@@ -181,9 +179,9 @@ const UserManagement = () => {
         <TablePagination
           rowsPerPageOptions={[5, 10, 25]}
           component="div"
-          count={users.length}
-          rowsPerPage={rowsPerPage}
-          page={page}
+          count={users?.data?.length}
+          rowsPerPage={users?.limit}
+          page={users?.page - 1}
           onPageChange={handleChangePage}
           onRowsPerPageChange={handleChangeRowsPerPage}
         />

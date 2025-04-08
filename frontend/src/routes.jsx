@@ -1,4 +1,4 @@
-import { Routes, Route, Navigate } from "react-router-dom";
+import { Routes, Route, Navigate, Outlet } from "react-router-dom";
 import { useAuth } from "./hooks/useAuth";
 import MainLayout from "./layouts/MainLayout";
 import AdminLayout from "./layouts/AdminLayout";
@@ -23,22 +23,14 @@ import ProductManagement from "./pages/admin/ProductManagement";
 
 import { useSelector } from "react-redux";
 // Private Route Component
-const PrivateRoute = ({ children, adminOnly = false }) => {
+const PrivateRoute = ({ adminOnly = false }) => {
   const { isAuthenticated, user, loading } = useSelector((state) => state.auth);
 
-  if (loading) {
-    return <div>Loading...</div>;
-  }
+  if (loading) return <div>Loading...</div>;
+  if (!isAuthenticated) return <Navigate to="/login" />;
+  if (adminOnly && user?.role !== "admin") return <Navigate to="/" />;
 
-  if (!isAuthenticated) {
-    return <Navigate to="/login" />;
-  }
-
-  if (adminOnly && user?.role !== "admin") {
-    return <Navigate to="/" />;
-  }
-
-  return children;
+  return <Outlet />;
 };
 
 const AppRoutes = () => {
@@ -84,7 +76,7 @@ const AppRoutes = () => {
       <Route
         path="/admin"
         element={
-          <PrivateRoute adminOnly>
+          <PrivateRoute adminOnly={true}>
             <AdminLayout />
           </PrivateRoute>
         }

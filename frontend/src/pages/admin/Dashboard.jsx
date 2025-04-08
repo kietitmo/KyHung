@@ -36,18 +36,17 @@ const Dashboard = () => {
       </Container>
     );
   }
-  console.log("Rendering Dashboard component...");
 
   const statCards = [
     {
       title: "Total Users",
-      value: users?.length || 0,
+      value: users?.data?.length || 0,
       icon: <PeopleIcon sx={{ fontSize: 40 }} />,
       color: "#1976d2",
     },
     {
       title: "Total Products",
-      value: products?.length || 0,
+      value: products?.data?.length || 0,
       icon: <InventoryIcon sx={{ fontSize: 40 }} />,
       color: "#2e7d32",
     },
@@ -104,11 +103,11 @@ const Dashboard = () => {
               </Button>
             </Box>
             <List>
-              {users?.map((user) => (
+              {users?.data?.map((user) => (
                 <React.Fragment key={user.email}>
                   <ListItem>
                     <ListItemText
-                      primary={`${user.firstName} ${user.lastName}`}
+                      primary={user.fullName}
                       secondary={user.email}
                     />
                   </ListItem>
@@ -131,7 +130,7 @@ const Dashboard = () => {
               </Button>
             </Box>
             <List>
-              {products?.map((product) => (
+              {products?.data?.map((product) => (
                 <React.Fragment key={product.id}>
                   <ListItem>
                     <ListItemText

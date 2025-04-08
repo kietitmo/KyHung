@@ -39,11 +39,10 @@ export const useAdmin = () => {
     try {
       setLoading(true);
       const response = await api.put(`/users/${email}`, userData);
-      setUsers(
-        users.map((user) => (user.email === email ? response.data : user))
-      );
+      const users_res = await api.get("/users");
+      setUsers(users_res.data.data);
       setError(null);
-      return response.data;
+      return response.data.data;
     } catch (err) {
       setError(err.response?.data?.message || "Failed to update user");
       throw err;
@@ -56,7 +55,8 @@ export const useAdmin = () => {
     try {
       setLoading(true);
       await api.delete(`/users/${email}`);
-      setUsers(users.filter((user) => user.email !== email));
+      const users_res = await api.get("/users");
+      setUsers(users_res.data.data);
       setError(null);
     } catch (err) {
       setError(err.response?.data?.message || "Failed to delete user");
@@ -66,15 +66,14 @@ export const useAdmin = () => {
     }
   };
 
-  const blockUser = async (email) => {
+  const blockUser = async (email, reason) => {
     try {
       setLoading(true);
-      const response = await api.put(`/users/block-user/${email}`);
-      setUsers(
-        users.map((user) => (user.email === email ? response.data : user))
-      );
+      const response = await api.put(`/auth/block-user`, { email, reason });
+      const users_res = await api.get("/users");
+      setUsers(users_res.data.data);
       setError(null);
-      return response.data;
+      return response.data.data;
     } catch (err) {
       setError(err.response?.data?.message || "Failed to block user");
       throw err;
@@ -86,12 +85,11 @@ export const useAdmin = () => {
   const unblockUser = async (email) => {
     try {
       setLoading(true);
-      const response = await api.put(`/users/unblock-user/${email}/`);
-      setUsers(
-        users.map((user) => (user.email === email ? response.data : user))
-      );
+      const response = await api.put(`/auth/unblock-user`, { email });
+      const users_res = await api.get("/users");
+      setUsers(users_res.data.data);
       setError(null);
-      return response.data;
+      return response.data.data;
     } catch (err) {
       setError(err.response?.data?.message || "Failed to unblock user");
       throw err;
@@ -152,7 +150,6 @@ export const useAdmin = () => {
 
   useEffect(() => {
     if (!hasFetched.current && user?.role === "admin" && isAuthenticated) {
-      console.log("Fetching admin data once...");
       fetchUsers();
       fetchProducts();
       hasFetched.current = true;
