@@ -1,0 +1,80 @@
+version: "3.8"
+
+services:
+  # Backend service
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: kyhung-backend
+    restart: unless-stopped
+    env_file:
+      - ./backend/.env.production
+    environment:
+      - NODE_ENV=production
+      - PORT=5001
+    ports:
+      - "5001:5001"
+    volumes:
+      - ./backend/logs:/app/logs
+    networks:
+      - kyhung-network
+    depends_on:
+      - mongodb
+
+  # Frontend build service
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+      args:
+        - NODE_ENV=production
+    container_name: frontend
+    volumes:
+      - frontend_build:/app/dist
+    networks:
+      - kyhung-network
+
+  # Nginx reverse proxy and static file server
+  nginx:
+    build:
+      context: ./nginx
+      dockerfile: Dockerfile
+    container_name: kyhung-nginx
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - frontend_build:/usr/share/nginx/html:ro
+      - ./nginx/ssl:/etc/nginx/ssl:ro
+    networks:
+      - kyhung-network
+    depends_on:
+      - backend
+      - frontend
+
+  # MongoDB database
+  mongodb:
+    image: mongo:latest
+    container_name: kyhung-mongodb
+    restart: unless-stopped
+    environment:
+      - MONGO_INITDB_ROOT_USERNAME=admin
+      - MONGO_INITDB_ROOT_PASSWORD=password
+    volumes:
+      - mongodb-data:/data/db
+    networks:
+      - kyhung-network
+    ports:
+      - "27017:27017"
+
+networks:
+  kyhung-network:
+    driver: bridge
+
+volumes:
+  mongodb-data:
+    driver: local
+  frontend_build:
+    driver: local
