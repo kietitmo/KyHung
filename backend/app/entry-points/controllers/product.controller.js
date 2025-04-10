@@ -30,7 +30,7 @@ class ProductController {
 
 	async getProducts(req, res, next) {
 		try {
-			const getProductRequest = GetAllRequestDTO.fromRequest(req.body);
+			const getProductRequest = GetAllRequestDTO.fromRequest(req);
 			const productResponse =
 				await this.productService.getProducts(getProductRequest);
 

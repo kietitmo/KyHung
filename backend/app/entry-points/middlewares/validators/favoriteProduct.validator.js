@@ -25,4 +25,5 @@ const validateFavoriteProduct = (req, res, next) => {
 	next();
 };
 
+
 export { validateFavoriteProduct };

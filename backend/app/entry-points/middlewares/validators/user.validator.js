@@ -78,15 +78,84 @@ const validateGetOneUser = (req, res, next) => {
 };
 
 const validateGetUser = (req, res, next) => {
-	const { filter, limit, page } = req.body;
-	if (filter && typeof filter !== 'object') {
-		throw new CustomError(errorCode.USER_BAD_REQUEST);
+	const { filter, limit, page } = req.query;
+
+	// Validate filter if provided
+	if (filter) {
+		try {
+			const parsedFilter =
+				typeof filter === 'string' ? JSON.parse(filter) : filter;
+
+			// Validate filter structure
+			if (typeof parsedFilter !== 'object' || parsedFilter === null) {
+				throw new CustomError(errorCode.USER_BAD_REQUEST);
+			}
+
+			// Validate specific filter fields if they exist
+			if (parsedFilter.email && typeof parsedFilter.email !== 'string') {
+				throw new CustomError(errorCode.USER_BAD_REQUEST);
+			}
+
+			if (parsedFilter.fullName && typeof parsedFilter.fullName !== 'string') {
+				throw new CustomError(errorCode.USER_BAD_REQUEST);
+			}
+
+			if (parsedFilter.role && !['user', 'admin'].includes(parsedFilter.role)) {
+				throw new CustomError(errorCode.USER_BAD_REQUEST);
+			}
+
+			if (
+				parsedFilter.isVerified !== undefined &&
+				typeof parsedFilter.isVerified !== 'boolean'
+			) {
+				throw new CustomError(errorCode.USER_BAD_REQUEST);
+			}
+
+			if (parsedFilter.createdAt) {
+				if (
+					typeof parsedFilter.createdAt !== 'object' ||
+					parsedFilter.createdAt === null
+				) {
+					throw new CustomError(errorCode.USER_BAD_REQUEST);
+				}
+
+				// Validate date range operators
+				const validOperators = ['$gt', '$gte', '$lt', '$lte', '$eq'];
+				const operators = Object.keys(parsedFilter.createdAt);
+
+				for (const op of operators) {
+					if (!validOperators.includes(op)) {
+						throw new CustomError(errorCode.USER_BAD_REQUEST);
+					}
+					// Validate date format
+					const date = new Date(parsedFilter.createdAt[op]);
+					if (isNaN(date.getTime())) {
+						throw new CustomError(errorCode.USER_BAD_REQUEST);
+					}
+				}
+			}
+		} catch (error) {
+			if (error instanceof CustomError) {
+				throw error;
+			}
+			throw new CustomError(errorCode.USER_BAD_REQUEST);
+		}
 	}
-	if (limit && (typeof limit !== 'number' || limit < 1)) {
-		throw new CustomError(errorCode.USER_BAD_REQUEST);
+
+	// Validate limit
+	if (limit) {
+		const parsedLimit = parseInt(limit);
+		if (isNaN(parsedLimit) || parsedLimit < 1 || parsedLimit > 100) {
+			throw new CustomError(errorCode.USER_BAD_REQUEST);
+		}
 	}
-	if (page && (typeof page !== 'number' || page < 1)) {
-		throw new CustomError(errorCode.USER_BAD_REQUEST);
+
+	// Validate page
+	if (page) {
+		const parsedPage = parseInt(page);
+		if (isNaN(parsedPage) || parsedPage < 1) {
+			throw new CustomError(errorCode.USER_BAD_REQUEST);
+		}
 	}
 
 	next();

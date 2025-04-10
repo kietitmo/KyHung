@@ -17,7 +17,7 @@ class ProductService {
 			offset,
 			['category']
 		);
-		const total = await this.productRepository.count();
+		const total = products.length;
 		const totalPages = Math.ceil(total / getAllRequest.limit);
 		const productResponse = products.map((product) =>
 			ProductDTO.fromEntity(product)

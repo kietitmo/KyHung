@@ -20,8 +20,8 @@ class BaseRepository {
 		return query;
 	}
 
-	async count() {
-		return this.model.countDocuments();
+	async count(filter = {}) {
+		return this.model.countDocuments(filter);
 	}
 
 	async findOne(condition, populate = []) {
