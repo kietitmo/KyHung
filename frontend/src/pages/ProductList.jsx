@@ -69,11 +69,17 @@ const ProductList = () => {
   useEffect(() => {
     const fetchProducts = async () => {
       try {
+        let response;
         setLoading(true);
-        const categoryId = category !== "all" ? category : "";
-        const response = await api.get(
-          `/products?page=${page}&limit=12&search=${searchTerm}&categoryId=${categoryId}`
-        );
+        if (category !== "all") {
+          const categoryId = category;
+          console.log("Category ID:", category);
+          response = await api.get(
+            `/products?filter={"category":"${categoryId}"}`
+          );
+        } else {
+          response = await api.get(`/products`);
+        }
 
         // Extract products from the API response structure
         const productsData = response.data?.data?.data || [];

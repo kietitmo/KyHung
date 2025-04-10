@@ -70,7 +70,7 @@ const Products = () => {
     dispatch(fetchProducts({ page: value, search }));
   };
 
-  if (loading && !products.length) {
+  if (loading && !products?.data?.length) {
     return (
       <Box
         sx={{
@@ -86,7 +86,7 @@ const Products = () => {
   }
 
   // Ensure products is always an array
-  const productsArray = Array.isArray(products) ? products : [];
+  const productsArray = Array.isArray(products?.data) ? products?.data : [];
 
   return (
     <Container>

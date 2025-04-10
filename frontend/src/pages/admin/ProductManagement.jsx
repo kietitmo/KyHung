@@ -69,8 +69,8 @@ const ProductManagement = () => {
       name: product.name,
       description: product.description,
       price: product.price,
-      image: product.image,
-      category: product.category,
+      image: product.imageUrl,
+      category: product.category.name,
       stock: product.stock,
     });
     setDialogOpen(true);
@@ -82,7 +82,7 @@ const ProductManagement = () => {
       name: "",
       description: "",
       price: "",
-      image: "",
+      imageUrl: "",
       category: "",
       stock: "",
     });
@@ -159,26 +159,26 @@ const ProductManagement = () => {
               <TableCell>Name</TableCell>
               <TableCell>Category</TableCell>
               <TableCell>Price</TableCell>
-              <TableCell>Stock</TableCell>
+              <TableCell>Description</TableCell>
               <TableCell>Actions</TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
-            {products
-              .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
+            {products?.data
+              ?.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
               .map((product) => (
                 <TableRow key={product._id}>
                   <TableCell>
                     <img
-                      src={product.image}
+                      src={product.imageUrl}
                       alt={product.name}
                       style={{ width: 50, height: 50, objectFit: "cover" }}
                     />
                   </TableCell>
                   <TableCell>{product.name}</TableCell>
-                  <TableCell>{product.category}</TableCell>
+                  <TableCell>{product.category.name}</TableCell>
                   <TableCell>${product.price}</TableCell>
-                  <TableCell>{product.stock}</TableCell>
+                  <TableCell>{product.description}</TableCell>
                   <TableCell>
                     <IconButton
                       color="primary"
@@ -200,7 +200,7 @@ const ProductManagement = () => {
         <TablePagination
           rowsPerPageOptions={[5, 10, 25]}
           component="div"
-          count={products.length}
+          count={products?.data?.length}
           rowsPerPage={rowsPerPage}
           page={page}
           onPageChange={handleChangePage}

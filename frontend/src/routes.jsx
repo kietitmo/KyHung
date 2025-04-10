@@ -22,15 +22,37 @@ import UserManagement from "./pages/admin/UserManagement";
 import ProductManagement from "./pages/admin/ProductManagement";
 
 import { useSelector } from "react-redux";
+import { Box, CircularProgress } from "@mui/material";
+
 // Private Route Component
-const PrivateRoute = ({ adminOnly = false }) => {
+const PrivateRoute = ({ children, adminOnly = false }) => {
   const { isAuthenticated, user, loading } = useSelector((state) => state.auth);
 
-  if (loading) return <div>Loading...</div>;
-  if (!isAuthenticated) return <Navigate to="/login" />;
-  if (adminOnly && user?.role !== "admin") return <Navigate to="/" />;
+  if (loading) {
+    return (
+      <Box
+        sx={{
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
+          minHeight: "200px",
+        }}
+      >
+        <CircularProgress />
+      </Box>
+    );
+  }
 
-  return <Outlet />;
+  if (!isAuthenticated) {
+    return <Navigate to="/login" replace />;
+  }
+
+  if (adminOnly && user?.role !== "admin") {
+    return <Navigate to="/" replace />;
+  }
+
+  // If children is provided, render it, otherwise render Outlet
+  return children || <Outlet />;
 };
 
 const AppRoutes = () => {
@@ -73,17 +95,31 @@ const AppRoutes = () => {
       </Route>
 
       {/* Admin Routes */}
-      <Route
-        path="/admin"
-        element={
-          <PrivateRoute adminOnly={true}>
-            <AdminLayout />
-          </PrivateRoute>
-        }
-      >
-        <Route index element={<Dashboard />} />
-        <Route path="users" element={<UserManagement />} />
-        <Route path="products" element={<ProductManagement />} />
+      <Route path="/admin" element={<AdminLayout />}>
+        <Route
+          index
+          element={
+            <PrivateRoute adminOnly>
+              <Dashboard />
+            </PrivateRoute>
+          }
+        />
+        <Route
+          path="users"
+          element={
+            <PrivateRoute adminOnly>
+              <UserManagement />
+            </PrivateRoute>
+          }
+        />
+        <Route
+          path="products"
+          element={
+            <PrivateRoute adminOnly>
+              <ProductManagement />
+            </PrivateRoute>
+          }
+        />
       </Route>
 
       {/* 404 Route */}
