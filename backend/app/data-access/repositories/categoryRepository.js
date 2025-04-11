@@ -1,4 +1,4 @@
-import Category from '../../domain/models/category.js';
+import Category from '../../domain/models/category.model.js';
 import BaseRepository from './baseRepository.js';
 
 class CategoryRepository extends BaseRepository {

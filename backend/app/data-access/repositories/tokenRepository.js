@@ -1,4 +1,4 @@
-import Token from '../../domain/models/token.js';
+import Token from '../../domain/models/token.model.js';
 import BaseRepository from './baseRepository.js';
 
 class TokenRepository extends BaseRepository {
