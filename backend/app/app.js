@@ -15,10 +15,14 @@ import userRoutes from './entry-points/routes/user.routes.js';
 import productRoutes from './entry-points/routes/product.routes.js';
 import categoryRoutes from './entry-points/routes/category.routes.js';
 import favoriteProductRoutes from './entry-points/routes/favoriteProduct.routes.js';
+import fileRoutes from './entry-points/routes/file.routes.js';
 
 // Middleware
 import errorHandler from './entry-points/middlewares/error.middleware.js';
-import { apiLimiter, authLimiter } from './entry-points/middlewares/rateLimiter.middleware.js';
+import {
+	apiLimiter,
+	authLimiter,
+} from './entry-points/middlewares/rateLimiter.middleware.js';
 import applySecurityMiddleware from './entry-points/middlewares/security.middleware.js';
 import logger from './entry-points/middlewares/logger.middleware.js';
 
@@ -46,22 +50,24 @@ class App {
 	initializeMiddleware() {
 		// Apply security middleware
 		applySecurityMiddleware(this.app);
-		
+
 		// Apply logger
 		logger(this.app);
-		
+
 		// Parse JSON bodies
 		this.app.use(express.json({ limit: env.REQUEST_BODY_LIMIT }));
-		
+
 		// Parse URL-encoded bodies
-		this.app.use(express.urlencoded({ extended: true, limit: env.REQUEST_BODY_LIMIT }));
-		
+		this.app.use(
+			express.urlencoded({ extended: true, limit: env.REQUEST_BODY_LIMIT })
+		);
+
 		// Parse cookies
 		this.app.use(cookieParser());
-		
+
 		// Initialize passport
 		this.app.use(passport.initialize());
-		
+
 		// Apply rate limiting
 		this.app.use('/api/auth/login', authLimiter);
 		this.app.use('/api/auth/register', authLimiter);
@@ -72,28 +78,29 @@ class App {
 	initializeRoutes() {
 		// Health check endpoint
 		this.app.get('/health', (req, res) => {
-			res.status(200).json({ 
-				status: 'ok', 
+			res.status(200).json({
+				status: 'ok',
 				timestamp: new Date().toISOString(),
-				environment: env.NODE_ENV
+				environment: env.NODE_ENV,
 			});
 		});
-		
+
 		// Swagger UI
 		this.app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
-		
+
 		// API routes
 		this.app.use('/api/auth', authRoutes);
 		this.app.use('/api/users', userRoutes);
 		this.app.use('/api/products', productRoutes);
 		this.app.use('/api/categories', categoryRoutes);
 		this.app.use('/api/favoriteProduct', favoriteProductRoutes);
-		
+		this.app.use('/api/files', fileRoutes);
+
 		// Handle 404 routes
 		this.app.use('*', (req, res) => {
 			res.status(404).json({
 				status: 'fail',
-				message: `Can't find ${req.originalUrl} on this server!`
+				message: `Can't find ${req.originalUrl} on this server!`,
 			});
 		});
 	}
