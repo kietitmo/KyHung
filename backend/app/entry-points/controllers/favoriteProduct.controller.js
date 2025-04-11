@@ -1,4 +1,4 @@
-import FavoriteProductService from '../../domain/services/favoriteProductservice.js';
+import FavoriteProductService from '../../domain/services/favoriteProduct.service.js';
 import APIResponse from '../../domain/custom/apiResponse.js';
 import { successCode } from '../../utils/code/userResponseCode.js';
 import FavoriteProductDTO from '../../domain/dto/favoriteProduct/favoriteProductDTO.js';

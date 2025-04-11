@@ -107,6 +107,17 @@ const envSchema = joi
 			.valid('debug', 'info', 'warn', 'error')
 			.default('info'),
 		CORS_ORIGIN: joi.string().required(),
+
+		STORAGE_PROVIDER: joi.string().required(),
+		AWS_REGION: joi.string().required(),
+		AWS_ACCESS_KEY_ID: joi.string().required(),
+		AWS_SECRET_ACCESS_KEY: joi.string().required(),
+		AWS_BUCKET_NAME: joi.string().required(),
+		AWS_BUCKET_REGION: joi.string().required(),
+
+		GCS_KEY_FILE: joi.string().required(),
+		GCS_PROJECT_ID: joi.string().required(),
+		GCS_BUCKET_NAME: joi.string().required(),
 	})
 	.unknown();
 
@@ -204,6 +215,18 @@ const envObj = {
 	// Environment-specific settings
 	LOG_LEVEL: process.env.LOG_LEVEL || 'info',
 	CORS_ORIGIN: process.env.CORS_ORIGIN || 'http://localhost:5731',
+
+	// Storage
+	STORAGE_PROVIDER: process.env.STORAGE_PROVIDER,
+	AWS_REGION: process.env.AWS_REGION,
+	AWS_ACCESS_KEY_ID: process.env.AWS_ACCESS_KEY_ID,
+	AWS_SECRET_ACCESS_KEY: process.env.AWS_SECRET_ACCESS_KEY,
+	AWS_BUCKET_NAME: process.env.AWS_BUCKET_NAME,
+	AWS_BUCKET_REGION: process.env.AWS_BUCKET_REGION,
+
+	GCS_KEY_FILE: process.env.GCS_KEY_FILE,
+	GCS_PROJECT_ID: process.env.GCS_PROJECT_ID,
+	GCS_BUCKET_NAME: process.env.GCS_BUCKET_NAME,
 };
 
 // Validate and export the environment variables

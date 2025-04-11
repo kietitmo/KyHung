@@ -1,4 +1,4 @@
-import Product from '../../domain/models/product.js';
+import Product from '../../domain/models/product.model.js';
 import BaseRepository from './baseRepository.js';
 
 class ProductRepository extends BaseRepository {
