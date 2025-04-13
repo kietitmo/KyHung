@@ -4,46 +4,52 @@ import cookieParser from 'cookie-parser';
 import passport from 'passport';
 import 'module-alias/register.js';
 import swaggerUi from 'swagger-ui-express';
-import swaggerSpec from './config/swagger.js';
+import swaggerSpec from './common/config/swagger.js';
 
 // Database
-import connectDB from './data-access/db/db.js';
+import connectDB from './common/db/db.js';
 
 // Routes
-import authRoutes from './entry-points/routes/auth.routes.js';
-import userRoutes from './entry-points/routes/user.routes.js';
-import productRoutes from './entry-points/routes/product.routes.js';
-import categoryRoutes from './entry-points/routes/category.routes.js';
-import favoriteProductRoutes from './entry-points/routes/favoriteProduct.routes.js';
-import fileRoutes from './entry-points/routes/file.routes.js';
+import authRoutes from './auth/entry-points/routes/auth.routes.js';
+import userRoutes from './user/entry-points/routes/user.routes.js';
+import adminRoutes from './user/entry-points/routes/admin.routes.js';
+import productRoutes from './product/entry-points/routes/product.routes.js';
+import categoryRoutes from './category/entry-points/routes/category.routes.js';
+import favoriteProductRoutes from './favorite/entry-points/routes/favoriteProduct.routes.js';
+// import fileRoutes from './common/file-service/file.routes.js';
 
 // Middleware
-import errorHandler from './entry-points/middlewares/error.middleware.js';
+import errorHandler from './common/middlewares/error.middleware.js';
 import {
 	apiLimiter,
 	authLimiter,
-} from './entry-points/middlewares/rateLimiter.middleware.js';
-import applySecurityMiddleware from './entry-points/middlewares/security.middleware.js';
-import logger from './entry-points/middlewares/logger.middleware.js';
+} from './common/middlewares/rateLimiter.middleware.js';
+import applySecurityMiddleware from './common/middlewares/security.middleware.js';
+import {
+	logger,
+	morganMiddleware,
+} from './common/middlewares/logger.middleware.js';
 
 // Configuration
-import './config/passportConfig.js';
-import env from './config/env.js';
+import './common/config/passportConfig.js';
+import env from './common/config/env.js';
 
 class App {
 	constructor() {
 		this.app = express();
-		this.port = env.PORT || 5000;
-
-		this.initializeDatabase();
-		this.initializeMiddleware();
-		this.initializeRoutes();
-		this.initializeErrorHandling();
+		this.port = env.PORT || 5001;
+		this.server = null;
 	}
 
 	// Initialize database connection
-	initializeDatabase() {
-		connectDB(env.MONGODB_URI);
+	async initializeDatabase() {
+		try {
+			await connectDB(env.MONGODB_URI);
+			logger.console('Database connected successfully');
+		} catch (error) {
+			logger.console('Database connection failed:', error);
+			process.exit(1);
+		}
 	}
 
 	// Initialize middleware
@@ -52,7 +58,7 @@ class App {
 		applySecurityMiddleware(this.app);
 
 		// Apply logger
-		logger(this.app);
+		morganMiddleware(this.app);
 
 		// Parse JSON bodies
 		this.app.use(express.json({ limit: env.REQUEST_BODY_LIMIT }));
@@ -94,7 +100,9 @@ class App {
 		this.app.use('/api/products', productRoutes);
 		this.app.use('/api/categories', categoryRoutes);
 		this.app.use('/api/favoriteProduct', favoriteProductRoutes);
-		this.app.use('/api/files', fileRoutes);
+		// this.app.use('/api/files', fileRoutes);
+
+		this.app.use('/api/admin/users', adminRoutes);
 
 		// Handle 404 routes
 		this.app.use('*', (req, res) => {
@@ -110,14 +118,56 @@ class App {
 		this.app.use(errorHandler);
 	}
 
+	// Graceful shutdown
+	async gracefulShutdown() {
+		logger.console('Received shutdown signal. Starting graceful shutdown...');
+
+		if (this.server) {
+			this.server.close(() => {
+				logger.console('HTTP server closed');
+				process.exit(0);
+			});
+		}
+	}
+
 	// Start the server
-	listen() {
-		this.app.listen(this.port, () => {
-			console.log(`Server running in ${env.NODE_ENV} mode on port ${this.port}`);
-		});
+	async start() {
+		try {
+			// Initialize all components
+			await this.initializeDatabase();
+			this.initializeMiddleware();
+			this.initializeRoutes();
+			this.initializeErrorHandling();
+
+			// Start server
+			this.server = this.app.listen(this.port, () => {
+				logger.console(
+					`Server running in ${env.NODE_ENV} mode on port ${this.port}`
+				);
+			});
+
+			// Handle graceful shutdown
+			process.on('SIGTERM', () => this.gracefulShutdown());
+			process.on('SIGINT', () => this.gracefulShutdown());
+
+			// Handle uncaught exceptions
+			process.on('uncaughtException', (error) => {
+				logger.console('Uncaught Exception:', error);
+				this.gracefulShutdown();
+			});
+
+			// Handle unhandled promise rejections
+			process.on('unhandledRejection', (reason, promise) => {
+				logger.console('Unhandled Rejection at:', promise, 'reason:', reason);
+				this.gracefulShutdown();
+			});
+		} catch (error) {
+			logger.console('Failed to start server:', error);
+			process.exit(1);
+		}
 	}
 }
 
 // Create and start the application
 const app = new App();
-app.listen();
+app.start();
