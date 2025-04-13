@@ -36,7 +36,7 @@ export const validateObjectWithSchema = (data, schema, options = {}) => {
 		const allowedFields = allowedFieldsByRole[role] || [];
 		for (const field of Object.keys(data)) {
 			if (!allowedFields.includes(field)) {
-				const customMessage = `You are not authorized to update field: ${field}`;
+				const customMessage = `Update field: ${field} is not allowed`;
 				throw new CustomError(
 					errorCode.USER_UNAUTHORIZED_FIELD_UPDATE,
 					customMessage
