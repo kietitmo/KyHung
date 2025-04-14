@@ -1,4 +1,4 @@
-import CategoryDTO from '../../category/dto/categoryDTO.js';
+import CategoryDTO from '../../../category/dto/response/categoryDTO.js';
 
 class ProductDTO {
 	constructor(product) {
@@ -9,8 +9,6 @@ class ProductDTO {
 		this.description = product.description;
 		this.imageUrl = product.imageUrl;
 		this.videoUrl = product.videoUrl;
-		this.createdAt = product.createdAt;
-		this.updatedAt = product.updatedAt;
 	}
 
 	static fromEntity(product) {

@@ -11,10 +11,13 @@ import connectDB from './common/db/db.js';
 
 // Routes
 import authRoutes from './auth/entry-points/routes/auth.routes.js';
+import adminAuthRoutes from './auth/entry-points/routes/admin.routes.js';
+import adminUserRoutes from './user/entry-points/routes/admin.routes.js';
 import userRoutes from './user/entry-points/routes/user.routes.js';
-import adminRoutes from './user/entry-points/routes/admin.routes.js';
 import productRoutes from './product/entry-points/routes/product.routes.js';
+import adminProductRoutes from './product/entry-points/routes/admin.routes.js';
 import categoryRoutes from './category/entry-points/routes/category.routes.js';
+import adminCategoryRoutes from './category/entry-points/routes/admin.routes.js';
 import favoriteProductRoutes from './favorite/entry-points/routes/favoriteProduct.routes.js';
 // import fileRoutes from './common/file-service/file.routes.js';
 
@@ -102,8 +105,10 @@ class App {
 		this.app.use('/api/favoriteProduct', favoriteProductRoutes);
 		// this.app.use('/api/files', fileRoutes);
 
-		this.app.use('/api/admin/users', adminRoutes);
-
+		this.app.use('/api/admin/users', adminUserRoutes);
+		this.app.use('/api/admin/auth', adminAuthRoutes);
+		this.app.use('/api/admin/products', adminProductRoutes);
+		this.app.use('/api/admin/categories', adminCategoryRoutes);
 		// Handle 404 routes
 		this.app.use('*', (req, res) => {
 			res.status(404).json({

@@ -2,7 +2,7 @@ import { validateObjectWithSchema } from '../../../common/utils/validatorBySchem
 import { errorCode } from '../../common/constants/userResponseCode.js';
 import env from '../../../common/config/env.js';
 
-const updateUserSchema = {
+const createUserSchema = {
 	fullName: {
 		type: 'string',
 		trim: true,
@@ -64,7 +64,7 @@ const updateUserSchema = {
 	},
 };
 
-const updateUserPermissions = {
+const createUserPermissions = {
 	admin: [
 		'fullName',
 		'email',
@@ -80,6 +80,7 @@ const updateUserPermissions = {
 		'blockedReason',
 	],
 	user: [
+		'email',
 		'fullName',
 		'password',
 		'phoneNumber',
@@ -90,10 +91,10 @@ const updateUserPermissions = {
 	],
 };
 
-export const updateUserValidator = (req, res, next) => {
+export const createUserValidator = (req, res, next) => {
 	try {
-		validateObjectWithSchema(req.body, updateUserSchema, {
-			allowedFieldsByRole: updateUserPermissions,
+		validateObjectWithSchema(req.body, createUserSchema, {
+			allowedFieldsByRole: createUserPermissions,
 			required: [],
 			role: req.user?.role || 'user',
 		});

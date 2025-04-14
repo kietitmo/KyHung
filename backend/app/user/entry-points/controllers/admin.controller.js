@@ -29,7 +29,7 @@ class AdminController {
 			const getUserRequest = GetAllRequestDTO.fromRequest(req);
 			const users = await this.userService.getUsers(getUserRequest);
 
-			const total = await this.userService.countUsers();
+			const total = await this.userService.countUsers(getUserRequest.filter);
 			const totalPages = Math.ceil(total / getUserRequest.limit);
 			const usersDTO = users.map((user) => AdminUserDTO.fromEntity(user));
 
@@ -91,14 +91,59 @@ class AdminController {
 
 	async deleteUserByEmail(req, res, next) {
 		try {
-			const user = await this.userService.getUserByEmail(req.params.email);
-
 			await this.userService.deleteUserByEmail(req.params.email);
 			const response = APIResponse.success(successCode.USER_DELETED.message, null);
 			return res.status(successCode.USER_DELETED.httpStatusCode).json(response);
 		} catch (error) {
 			next(error);
 		}
+	}
+
+	async blockUser(req, res, next) {
+		await handleAsync(req, res, next, async () => {
+			const blockUserRequestDTO = RequestUserDTO.fromRequest(req.body);
+			const user = await this.userService.blockUser(
+				blockUserRequestDTO.email,
+				blockUserRequestDTO.blockedReason
+			);
+			const userDTO = AdminUserDTO.fromEntity(user);
+
+			const response = APIResponse.success(
+				successCode.USER_BLOCKED.message,
+				userDTO
+			);
+
+			res.status(successCode.USER_BLOCKED.httpStatusCode).json(response);
+		});
+	}
+
+	async unblockUser(req, res, next) {
+		await handleAsync(req, res, next, async () => {
+			const unblockUserRequestDTO = RequestUserDTO.fromRequest(req.body);
+			const user = await this.userService.unblockUser(unblockUserRequestDTO.email);
+			const userDTO = AdminUserDTO.fromEntity(user);
+
+			const response = APIResponse.success(
+				successCode.USER_UNBLOCKED.message,
+				userDTO
+			);
+
+			res.status(successCode.USER_UNBLOCKED.httpStatusCode).json(response);
+		});
+	}
+
+	async getBlockedUsers(req, res, next) {
+		await handleAsync(req, res, next, async () => {
+			const users = await this.userService.getBlockedUsers();
+			const userDTOs = users.map((user) => AdminUserDTO.fromEntity(user));
+
+			const response = APIResponse.success(
+				successCode.BLOCKED_USERS_FETCHED.message,
+				userDTOs
+			);
+
+			res.status(successCode.BLOCKED_USERS_FETCHED.httpStatusCode).json(response);
+		});
 	}
 }
 

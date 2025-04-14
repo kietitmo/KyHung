@@ -25,10 +25,6 @@ class BaseRepository {
 		return await query.exec();
 	}
 
-	async count(filter = {}) {
-		return this.model.countDocuments(filter);
-	}
-
 	async findOne(condition, populate = []) {
 		let query = this.model.findOne(condition);
 

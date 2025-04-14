@@ -51,6 +51,21 @@ export const successCode = {
 		message: 'Favorite products retrieved successfully',
 		status: APP_STATUS.SUCCESS,
 	},
+	USER_BLOCKED: {
+		httpStatusCode: HTTP_STATUS.OK,
+		message: 'User blocked successfully',
+		status: APP_STATUS.SUCCESS,
+	},
+	USER_UNBLOCKED: {
+		httpStatusCode: HTTP_STATUS.OK,
+		message: 'User unblocked successfully',
+		status: APP_STATUS.SUCCESS,
+	},
+	BLOCKED_USERS_FETCHED: {
+		httpStatusCode: HTTP_STATUS.OK,
+		message: 'Blocked users retrieved successfully',
+		status: APP_STATUS.SUCCESS,
+	},
 };
 
 export const errorCode = {
@@ -172,6 +187,46 @@ export const errorCode = {
 	USER_COUNTRY_INVALID: {
 		httpStatusCode: HTTP_STATUS.UNPROCESSABLE_ENTITY,
 		message: 'Invalid user country',
+		status: APP_STATUS.ERROR,
+	},
+	USER_IS_BLOCKED_INVALID: {
+		httpStatusCode: HTTP_STATUS.UNPROCESSABLE_ENTITY,
+		message: 'Invalid user is blocked',
+		status: APP_STATUS.ERROR,
+	},
+	USER_BLOCKED_REASON_INVALID: {
+		httpStatusCode: HTTP_STATUS.UNPROCESSABLE_ENTITY,
+		message: 'Invalid user blocked reason',
+		status: APP_STATUS.ERROR,
+	},
+	USER_NOT_BLOCKED: {
+		httpStatusCode: HTTP_STATUS.NOT_FOUND,
+		message: 'User is not blocked',
+		status: APP_STATUS.ERROR,
+	},
+	USER_ALREADY_BLOCKED: {
+		httpStatusCode: HTTP_STATUS.CONFLICT,
+		message: 'User is already blocked',
+		status: APP_STATUS.ERROR,
+	},
+	PAGE_INVALID: {
+		httpStatusCode: HTTP_STATUS.UNPROCESSABLE_ENTITY,
+		message: 'Invalid page',
+		status: APP_STATUS.ERROR,
+	},
+	LIMIT_INVALID: {
+		httpStatusCode: HTTP_STATUS.UNPROCESSABLE_ENTITY,
+		message: 'Invalid limit',
+		status: APP_STATUS.ERROR,
+	},
+	SORT_INVALID: {
+		httpStatusCode: HTTP_STATUS.UNPROCESSABLE_ENTITY,
+		message: 'Invalid sort',
+		status: APP_STATUS.ERROR,
+	},
+	FILTER_INVALID: {
+		httpStatusCode: HTTP_STATUS.UNPROCESSABLE_ENTITY,
+		message: 'Invalid filter',
 		status: APP_STATUS.ERROR,
 	},
 };

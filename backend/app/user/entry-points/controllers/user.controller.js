@@ -1,13 +1,7 @@
 import UserService from '../../../user/domain/services/user.service.js';
 import APIResponse from '../../../common/custom/apiResponse.js';
 import RequestUserDTO from '../../dto/request/requestUserDTO.js';
-import GetAllRequestDTO from '../../../common/dto/getAllRequestDTO.js';
-import {
-	successCode,
-	errorCode,
-} from '../../common/constants/userResponseCode.js';
-import CustomError from '../../../common/custom/error/customError.js';
-import Role from '../../../user/domain/models/role.enum.js';
+import { successCode } from '../../common/constants/userResponseCode.js';
 import UserDTO from '../../dto/response/userDTO.js';
 
 class UserController {
@@ -17,10 +11,6 @@ class UserController {
 
 	async getUserByEmail(req, res, next) {
 		try {
-			if (req.user.role === Role.USER && req.user.email !== req.params.email) {
-				throw new CustomError(errorCode.FORBIDDEN);
-			}
-
 			const user = await this.userService.getUserByEmail(req.params.email);
 
 			const userResponse = UserDTO.fromEntity(user);
@@ -36,10 +26,6 @@ class UserController {
 
 	async updateUserByEmail(req, res, next) {
 		try {
-			if (req.user.role === Role.USER && req.user.email !== req.params.email) {
-				throw new CustomError(errorCode.FORBIDDEN);
-			}
-
 			const updateUser = RequestUserDTO.fromRequest(req.body);
 			const user = await this.userService.updateUserByEmail(
 				req.params.email,

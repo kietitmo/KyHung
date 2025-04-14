@@ -7,9 +7,8 @@ class RegisterResponseDTO {
 		this.city = user.city;
 		this.country = user.country;
 		this.gender = user.gender;
-		this.role = user.role;
 		this.createdAt = user.createdAt;
-		this.updatedAt = user.updatedAt;
+		this.isVerified = user.isVerified;
 	}
 
 	static fromEntity(user) {

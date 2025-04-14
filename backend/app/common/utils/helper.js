@@ -34,21 +34,44 @@ export const getSortParams = (req, defaultSort = { createdAt: -1 }) => {
 	return Object.keys(sortParams).length > 0 ? sortParams : defaultSort;
 };
 
-export const getSearchQuery = (req, searchFields = []) => {
-	const searchTerm = req.query.search;
-	if (!searchTerm || searchFields.length === 0) return {};
+export const getFilterQuery = (req) => {
+	const filterStr = req.query.filter;
+	if (!filterStr) return {};
 
-	return {
-		$or: searchFields.map((field) => ({
-			[field]: { $regex: searchTerm, $options: 'i' },
-		})),
+	const operatorsMap = {
+		eq: (field, value) => ({ [field]: value }),
+		gt: (field, value) => ({ [field]: { $gt: parseFloat(value) } }),
+		gte: (field, value) => ({ [field]: { $gte: parseFloat(value) } }),
+		lt: (field, value) => ({ [field]: { $lt: parseFloat(value) } }),
+		lte: (field, value) => ({ [field]: { $lte: parseFloat(value) } }),
+		ne: (field, value) => ({ [field]: { $ne: value } }),
+		in: (field, value) => ({ [field]: { $in: value.split('|') } }),
+		like: (field, value) => ({
+			[field]: { $regex: value, $options: 'i' },
+		}),
 	};
+
+	const filter = {};
+
+	const filters = filterStr.split(',');
+
+	for (const f of filters) {
+		const [field, operator, value] = f.split(':');
+		if (!field || !operator || value === undefined) continue;
+
+		const handler = operatorsMap[operator];
+		if (!handler) continue;
+
+		Object.assign(filter, handler(field, value));
+	}
+
+	return filter;
 };
 
 const controllerHelper = {
 	getPaginationParams,
 	getSortParams,
-	getSearchQuery,
+	getFilterQuery,
 	handleAsync,
 };
 

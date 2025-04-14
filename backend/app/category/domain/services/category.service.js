@@ -1,12 +1,15 @@
 import CategoryRepository from '../../data-access/category.repository.js';
 import Pagination from '../../../common/custom/pagination.js';
-import CategoryDTO from '../../dto/categoryDTO.js';
+import CategoryDTO from '../../dto/response/categoryDTO.js';
 import { errorCode } from '../../../category/common/constants/categoryResponseCode.js';
 import CustomError from '../../../common/custom/error/customError.js';
 
 class CategoryService {
 	constructor() {
 		this.categoryRepository = new CategoryRepository();
+	}
+	async getTotalCategories(condition) {
+		return await this.categoryRepository.countDocuments(condition);
 	}
 	async getCategories(getAllRequest) {
 		const offset = (getAllRequest.page - 1) * getAllRequest.limit;
@@ -17,20 +20,7 @@ class CategoryService {
 				getAllRequest.limit,
 				offset
 			);
-		const total = await this.categoryRepository.count();
-		const totalPages = Math.ceil(total / getAllRequest.limit);
-		const categoryResponse = categories.map((category) =>
-			CategoryDTO.fromEntity(category)
-		);
-
-		return new Pagination(
-			categoryResponse,
-			getAllRequest.page,
-			getAllRequest.limit,
-			total,
-			totalPages,
-			getAllRequest.filter
-		);
+		return categories;
 	}
 
 	async getCategoryById(id) {

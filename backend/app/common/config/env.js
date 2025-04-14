@@ -80,7 +80,7 @@ const envSchema = joi
 		FULL_NAME_REGEXP: joi.any().required(),
 		PASSWORD_REGEXP: joi.any().required(),
 		PASSWORD_MIN_LENGTH: joi.number().min(8).default(8),
-
+		DEFAULT_PASSWORD: joi.string().required(),
 		// Google OAuth Configuration
 		GOOGLE_CLIENT_ID: joi.string().required(),
 		GOOGLE_CLIENT_SECRET: joi.string().required(),
@@ -220,6 +220,7 @@ const envObj = {
 			'^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$'
 	),
 	PASSWORD_MIN_LENGTH: parseInt(process.env.PASSWORD_MIN_LENGTH, 10) || 8,
+	DEFAULT_PASSWORD: process.env.DEFAULT_PASSWORD || 'Kyhung@123',
 
 	// Google OAuth
 	GOOGLE_CLIENT_ID: process.env.GOOGLE_CLIENT_ID,

@@ -91,9 +91,9 @@ export const errorCode = {
 		message: 'Invalid product category',
 		status: APP_STATUS.ERROR,
 	},
-	PRODUCT_DELETE_FAILED: {
-		httpStatusCode: HTTP_STATUS.BAD_REQUEST,
-		message: 'Failed to delete product',
+	PRODUCT_DESCRIPTION_INVALID: {
+		httpStatusCode: HTTP_STATUS.UNPROCESSABLE_ENTITY,
+		message: 'Invalid product description',
 		status: APP_STATUS.ERROR,
 	},
 	PRODUCT_UPDATE_FAILED: {
@@ -104,6 +104,41 @@ export const errorCode = {
 	PRODUCT_CREATE_FAILED: {
 		httpStatusCode: HTTP_STATUS.BAD_REQUEST,
 		message: 'Failed to create product',
+		status: APP_STATUS.ERROR,
+	},
+	PRODUCT_DELETE_FAILED: {
+		httpStatusCode: HTTP_STATUS.BAD_REQUEST,
+		message: 'Failed to delete product',
+		status: APP_STATUS.ERROR,
+	},
+	PRODUCT_NAME_INVALID: {
+		httpStatusCode: HTTP_STATUS.UNPROCESSABLE_ENTITY,
+		message: 'Invalid product name',
+		status: APP_STATUS.ERROR,
+	},
+	PRODUCT_CATEGORY_INVALID: {
+		httpStatusCode: HTTP_STATUS.UNPROCESSABLE_ENTITY,
+		message: 'Invalid product category',
+		status: APP_STATUS.ERROR,
+	},
+	PRODUCT_PRICE_INVALID: {
+		httpStatusCode: HTTP_STATUS.UNPROCESSABLE_ENTITY,
+		message: 'Invalid product price',
+		status: APP_STATUS.ERROR,
+	},
+	PRODUCT_DESCRIPTION_INVALID: {
+		httpStatusCode: HTTP_STATUS.UNPROCESSABLE_ENTITY,
+		message: 'Invalid product description',
+		status: APP_STATUS.ERROR,
+	},
+	PRODUCT_IMAGE_URL_INVALID: {
+		httpStatusCode: HTTP_STATUS.UNPROCESSABLE_ENTITY,
+		message: 'Invalid product image URL',
+		status: APP_STATUS.ERROR,
+	},
+	PRODUCT_VIDEO_URL_INVALID: {
+		httpStatusCode: HTTP_STATUS.UNPROCESSABLE_ENTITY,
+		message: 'Invalid product video URL',
 		status: APP_STATUS.ERROR,
 	},
 };

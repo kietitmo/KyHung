@@ -15,8 +15,8 @@ class UserService {
 		];
 	}
 
-	async countUsers() {
-		return await this.userRepository.countDocuments();
+	async countUsers(condition) {
+		return await this.userRepository.countDocuments(condition);
 	}
 
 	async getUsers(getAllRequest) {
@@ -66,6 +66,55 @@ class UserService {
 			throw new CustomError(errorCode.USER_NOT_FOUND);
 		}
 		return this.userRepository.delete({ email });
+	}
+
+	async blockUser(email, reason) {
+		const user = await this.userRepository.findOne({ email });
+		if (!user) {
+			throw new CustomError(errorCode.USER_NOT_FOUND);
+		}
+
+		if (user.isBlocked) {
+			throw new CustomError(errorCode.USER_ALREADY_BLOCKED);
+		}
+
+		const blockedAt = new Date();
+		await this.userRepository.update(
+			{ email },
+			{
+				isBlocked: true,
+				blockedReason: reason,
+				blockedAt,
+			}
+		);
+
+		return user;
+	}
+
+	async unblockUser(email) {
+		const user = await this.userRepository.findOne({ email });
+		if (!user) {
+			throw new CustomError(errorCode.USER_NOT_FOUND);
+		}
+
+		if (!user.isBlocked) {
+			throw new CustomError(errorCode.USER_NOT_BLOCKED);
+		}
+
+		await this.userRepository.update(
+			{ email },
+			{
+				isBlocked: false,
+				blockedReason: null,
+				blockedAt: null,
+			}
+		);
+
+		return user;
+	}
+
+	async getBlockedUsers() {
+		return this.userRepository.findMany({ isBlocked: true });
 	}
 }
 

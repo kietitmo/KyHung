@@ -1,7 +1,7 @@
 import {
 	getPaginationParams,
 	getSortParams,
-	getSearchQuery,
+	getFilterQuery,
 } from '../utils/helper.js';
 
 class GetAllRequestDTO {
@@ -15,7 +15,7 @@ class GetAllRequestDTO {
 	static fromRequest(req) {
 		const { page, limit, offset } = getPaginationParams(req);
 		const sort = getSortParams(req);
-		const filter = getSearchQuery(req);
+		const filter = getFilterQuery(req);
 
 		let _filter = {};
 

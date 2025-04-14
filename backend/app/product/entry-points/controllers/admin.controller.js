@@ -1,13 +1,15 @@
 import ProductService from '../../domain/services/product.service.js';
 import APIResponse from '../../../common/custom/apiResponse.js';
-import ProductRequestDTO from '../../dto/request/productRequestDTO.js';
-import ProductDTO from '../../dto/response/productDTO.js';
+import ProductAdminDTO from '../../dto/response/productAdminDTP.js';
+
 import GetAllRequestDTO from '../../../common/dto/getAllRequestDTO.js';
-import { successCode } from '../../common/constants/productResponseCode.js';
-import controllerHelper from '../../../common/utils/helper.js';
+import ProductRequestDTO from '../../dto/request/productRequestDTO.js';
 import Pagination from '../../../common/custom/pagination.js';
 
-class ProductController {
+import controllerHelper from '../../../common/utils/helper.js';
+import { successCode } from '../../common/constants/productResponseCode.js';
+
+class AdminController {
 	constructor() {
 		this.productService = new ProductService();
 	}
@@ -15,9 +17,9 @@ class ProductController {
 	async createProduct(req, res, next) {
 		controllerHelper.handleAsync(async () => {
 			controllerHelper.log('info', 'Creating new product', req.body);
-			const productRequest = ProductRequestDTO.fromRequest(req.body);
+			const productRequest = CreateProductDTO.fromRequest(req.body);
 			const product = await this.productService.createProduct(productRequest);
-			const productResponse = ProductDTO.fromEntity(product);
+			const productResponse = ProductAdminDTO.fromEntity(product);
 
 			controllerHelper.log('info', 'Product created successfully', {
 				id: product._id,
@@ -36,7 +38,9 @@ class ProductController {
 				getProductRequest.filter
 			);
 			const totalPages = Math.ceil(total / getProductRequest.limit);
-			const productDTO = products.map((product) => ProductDTO.fromEntity(product));
+			const productDTO = products.map((product) =>
+				ProductAdminDTO.fromEntity(product)
+			);
 
 			const productsResponse = new Pagination(
 				productDTO,
@@ -63,7 +67,7 @@ class ProductController {
 	async getProductById(req, res, next) {
 		controllerHelper.handleAsync(async () => {
 			const product = await this.productService.getProductById(req.params.id);
-			const productResponse = ProductDTO.fromEntity(product);
+			const productResponse = ProductAdminDTO.fromEntity(product);
 
 			return res.status(successCode.PRODUCT_GET).json(productResponse);
 		});
@@ -77,7 +81,7 @@ class ProductController {
 				updateProduct
 			);
 
-			const productResponse = ProductDTO.fromEntity(product);
+			const productResponse = ProductAdminDTO.fromEntity(product);
 			const response = APIResponse.success(
 				successCode.PRODUCT_UPDATED.message,
 				productResponse
@@ -98,4 +102,4 @@ class ProductController {
 	}
 }
 
-export default ProductController;
+export default AdminController;

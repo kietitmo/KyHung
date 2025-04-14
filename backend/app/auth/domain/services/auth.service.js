@@ -216,53 +216,18 @@ class AuthService {
 		return true;
 	}
 
-	async blockUser(email, reason) {
+	async resetPasswordToDefault(email) {
 		const user = await this.userRepository.findOne({ email });
 		if (!user) {
 			throw new CustomError(errorCode.USER_NOT_EXIST);
 		}
 
-		if (user.isBlocked) {
-			throw new CustomError(errorCode.USER_ALREADY_BLOCKED);
-		}
-
-		const blockedAt = new Date();
 		await this.userRepository.update(
 			{ email },
-			{
-				isBlocked: true,
-				blockedReason: reason,
-				blockedAt,
-			}
+			{ password: env.DEFAULT_PASSWORD }
 		);
 
 		return user;
-	}
-
-	async unblockUser(email) {
-		const user = await this.userRepository.findOne({ email });
-		if (!user) {
-			throw new CustomError(errorCode.USER_NOT_EXIST);
-		}
-
-		if (!user.isBlocked) {
-			throw new CustomError(errorCode.USER_NOT_BLOCKED);
-		}
-
-		await this.userRepository.update(
-			{ email },
-			{
-				isBlocked: false,
-				blockedReason: null,
-				blockedAt: null,
-			}
-		);
-
-		return user;
-	}
-
-	async getBlockedUsers() {
-		return this.userRepository.findMany({ isBlocked: true });
 	}
 
 	async getProfile(email) {
@@ -275,13 +240,15 @@ class AuthService {
 		return user;
 	}
 
-	async updateProfile(email, userData) {
+	async verifyAccount(email) {
 		const user = await this.userRepository.findOne({ email });
 		if (!user) {
 			throw new CustomError(errorCode.USER_NOT_EXIST);
 		}
 
-		return this.userRepository.update({ email }, userData);
+		await this.userRepository.update({ email }, { isVerified: true });
+
+		return user;
 	}
 }
 

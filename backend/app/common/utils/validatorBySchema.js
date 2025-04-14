@@ -6,6 +6,24 @@ const baseValidators = {
 		if (typeof value !== 'string') return false;
 		if (rule.trim && value.trim().length === 0) return false;
 		if (rule.regex && !rule.regex.test(value)) return false;
+		if (rule.forceType) {
+			try {
+				switch (rule.forceType) {
+					case 'number':
+						const num = Number(value);
+						return !isNaN(num);
+					case 'boolean':
+						return value.toLowerCase() === 'true' || value.toLowerCase() === 'false';
+					case 'object':
+						JSON.parse(value);
+						return true;
+					default:
+						return false;
+				}
+			} catch {
+				return false;
+			}
+		}
 		return true;
 	},
 
@@ -51,6 +69,7 @@ export const validateObjectWithSchema = (data, schema, options = {}) => {
 
 		const value = data[field];
 		const validatorFn = baseValidators[rule.type];
+
 		if (!validatorFn) {
 			throw new CustomError(errorCode.UNKNOWN_VALIDATOR_TYPE);
 		}
