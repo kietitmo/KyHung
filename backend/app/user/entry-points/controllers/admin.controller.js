@@ -101,11 +101,7 @@ class AdminController {
 
 	async blockUser(req, res, next) {
 		await handleAsync(req, res, next, async () => {
-			const blockUserRequestDTO = RequestUserDTO.fromRequest(req.body);
-			const user = await this.userService.blockUser(
-				blockUserRequestDTO.email,
-				blockUserRequestDTO.blockedReason
-			);
+			const user = await this.userService.blockUser(req.params.email);
 			const userDTO = AdminUserDTO.fromEntity(user);
 
 			const response = APIResponse.success(
@@ -119,8 +115,7 @@ class AdminController {
 
 	async unblockUser(req, res, next) {
 		await handleAsync(req, res, next, async () => {
-			const unblockUserRequestDTO = RequestUserDTO.fromRequest(req.body);
-			const user = await this.userService.unblockUser(unblockUserRequestDTO.email);
+			const user = await this.userService.unblockUser(req.params.email);
 			const userDTO = AdminUserDTO.fromEntity(user);
 
 			const response = APIResponse.success(
@@ -144,6 +139,101 @@ class AdminController {
 
 			res.status(successCode.BLOCKED_USERS_FETCHED.httpStatusCode).json(response);
 		});
+	}
+
+	async deleteUserFromDatabase(req, res, next) {
+		await handleAsync(req, res, next, async () => {
+			await this.userService.deleteUserFromDatabase(req.params.email);
+			const response = APIResponse.success(successCode.USER_DELETED.message, null);
+			return res.status(successCode.USER_DELETED.httpStatusCode).json(response);
+		});
+	}
+
+	async restoreUser(req, res, next) {
+		await handleAsync(req, res, next, async () => {
+			const user = await this.userService.restoreUser(req.params.email);
+			const userDTO = AdminUserDTO.fromEntity(user);
+			const response = APIResponse.success(
+				successCode.USER_RESTORED.message,
+				userDTO
+			);
+			return res.status(successCode.USER_RESTORED.httpStatusCode).json(response);
+		});
+	}
+
+	async getDeletedUsers(req, res, next) {
+		await handleAsync(req, res, next, async () => {
+			const users = await this.userService.getDeletedUsers();
+			const userDTOs = users.map((user) => AdminUserDTO.fromEntity(user));
+
+			const response = APIResponse.success(
+				successCode.DELETED_USERS_FETCHED.message,
+				userDTOs
+			);
+			return res
+				.status(successCode.DELETED_USERS_FETCHED.httpStatusCode)
+				.json(response);
+		});
+	}
+
+	async getUserById(req, res, next) {
+		try {
+			const user = await this.userService.getUserById(req.params.id);
+			const userResponse = AdminUserDTO.fromEntity(user);
+			const response = APIResponse.success(
+				successCode.USER_GET.message,
+				userResponse
+			);
+			return res.status(successCode.USER_GET.httpStatusCode).json(response);
+		} catch (error) {
+			next(error);
+		}
+	}
+
+	async setUserRole(req, res, next) {
+		try {
+			const { role } = req.body;
+			const user = await this.userService.setUserRole(req.params.email, role);
+			const userDTO = AdminUserDTO.fromEntity(user);
+
+			const response = APIResponse.success(
+				successCode.USER_ROLE_UPDATED.message,
+				userDTO
+			);
+			res.status(successCode.USER_ROLE_UPDATED.httpStatusCode).json(response);
+		} catch (error) {
+			next(error);
+		}
+	}
+
+	async activateUser(req, res, next) {
+		try {
+			const user = await this.userService.activateUser(req.params.email);
+			const userDTO = AdminUserDTO.fromEntity(user);
+
+			const response = APIResponse.success(
+				successCode.USER_ACTIVATED.message,
+				userDTO
+			);
+			res.status(successCode.USER_ACTIVATED.httpStatusCode).json(response);
+		} catch (error) {
+			next(error);
+		}
+	}
+
+	async getOAuthUsers(req, res, next) {
+		try {
+			const users = await this.userService.getOAuthUsers();
+			const userDTOs = users.map((user) => AdminUserDTO.fromEntity(user));
+
+			const response = APIResponse.success(
+				successCode.OAUTH_USERS_FETCHED.message,
+				userDTOs
+			);
+			res.status(successCode.OAUTH_USERS_FETCHED.httpStatusCode).json(response);
+		} catch (error) {
+			next(error);
+		}
 	}
 }
 

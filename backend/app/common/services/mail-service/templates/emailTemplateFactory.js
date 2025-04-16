@@ -1,8 +1,8 @@
 import RegisterVerificationTemplate from './registerVerificationTemplate.js';
 import ForgotPasswordTemplate from './forgotPasswordTemplate.js';
 import PasswordResetConfirmationTemplate from './passwordResetConfirmationTemplate.js';
-import CustomError from '../custom/customError.js';
-import { errorCode } from '../../utils/code/authResponseCode.js';
+import CustomError from '../../../custom/error/customError.js';
+import { errorCode } from '../constants/mailResponseCode.js';
 
 class EmailTemplateFactory {
 	static getTemplate(type, data) {

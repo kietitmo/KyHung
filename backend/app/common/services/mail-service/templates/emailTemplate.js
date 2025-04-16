@@ -1,4 +1,4 @@
-import env from '../../../common/config/env.js';
+import env from '../../../config/env.js';
 
 class EmailTemplate {
 	constructor() {

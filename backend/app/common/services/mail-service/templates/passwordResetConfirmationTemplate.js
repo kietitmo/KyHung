@@ -1,5 +1,5 @@
 import EmailTemplate from './emailTemplate.js';
-import env from '../../config/env.js';
+import env from '../../../config/env.js';
 
 class PasswordResetConfirmationTemplate extends EmailTemplate {
 	constructor() {

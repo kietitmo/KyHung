@@ -2,11 +2,29 @@ import mongoose from 'mongoose';
 import bcrypt from 'bcryptjs';
 import Role from './role.enum.js';
 import Gender from './gender.enum.js';
+import State from './state.enum.js';
+import OAuthProvider from './oauthprovider.enum.js';
+
 const userSchema = new mongoose.Schema(
 	{
 		fullName: { type: String, required: true },
 		email: { type: String, required: true, unique: true },
-		password: { type: String, required: false },
+		password: {
+			type: String,
+			required: function () {
+				return !this.oauth;
+			},
+		},
+		oauth: [
+			{
+				provider: {
+					type: String,
+					enum: Object.values(OAuthProvider),
+					required: false,
+				},
+				providerId: { type: String, required: false },
+			},
+		],
 		gender: {
 			type: String,
 			enum: Object.values(Gender),
@@ -21,10 +39,12 @@ const userSchema = new mongoose.Schema(
 			enum: Object.values(Role),
 			default: Role.USER,
 		},
-		isVerified: { type: Boolean, required: true, default: false },
-		isBlocked: { type: Boolean, required: true, default: false },
-		blockedReason: { type: String, required: false },
-		blockedAt: { type: Date, required: false },
+		state: {
+			type: String,
+			enum: Object.values(State),
+			default: State.INACTIVE,
+		},
+		activeAt: { type: Date, required: false },
 	},
 	{ timestamps: true }
 );

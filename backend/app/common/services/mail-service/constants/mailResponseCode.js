@@ -1,4 +1,4 @@
-import { HTTP_STATUS, APP_STATUS } from '../../../common/constants/index.js';
+import { HTTP_STATUS, APP_STATUS } from '../../../constants/index.js';
 
 // Rate Limiter Error Codes (200-299)
 export const errorCode = {

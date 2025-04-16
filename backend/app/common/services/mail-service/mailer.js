@@ -1,6 +1,6 @@
 import { createTransport } from 'nodemailer';
-import env from '../config/env.js';
-import { CustomError } from '../custom/index.js';
+import env from '../../config/env.js';
+import { CustomError } from '../../custom/index.js';
 
 const transporter = createTransport({
 	host: env.EMAIL_HOST,

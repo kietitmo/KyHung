@@ -1,9 +1,10 @@
 import passport from 'passport';
 import { ExtractJwt, Strategy as JwtStrategy } from 'passport-jwt';
 import { Strategy as GoogleStrategy } from 'passport-google-oauth20';
-
-import UserService from '../../user/domain/services/user.service.js';
 import env from './env.js';
+import AuthService from '../../auth/domain/services/auth.service.js';
+import OAuthProvider from '../../user/domain/models/oauthprovider.enum.js';
+import State from '../../user/domain/models/state.enum.js';
 
 const opts = {
 	jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
@@ -20,21 +21,41 @@ passport.use(
 		},
 		async (accessToken, refreshToken, profile, done) => {
 			try {
-				const userService = new UserService();
-				let user = await userService.getUserByEmail(profile.emails[0].value);
+				const email = profile.emails[0].value;
+				const providerId = profile.id;
+				const fullName = profile.displayName;
 
-				if (user) {
-					return done(null, user);
-				} else {
-					const user = {
-						email: profile.emails[0].value,
-						fullName: profile.displayName,
-					};
+				const authService = new AuthService();
+				let user = await authService.getUserByOAuthProviderId(
+					OAuthProvider.GOOGLE,
+					providerId
+				);
 
-					const newUser = await userService.createUser(user);
+				if (user) return done(null, user);
 
-					return done(null, newUser);
+				const existingUser = await authService.getUserByEmail(email);
+				if (existingUser) {
+					const mergedUser = await authService.mergeAccount(
+						email,
+						OAuthProvider.GOOGLE,
+						providerId
+					);
+					return done(null, mergedUser);
 				}
+
+				user = await authService.createUser({
+					fullName,
+					email,
+					oauth: [
+						{
+							provider: OAuthProvider.GOOGLE,
+							providerId,
+						},
+					],
+					state: State.ACTIVE,
+				});
+
+				return done(null, user);
 			} catch (err) {
 				return done(err, null);
 			}
@@ -45,8 +66,8 @@ passport.use(
 passport.use(
 	new JwtStrategy(opts, async (jwt_payload, done) => {
 		try {
-			const userService = new UserService();
-			const user = await userService.getUserByEmail(jwt_payload.email);
+			const authService = new AuthService();
+			const user = await authService.getUserByEmail(jwt_payload.email);
 
 			if (!user) {
 				return done(null, false);

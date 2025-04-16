@@ -76,8 +76,7 @@ const createUserPermissions = {
 		'city',
 		'gender',
 		'country',
-		'isBlocked',
-		'blockedReason',
+		'state',
 	],
 	user: [
 		'email',

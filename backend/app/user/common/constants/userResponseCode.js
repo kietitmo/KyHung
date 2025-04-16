@@ -66,6 +66,31 @@ export const successCode = {
 		message: 'Blocked users retrieved successfully',
 		status: APP_STATUS.SUCCESS,
 	},
+	USER_RESTORED: {
+		httpStatusCode: HTTP_STATUS.OK,
+		message: 'User restored successfully',
+		status: APP_STATUS.SUCCESS,
+	},
+	DELETED_USERS_FETCHED: {
+		httpStatusCode: HTTP_STATUS.OK,
+		message: 'Deleted users retrieved successfully',
+		status: APP_STATUS.SUCCESS,
+	},
+	USER_ROLE_UPDATED: {
+		httpStatusCode: HTTP_STATUS.OK,
+		message: 'User role updated successfully',
+		status: APP_STATUS.SUCCESS,
+	},
+	USER_ACTIVATED: {
+		httpStatusCode: HTTP_STATUS.OK,
+		message: 'User activated successfully',
+		status: APP_STATUS.SUCCESS,
+	},
+	OAUTH_USERS_FETCHED: {
+		httpStatusCode: HTTP_STATUS.OK,
+		message: 'OAuth users retrieved successfully',
+		status: APP_STATUS.SUCCESS,
+	},
 };
 
 export const errorCode = {
@@ -227,6 +252,21 @@ export const errorCode = {
 	FILTER_INVALID: {
 		httpStatusCode: HTTP_STATUS.UNPROCESSABLE_ENTITY,
 		message: 'Invalid filter',
+		status: APP_STATUS.ERROR,
+	},
+	USER_ROLE_UPDATE_FAILED: {
+		httpStatusCode: HTTP_STATUS.BAD_REQUEST,
+		message: 'Failed to update user role',
+		status: APP_STATUS.ERROR,
+	},
+	USER_ACTIVATION_FAILED: {
+		httpStatusCode: HTTP_STATUS.BAD_REQUEST,
+		message: 'Failed to activate user',
+		status: APP_STATUS.ERROR,
+	},
+	OAUTH_USERS_FETCH_FAILED: {
+		httpStatusCode: HTTP_STATUS.BAD_REQUEST,
+		message: 'Failed to fetch OAuth users',
 		status: APP_STATUS.ERROR,
 	},
 };

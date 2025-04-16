@@ -49,6 +49,26 @@ const options = {
 				name: 'Favorites',
 				description: 'Favorite products management endpoints',
 			},
+			{
+				name: 'Admin',
+				description: 'Admin management endpoints',
+			},
+			{
+				name: 'Admin/Users',
+				description: 'Admin user management endpoints',
+			},
+			{
+				name: 'Admin/Products',
+				description: 'Admin product management endpoints',
+			},
+			{
+				name: 'Admin/Categories',
+				description: 'Admin category management endpoints',
+			},
+			{
+				name: 'Admin/Auth',
+				description: 'Admin authentication endpoints',
+			},
 		],
 		components: {
 			securitySchemes: {
@@ -154,7 +174,13 @@ const options = {
 			},
 		],
 	},
-	apis: ['./app/entry-points/routes/*.js'], // Path to the API routes
+	apis: [
+		'./app/auth/entry-points/routes/*.js',
+		'./app/user/entry-points/routes/*.js',
+		'./app/product/entry-points/routes/*.js',
+		'./app/category/entry-points/routes/*.js',
+		'./app/favorite/entry-points/routes/*.js',
+	],
 };
 
 const swaggerSpec = swaggerJsdoc(options);

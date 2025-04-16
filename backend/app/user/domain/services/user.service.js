@@ -1,7 +1,7 @@
 import UserRepository from '../../data-access/user.repository.js';
 import { errorCode } from '../../../user/common/constants/userResponseCode.js';
 import CustomError from '../../../common/custom/error/customError.js';
-
+import State from '../models/state.enum.js';
 class UserService {
 	constructor() {
 		this.userRepository = new UserRepository();
@@ -65,16 +65,28 @@ class UserService {
 		if (!user) {
 			throw new CustomError(errorCode.USER_NOT_FOUND);
 		}
-		return this.userRepository.delete({ email });
+
+		user.state = State.DELETED;
+		await user.save();
+		return user;
 	}
 
-	async blockUser(email, reason) {
+	async deleteUserFromDatabase(email) {
 		const user = await this.userRepository.findOne({ email });
 		if (!user) {
 			throw new CustomError(errorCode.USER_NOT_FOUND);
 		}
 
-		if (user.isBlocked) {
+		return this.userRepository.delete({ email });
+	}
+
+	async blockUser(email) {
+		const user = await this.userRepository.findOne({ email });
+		if (!user) {
+			throw new CustomError(errorCode.USER_NOT_FOUND);
+		}
+
+		if (user.state === State.BLOCKED) {
 			throw new CustomError(errorCode.USER_ALREADY_BLOCKED);
 		}
 
@@ -82,8 +94,7 @@ class UserService {
 		await this.userRepository.update(
 			{ email },
 			{
-				isBlocked: true,
-				blockedReason: reason,
+				state: State.BLOCKED,
 				blockedAt,
 			}
 		);
@@ -97,15 +108,14 @@ class UserService {
 			throw new CustomError(errorCode.USER_NOT_FOUND);
 		}
 
-		if (!user.isBlocked) {
+		if (user.state !== State.BLOCKED) {
 			throw new CustomError(errorCode.USER_NOT_BLOCKED);
 		}
 
 		await this.userRepository.update(
 			{ email },
 			{
-				isBlocked: false,
-				blockedReason: null,
+				state: State.ACTIVE,
 				blockedAt: null,
 			}
 		);
@@ -114,7 +124,53 @@ class UserService {
 	}
 
 	async getBlockedUsers() {
-		return this.userRepository.findMany({ isBlocked: true });
+		return this.userRepository.findMany({ state: State.BLOCKED });
+	}
+
+	async getDeletedUsers() {
+		return this.userRepository.findMany({ state: State.DELETED });
+	}
+
+	async restoreUser(email) {
+		const user = await this.userRepository.findOne({ email });
+		if (!user) {
+			throw new CustomError(errorCode.USER_NOT_FOUND);
+		}
+		user.state = State.ACTIVE;
+		await user.save();
+		return user;
+	}
+
+	async setUserRole(email, role) {
+		const user = await this.userRepository.findOne({ email });
+		if (!user) {
+			throw new CustomError(errorCode.USER_NOT_FOUND);
+		}
+		user.role = role;
+		await user.save();
+		return user;
+	}
+
+	async activateUser(email) {
+		const user = await this.userRepository.findOne({ email });
+		if (!user) {
+			throw new CustomError(errorCode.USER_NOT_FOUND);
+		}
+		user.state = State.ACTIVE;
+		await user.save();
+		return user;
+	}
+
+	async getOAuthUsers() {
+		return this.userRepository.findMany({ oauth: { $exists: true } });
+	}
+
+	async getUserById(id) {
+		const user = await this.userRepository.findOne({ _id: id });
+		if (!user) {
+			throw new CustomError(errorCode.USER_NOT_FOUND);
+		}
+		return user;
 	}
 }
 

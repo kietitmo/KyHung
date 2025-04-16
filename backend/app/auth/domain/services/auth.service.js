@@ -5,9 +5,9 @@ import { errorCode } from '../../common/constants/authResponseCode.js';
 import CustomError from '../../../common/custom/error/customError.js';
 import env from '../../../common/config/env.js';
 import AuthHelper from '../../common/utils/authHelpper.js';
-import sendEmail from '../../../common/mail-service/mailer.js';
+import sendEmail from '../../../common/services/mail-service/mailer.js';
 import TokenRepository from '../../data-access/repositories/token.repository.js';
-import EmailTemplateFactory from '../../../common/mail-service/email-templates/emailTemplateFactory.js';
+import EmailTemplateFactory from '../../../common/services/mail-service/templates/emailTemplateFactory.js';
 import TokenType from '../../domain/models/tokenType.enum.js';
 
 dotenv.config();
@@ -249,6 +249,20 @@ class AuthService {
 		await this.userRepository.update({ email }, { isVerified: true });
 
 		return user;
+	}
+
+	async mergeAccount(email, provider, providerId) {
+		return this.userRepository.update(
+			{ email },
+			{ $push: { oauth: { provider, providerId } } }
+		);
+	}
+
+	async getUserByOAuthProviderId(provider, providerId) {
+		return this.userRepository.findOne({
+			'oauth.provider': provider,
+			'oauth.providerId': providerId,
+		});
 	}
 }
 

@@ -18,7 +18,8 @@ import productRoutes from './product/entry-points/routes/product.routes.js';
 import adminProductRoutes from './product/entry-points/routes/admin.routes.js';
 import categoryRoutes from './category/entry-points/routes/category.routes.js';
 import adminCategoryRoutes from './category/entry-points/routes/admin.routes.js';
-import favoriteProductRoutes from './favorite/entry-points/routes/favoriteProduct.routes.js';
+import adminFavoriteRoutes from './favorite/entry-points/routes/admin.route.js';
+import favoriteRoutes from './favorite/entry-points/routes/favorite.routes.js';
 // import fileRoutes from './common/file-service/file.routes.js';
 
 // Middleware
@@ -102,13 +103,13 @@ class App {
 		this.app.use('/api/users', userRoutes);
 		this.app.use('/api/products', productRoutes);
 		this.app.use('/api/categories', categoryRoutes);
-		this.app.use('/api/favoriteProduct', favoriteProductRoutes);
-		// this.app.use('/api/files', fileRoutes);
+		this.app.use('/api/favorite', favoriteRoutes);
 
 		this.app.use('/api/admin/users', adminUserRoutes);
 		this.app.use('/api/admin/auth', adminAuthRoutes);
 		this.app.use('/api/admin/products', adminProductRoutes);
 		this.app.use('/api/admin/categories', adminCategoryRoutes);
+		this.app.use('/api/admin/favorite', adminFavoriteRoutes);
 		// Handle 404 routes
 		this.app.use('*', (req, res) => {
 			res.status(404).json({
