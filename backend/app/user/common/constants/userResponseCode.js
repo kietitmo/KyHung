@@ -144,6 +144,11 @@ export const errorCode = {
 		message: 'User account is blocked',
 		status: APP_STATUS.ERROR,
 	},
+	USER_NOT_ACTIVE: {
+		httpStatusCode: HTTP_STATUS.FORBIDDEN,
+		message: 'User account is not active',
+		status: APP_STATUS.ERROR,
+	},
 	USER_DELETE_FAILED: {
 		httpStatusCode: HTTP_STATUS.BAD_REQUEST,
 		message: 'Failed to delete user',

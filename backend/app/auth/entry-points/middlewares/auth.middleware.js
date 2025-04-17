@@ -2,7 +2,7 @@ import passport from 'passport';
 import CustomError from '../../../common/custom/error/customError.js';
 import { errorCode } from '../../../auth/common/constants/authResponseCode.js';
 import { errorCode as userCode } from '../../../user/common/constants/userResponseCode.js';
-
+import State from '../../../user/domain/models/state.enum.js';
 const verifyAccessToken = passport.authenticate('jwt', {
 	session: false,
 });
@@ -15,8 +15,8 @@ const authorize = (roles = []) => {
 			throw new CustomError(errorCode.UNAUTHORIZED);
 		}
 
-		if (!user.isVerified) {
-			throw new CustomError(userCode.USER_INACTIVE);
+		if (user.state !== State.ACTIVE) {
+			throw new CustomError(userCode.USER_NOT_ACTIVE);
 		}
 
 		if (roles.length && !roles.includes(user.role)) {
