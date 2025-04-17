@@ -29,7 +29,7 @@ class AdminController {
 
 	async getCategories(req, res, next) {
 		try {
-			const getCategoryRequest = new GetAllRequestDTO(req.body);
+			const getCategoryRequest = GetAllRequestDTO.fromRequest(req);
 			const categories =
 				await this.categoryService.getCategories(getCategoryRequest);
 
