@@ -25,5 +25,8 @@
   "license": "ISC",
   "devDependencies": {
     "concurrently": "^8.2.2"
+  },
+  "dependencies": {
+    "pluralize": "^8.0.0"
   }
 }

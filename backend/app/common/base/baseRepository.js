@@ -10,16 +10,21 @@ class BaseRepository {
 		populate = [],
 		sort = {}
 	) {
-		let query = this.model.find(filter).skip(offset).limit(limit);
+		let query = null;
+		if (filter.type === 'find') {
+			query = this.model.find(filter.filter).skip(offset).limit(limit);
 
-		if (Object.keys(sort).length > 0) {
-			query = query.sort(sort);
-		}
+			if (Object.keys(sort).length > 0) {
+				query = query.sort(sort);
+			}
 
-		if (populate.length > 0) {
-			populate.forEach((field) => {
-				query = query.populate(field);
-			});
+			if (populate.length > 0) {
+				populate.forEach((field) => {
+					query = query.populate(field);
+				});
+			}
+		} else if (filter.type === 'aggregate') {
+			query = this.model.aggregate(filter.pipeline).skip(offset).limit(limit);
 		}
 
 		return await query.exec();
@@ -53,8 +58,15 @@ class BaseRepository {
 		return await query.exec();
 	}
 
-	async countDocuments(condition = {}) {
-		return this.model.countDocuments(condition);
+	async countDocuments(filter = {}) {
+		let query = null;
+		if (filter.type === 'find') {
+			query = this.model.find(filter.filter);
+		} else if (filter.type === 'aggregate') {
+			query = this.model.aggregate(filter.pipeline);
+		}
+		const docs = await query.exec();
+		return docs.length;
 	}
 
 	async create(data) {

@@ -32,10 +32,10 @@ const productController = new ProductController();
  *           type: string
  *         description: Filter by category ID
  *       - in: query
- *         name: search
+ *         name: filter
  *         schema:
  *           type: string
- *         description: Search products by name or description
+ *         description: filter products by name or description
  *       - in: query
  *         name: sort
  *         schema:

@@ -17,19 +17,7 @@ class GetAllRequestDTO {
 		const sort = getSortParams(req);
 		const filter = getFilterQuery(req);
 
-		let _filter = {};
-
-		if (filter) {
-			try {
-				const searchConditions =
-					typeof filter === 'string' ? JSON.parse(filter) : filter;
-
-				Object.assign(_filter, searchConditions);
-			} catch (error) {
-				_filter = {};
-			}
-		}
-		return new GetAllRequestDTO(_filter, limit, page, sort);
+		return new GetAllRequestDTO(filter, limit, page, sort);
 	}
 }
 

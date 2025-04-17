@@ -44,8 +44,6 @@ class ProductController {
 				getProductRequest.limit,
 				total,
 				totalPages,
-				getProductRequest.filter,
-				getProductRequest.sort
 			);
 
 			const response = APIResponse.success(
