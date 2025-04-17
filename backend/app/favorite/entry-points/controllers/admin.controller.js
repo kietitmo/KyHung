@@ -60,6 +60,9 @@ class AdminController {
 			const updateFavoriteProductRequest = RequestFavoriteDTO.fromRequest(
 				req.body
 			);
+			updateFavoriteProductRequest.email = req.params.email;
+			updateFavoriteProductRequest.productId = req.params.productId;
+
 			const favorite = await this.favoriteService.updateFavoriteProduct(
 				updateFavoriteProductRequest
 			);
@@ -90,7 +93,6 @@ class AdminController {
 			);
 
 			const response = APIResponse.success(
-				successCode.USER_GET_FAVORITE_PRODUCTS.code,
 				successCode.USER_GET_FAVORITE_PRODUCTS.message,
 				favoriteResponse
 			);
@@ -115,7 +117,6 @@ class AdminController {
 			const favoriteDto = FavoriteAdminDTO.fromEntity(favorite);
 
 			const response = APIResponse.success(
-				successCode.USER_GET_FAVORITE_PRODUCTS.code,
 				successCode.USER_GET_FAVORITE_PRODUCTS.message,
 				favoriteDto
 			);
@@ -135,7 +136,6 @@ class AdminController {
 			const favoriteDto = FavoriteAdminDTO.fromEntity(favorite);
 
 			const response = APIResponse.success(
-				successCode.USER_REMOVED_ALL_FAVORITE_PRODUCTS.code,
 				successCode.USER_REMOVED_ALL_FAVORITE_PRODUCTS.message,
 				favoriteDto
 			);

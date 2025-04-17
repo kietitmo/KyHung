@@ -37,6 +37,11 @@ export const successCode = {
 		message: 'Product removed from favorites successfully',
 		status: APP_STATUS.SUCCESS,
 	},
+	PRODUCT_GET_BY_ID: {
+		httpStatusCode: HTTP_STATUS.OK,
+		message: 'Product retrieved successfully',
+		status: APP_STATUS.SUCCESS,
+	},
 };
 
 // Product Error Codes (500-599)

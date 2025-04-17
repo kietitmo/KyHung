@@ -1,12 +1,15 @@
+import UserDTO from '../../../user/dto/response/userDTO.js';
+import ProductDTO from '../../../product/dto/response/productDTO.js';
+
 class FavoriteDTO {
 	constructor(favorite) {
-		this.product = favorite.product;
-		this.user = favorite.user;
+		this.product = ProductDTO.fromEntity(favorite.product);
+		this.user = UserDTO.fromEntity(favorite.user);
 		this.quantity = favorite.quantity;
 		this.note = favorite.note;
 	}
 
-	static fromRequest(favorite) {
+	static fromEntity(favorite) {
 		return new FavoriteDTO(favorite);
 	}
 }

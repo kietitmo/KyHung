@@ -26,7 +26,6 @@ class FavoriteController {
 			const favoriteDto = FavoriteDTO.fromEntity(favorite);
 
 			const response = APIResponse.success(
-				successCode.USER_ADDED_FAVORITE_PRODUCT.code,
 				successCode.USER_ADDED_FAVORITE_PRODUCT.message,
 				favoriteDto
 			);
@@ -53,12 +52,9 @@ class FavoriteController {
 				email
 			);
 
-			const favoriteDto = FavoriteDTO.fromEntity(favorite);
-
 			const response = APIResponse.success(
-				successCode.USER_REMOVED_FAVORITE_PRODUCT.code,
 				successCode.USER_REMOVED_FAVORITE_PRODUCT.message,
-				favoriteDto
+				true
 			);
 
 			return res
@@ -72,9 +68,13 @@ class FavoriteController {
 	async updateFavoriteProduct(req, res, next) {
 		try {
 			req.body.email = req.user.email;
+
 			const updateFavoriteProductRequest = RequestFavoriteDTO.fromRequest(
 				req.body
 			);
+			updateFavoriteProductRequest.productId = req.params.productId;
+			updateFavoriteProductRequest.email = req.user.email;
+
 			const favorite = await this.favoriteService.updateFavoriteProduct(
 				updateFavoriteProductRequest
 			);
@@ -82,7 +82,6 @@ class FavoriteController {
 			const favoriteDto = FavoriteDTO.fromEntity(favorite);
 
 			const response = APIResponse.success(
-				successCode.USER_UPDATED_FAVORITE_PRODUCT.code,
 				successCode.USER_UPDATED_FAVORITE_PRODUCT.message,
 				favoriteDto
 			);
@@ -106,7 +105,6 @@ class FavoriteController {
 			);
 
 			const response = APIResponse.success(
-				successCode.USER_GET_FAVORITE_PRODUCTS.code,
 				successCode.USER_GET_FAVORITE_PRODUCTS.message,
 				favoriteResponse
 			);
@@ -133,7 +131,6 @@ class FavoriteController {
 			const favoriteDto = FavoriteDTO.fromEntity(favorite);
 
 			const response = APIResponse.success(
-				successCode.USER_GET_FAVORITE_PRODUCTS.code,
 				successCode.USER_GET_FAVORITE_PRODUCTS.message,
 				favoriteDto
 			);
@@ -149,14 +146,11 @@ class FavoriteController {
 	async removeAllFavoriteProductsByEmail(req, res, next) {
 		try {
 			const email = req.user.email;
-			const favorite = await this.favoriteService.removeAllFavoriteProducts(email);
-
-			const favoriteDto = FavoriteDTO.fromEntity(favorite);
+			await this.favoriteService.removeAllFavoriteProducts(email);
 
 			const response = APIResponse.success(
-				successCode.USER_REMOVED_ALL_FAVORITE_PRODUCTS.code,
 				successCode.USER_REMOVED_ALL_FAVORITE_PRODUCTS.message,
-				favoriteDto
+				true
 			);
 
 			return res

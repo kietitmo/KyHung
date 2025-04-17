@@ -1,13 +1,13 @@
 class RequestFavoriteDTO {
-	constructor(email, productId, quantity, note) {
-		this.productId = productId;
-		this.email = email;
-		this.quantity = quantity;
-		this.note = note;
+	constructor(data) {
+		this.productId = data.productId;
+		this.email = data.email;
+		this.quantity = data.quantity;
+		this.note = data.note;
 	}
 
-	static fromRequest(email, productId, quantity, note) {
-		return new RequestFavoriteDTO(email, productId, quantity, note);
+	static fromRequest(data) {
+		return new RequestFavoriteDTO(data);
 	}
 }
 

@@ -13,31 +13,38 @@ class FavoriteService {
 
 	async createFavoriteProduct(favoriteProduct) {
 		const { productId, email, quantity, note } = favoriteProduct;
-		const user = await this.userRepository.findOne({ email });
+
+		const [user, product] = await Promise.all([
+			this.userRepository.findOne({ email }),
+			this.productRepository.findOne({ _id: productId }),
+		]);
+
 		if (!user) {
 			throw new CustomError(favoriteCode.USER_NOT_FOUND);
 		}
 
-		const product = await this.productRepository.findOne({ _id: productId });
 		if (!product) {
 			throw new CustomError(favoriteCode.PRODUCT_NOT_FOUND);
 		}
 
 		let favorite = await this.favoriteRepository.findOne({
-			user: user,
-			product: product,
+			user: user._id,
+			product: product._id,
 		});
 
 		if (favorite) {
 			throw new CustomError(favoriteCode.PRODUCT_ALREADY_IN_FAVORITE);
 		}
 
-		favorite = await this.favoriteRepository.create({
-			user: user,
-			product: product,
-			quantity: quantity,
-			note: note,
-		});
+		favorite = await this.favoriteRepository.create(
+			{
+				user: user._id,
+				product: product._id,
+				quantity: quantity,
+				note: note,
+			},
+			['product', 'user']
+		);
 
 		return favorite;
 	}
@@ -54,8 +61,8 @@ class FavoriteService {
 		}
 
 		const favorite = await this.favoriteRepository.findOne({
-			user: user,
-			product: product,
+			user: user._id,
+			product: product._id,
 		});
 
 		if (!favorite) {
@@ -63,8 +70,8 @@ class FavoriteService {
 		}
 
 		const deletedFavorite = await this.favoriteRepository.delete({
-			user: user,
-			product: product,
+			user: user._id,
+			product: product._id,
 		});
 
 		return deletedFavorite;
@@ -76,7 +83,7 @@ class FavoriteService {
 			throw new CustomError(favoriteCode.USER_NOT_FOUND);
 		}
 
-		const favorites = await this.favoriteRepository.findMany({ user: user }, [
+		const favorites = await this.favoriteRepository.findMany({ user: user._id }, [
 			'product',
 			'user',
 		]);
@@ -86,53 +93,62 @@ class FavoriteService {
 
 	async updateFavoriteProduct(favoriteProduct) {
 		const { productId, email, quantity, note } = favoriteProduct;
-		const user = await this.userRepository.findOne({ email });
+
+		const [user, product] = await Promise.all([
+			this.userRepository.findOne({ email }),
+			this.productRepository.findOne({ _id: productId }),
+		]);
+
 		if (!user) {
 			throw new CustomError(favoriteCode.USER_NOT_FOUND);
 		}
 
-		const product = await this.productRepository.findOne({ _id: productId });
 		if (!product) {
 			throw new CustomError(favoriteCode.PRODUCT_NOT_FOUND);
 		}
 
-		const favorite = await this.favoriteRepository.findOne(
-			{
-				user: user,
-				product: product,
-			},
-			['product', 'user']
-		);
+		const favorite = await this.favoriteRepository.findOne({
+			user: user._id,
+			product: product._id,
+		});
 
 		if (!favorite) {
 			throw new CustomError(favoriteCode.PRODUCT_NOT_IN_FAVORITE);
 		}
 
-		const updatedFavorite = await this.favoriteRepository.update({
-			user: user,
-			product: product,
-			quantity: quantity,
-			note: note,
-		});
+		const updatedFavorite = await this.favoriteRepository.findOneAndUpdate(
+			{
+				user: user._id,
+				product: product._id,
+			},
+			{
+				quantity: quantity,
+				note: note,
+			},
+			['product', 'user']
+		);
 
 		return updatedFavorite;
 	}
 
 	async getFavoriteProductsByEmailAndProductId(email, productId) {
-		const user = await this.userRepository.findOne({ email });
+		const [user, product] = await Promise.all([
+			this.userRepository.findOne({ email }),
+			this.productRepository.findOne({ _id: productId }),
+		]);
+
 		if (!user) {
 			throw new CustomError(favoriteCode.USER_NOT_FOUND);
 		}
 
-		const product = await this.productRepository.findOne({ _id: productId });
 		if (!product) {
 			throw new CustomError(favoriteCode.PRODUCT_NOT_FOUND);
 		}
 
 		const favorite = await this.favoriteRepository.findOne(
 			{
-				user: user,
-				product: product,
+				user: user._id,
+				product: product._id,
 			},
 			['product', 'user']
 		);
@@ -147,7 +163,7 @@ class FavoriteService {
 		}
 
 		const deletedFavorites = await this.favoriteRepository.deleteMany({
-			user: user,
+			user: user._id,
 		});
 
 		return deletedFavorites;

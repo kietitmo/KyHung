@@ -23,7 +23,9 @@ class ProductController {
 				id: product._id,
 				name: product.name,
 			});
-			return res.status(successCode.PRODUCT_CREATED).json(productResponse);
+			return res
+				.status(successCode.PRODUCT_CREATED.httpStatusCode)
+				.json(productResponse);
 		});
 	}
 
@@ -43,7 +45,7 @@ class ProductController {
 				getProductRequest.page,
 				getProductRequest.limit,
 				total,
-				totalPages,
+				totalPages
 			);
 
 			const response = APIResponse.success(
@@ -59,16 +61,20 @@ class ProductController {
 	}
 
 	async getProductById(req, res, next) {
-		controllerHelper.handleAsync(async () => {
+		try {
 			const product = await this.productService.getProductById(req.params.id);
 			const productResponse = ProductDTO.fromEntity(product);
 
-			return res.status(successCode.PRODUCT_GET).json(productResponse);
-		});
+			return res
+				.status(successCode.PRODUCT_GET_BY_ID.httpStatusCode)
+				.json(productResponse);
+		} catch (error) {
+			next(error);
+		}
 	}
 
 	async updateProductById(req, res, next) {
-		controllerHelper.handleAsync(async () => {
+		try {
 			const updateProduct = ProductRequestDTO.fromRequest(req.body);
 			const product = await this.productService.updateProductById(
 				req.params.id,
@@ -80,19 +86,23 @@ class ProductController {
 				successCode.PRODUCT_UPDATED.message,
 				productResponse
 			);
-			return res.status(successCode.PRODUCT_UPDATED).json(response);
-		});
+			return res.status(successCode.PRODUCT_UPDATED.httpStatusCode).json(response);
+		} catch (error) {
+			next(error);
+		}
 	}
 
 	async deleteProductById(req, res, next) {
-		controllerHelper.handleAsync(async () => {
+		try {
 			await this.productService.deleteProductById(req.params.id);
 			const response = APIResponse.success(
 				successCode.PRODUCT_DELETED.message,
 				Null
 			);
-			return res.status(successCode.PRODUCT_DELETED).json(response);
-		});
+			return res.status(successCode.PRODUCT_DELETED.httpStatusCode).json(response);
+		} catch (error) {
+			next(error);
+		}
 	}
 }
 

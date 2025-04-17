@@ -4,7 +4,10 @@ class BaseRepository {
 	}
 
 	async findAllWithFilterAndPagination(
-		filter = {},
+		filter = {
+			type: 'find',
+			filter: {},
+		},
 		limit,
 		offset,
 		populate = [],

@@ -56,6 +56,11 @@ export const errorCode = {
 		message: 'User not authorized',
 		status: APP_STATUS.ERROR,
 	},
+	GET_FAVORITE_PRODUCT_ERROR: {
+		httpStatusCode: HTTP_STATUS.INTERNAL_SERVER_ERROR,
+		message: 'Get favorite product error',
+		status: APP_STATUS.ERROR,
+	},
 };
 
 export default {
