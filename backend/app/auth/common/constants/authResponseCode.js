@@ -71,6 +71,11 @@ export const successCode = {
 		message: 'Account verified successfully',
 		status: APP_STATUS.SUCCESS,
 	},
+	USER_LOGIN_WITH_OAUTH: {
+		httpStatusCode: HTTP_STATUS.UNAUTHORIZED,
+		message: 'User login with OAuth',
+		status: APP_STATUS.FAIL,
+	},
 };
 
 export const errorCode = {
@@ -187,6 +192,11 @@ export const errorCode = {
 	USER_FULL_NAME_INVALID: {
 		httpStatusCode: HTTP_STATUS.BAD_REQUEST,
 		message: 'User full name is invalid',
+		status: APP_STATUS.FAIL,
+	},
+	USER_LOGIN_WITH_OAUTH: {
+		httpStatusCode: HTTP_STATUS.UNAUTHORIZED,
+		message: 'User login with OAuth',
 		status: APP_STATUS.FAIL,
 	},
 };

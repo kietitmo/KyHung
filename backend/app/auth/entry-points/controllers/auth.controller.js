@@ -1,16 +1,16 @@
+import AuthHelper from '../../../auth/common/utils/authHelper.js';
+import { successCode } from '../../common/constants/authResponseCode.js';
 import RefreshTokenResponseDTO from '../../domain/dto/response/refreshTokenResponseDTO.js';
-import AuthHelper from '../../common/utils/authHelpper.js';
 import LoginRequestDTO from '../../domain/dto/request/loginRequestDTO.js';
 import RegisterRequestDTO from '../../domain/dto/request/registerRequestDTO.js';
 import RegisterResponseDTO from '../../domain/dto/response/registerResponseDTO.js';
 import UserDTO from '../../../user/dto/response/userDTO.js';
 import env from '../../../common/config/env.js';
 import ResetPasswordRequestDTO from '../../domain/dto/request/resetPasswordRequestDTO.js';
-import { successCode } from '../../common/constants/authResponseCode.js';
 import AuthService from '../../domain/services/auth.service.js';
-import { handleAsync } from '../../../common/utils/helper.js';
 import LoginResponseDTO from '../../domain/dto/response/loginResponseDTO.js';
 import APIResponse from '../../../common/custom/apiResponse.js';
+
 class AuthController {
 	constructor() {
 		this.authService = new AuthService();
@@ -18,8 +18,9 @@ class AuthController {
 
 	// Handle user login
 	async login(req, res, next) {
-		await handleAsync(req, res, next, async () => {
+		try {
 			const loginRequest = new LoginRequestDTO(req.body.email, req.body.password);
+			console.log('loginRequest', loginRequest);
 			const { accessToken, refreshToken, user } = await this.authService.login(
 				loginRequest.email,
 				loginRequest.password
@@ -39,12 +40,14 @@ class AuthController {
 			};
 
 			res.status(successCode.LOGGED_IN.httpStatusCode).json(response);
-		});
+		} catch (error) {
+			next(error);
+		}
 	}
 
 	// Handle user registration
 	async register(req, res, next) {
-		await handleAsync(req, res, next, async () => {
+		try {
 			const registerRequestDTO = RegisterRequestDTO.fromRequest(req.body);
 			const user = await this.authService.register(registerRequestDTO);
 			const registerResponseDTO = new RegisterResponseDTO(user);
@@ -57,12 +60,14 @@ class AuthController {
 			res
 				.status(successCode.REGISTERED_VERIFY_CODE_SENT.httpStatusCode)
 				.json(response);
-		});
+		} catch (error) {
+			next(error);
+		}
 	}
 
 	// Handle access token refresh
 	async refreshAccessToken(req, res, next) {
-		await handleAsync(req, res, next, async () => {
+		try {
 			const refreshToken = req.cookies.refreshToken || req.body.refreshToken;
 			const newAccessToken = await AuthService.refreshAccessToken(refreshToken);
 
@@ -73,12 +78,14 @@ class AuthController {
 			};
 
 			res.status(successCode.ACCESS_TOKEN_REFRESH.httpStatusCode).json(response);
-		});
+		} catch (error) {
+			next(error);
+		}
 	}
 
 	// Handle Google OAuth2 login
 	async loginGoogleOauth2(req, res, next) {
-		await handleAsync(req, res, next, async () => {
+		try {
 			const payload = { email: req.user.email, role: req.user.role };
 			const accessToken = await AuthHelper.generateAccessToken(payload);
 			const refreshToken = await AuthHelper.generateRefreshToken(payload);
@@ -96,12 +103,14 @@ class AuthController {
 			);
 
 			res.status(successCode.LOGGED_IN.httpStatusCode).json(response);
-		});
+		} catch (error) {
+			next(error);
+		}
 	}
 
 	// Handle email verification
 	async verifyEmailAndLogin(req, res, next) {
-		await handleAsync(req, res, next, async () => {
+		try {
 			const token = req.params.token;
 			const updatedUser = await this.authService.verifyEmail(token);
 			const userDTO = UserDTO.fromEntity(updatedUser);
@@ -120,12 +129,14 @@ class AuthController {
 			);
 
 			res.status(successCode.EMAIL_VERIFIED.httpStatusCode).json(response);
-		});
+		} catch (error) {
+			next(error);
+		}
 	}
 
 	// Handle verification token resend
 	async resendToken(req, res, next) {
-		await handleAsync(req, res, next, async () => {
+		try {
 			const email = req.params.email;
 			await this.authService.resendToken(email);
 
@@ -137,12 +148,14 @@ class AuthController {
 			res
 				.status(successCode.REGISTERED_VERIFY_CODE_SENT.httpStatusCode)
 				.json(response);
-		});
+		} catch (error) {
+			next(error);
+		}
 	}
 
 	// Handle forgot password request
 	async forgotPassword(req, res, next) {
-		await handleAsync(req, res, next, async () => {
+		try {
 			const email = req.params.email;
 			await this.authService.forgotPassword(email);
 
@@ -154,7 +167,9 @@ class AuthController {
 			res
 				.status(successCode.FORGOT_PASSWORD_VERIFY_EMAIL_SENT.httpStatusCode)
 				.json(response);
-		});
+		} catch (error) {
+			next(error);
+		}
 	}
 
 	// Handle password reset
@@ -182,13 +197,15 @@ class AuthController {
 
 	// Handle user logout
 	async logout(req, res, next) {
-		await handleAsync(req, res, next, async () => {
+		try {
 			this.clearRefreshTokenCookie(res);
 
 			const response = APIResponse.success(successCode.LOGGED_OUT.message, null);
 
 			res.status(successCode.LOGGED_OUT.httpStatusCode).json(response);
-		});
+		} catch (error) {
+			next(error);
+		}
 	}
 
 	// Helper method to set refresh token cookie
@@ -211,7 +228,7 @@ class AuthController {
 	}
 
 	async getProfile(req, res, next) {
-		await handleAsync(req, res, next, async () => {
+		try {
 			const email = req.user.email;
 			const user = await this.authService.getProfile(email);
 			const userDTO = UserDTO.fromEntity(user);
@@ -222,7 +239,9 @@ class AuthController {
 			);
 
 			res.status(successCode.USER_PROFILE_FETCHED.httpStatusCode).json(response);
-		});
+		} catch (error) {
+			next(error);
+		}
 	}
 }
 

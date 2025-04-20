@@ -1,10 +1,9 @@
-import bcrypt from 'bcryptjs';
 import UserRepository from '../../../user/data-access/user.repository.js';
 import dotenv from 'dotenv';
 import { errorCode } from '../../common/constants/authResponseCode.js';
 import CustomError from '../../../common/custom/error/customError.js';
 import env from '../../../common/config/env.js';
-import AuthHelper from '../../common/utils/authHelpper.js';
+import AuthHelper from '../../../auth/common/utils/authHelper.js';
 import sendEmail from '../../../common/services/mail-service/mailer.js';
 import TokenRepository from '../../data-access/repositories/token.repository.js';
 import EmailTemplateFactory from '../../../common/services/mail-service/templates/emailTemplateFactory.js';
@@ -26,7 +25,14 @@ class AuthService {
 			throw new CustomError(errorCode.USER_NOT_EXIST);
 		}
 
-		const isMatch = await bcrypt.compare(password, user.password);
+		if (
+			user.oauth.length > 0 &&
+			(user.password === null || user.password === undefined)
+		) {
+			throw new CustomError(errorCode.USER_LOGIN_WITH_OAUTH);
+		}
+
+		const isMatch = await AuthHelper.comparePassword(password, user.password);
 		if (!isMatch) {
 			throw new CustomError(errorCode.INVALID_PASSWORD);
 		}

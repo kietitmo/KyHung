@@ -1,10 +1,9 @@
 import mongoose from 'mongoose';
-import bcrypt from 'bcryptjs';
+import { AuthHelper } from '../../../common/utils/index.js';
 import Role from './role.enum.js';
 import Gender from './gender.enum.js';
 import State from './state.enum.js';
 import OAuthProvider from './oauthprovider.enum.js';
-import AuthHelper from '../../../auth/common/utils/authHelpper.js';
 
 const userSchema = new mongoose.Schema(
 	{
