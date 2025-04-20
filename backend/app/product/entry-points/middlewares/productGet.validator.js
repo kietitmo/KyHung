@@ -1,7 +1,7 @@
 import { validateObjectWithSchema } from '../../../common/utils/validatorBySchema.js';
 import { errorCode } from '../../../product/common/constants/productResponseCode.js';
 
-const getCategorySchema = {
+const getProductSchema = {
 	page: {
 		type: 'string',
 		forceType: 'number',

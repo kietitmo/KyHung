@@ -16,6 +16,83 @@ const adminController = new AdminController();
 
 /**
  * @swagger
+ * /api/admin/users/blocked:
+ *   get:
+ *     tags: [Admin/Users]
+ *     summary: Get blocked users
+ *     description: Get a list of all blocked users
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: List of blocked users retrieved successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 status:
+ *                   type: string
+ *                   example: success
+ *                 data:
+ *                   type: array
+ *                   items:
+ *                     type: object
+ *                     properties:
+ *                       email:
+ *                         type: string
+ *                       firstName:
+ *                         type: string
+ *                       lastName:
+ *                         type: string
+ *                       role:
+ *                         type: string
+ *       401:
+ *         description: Unauthorized
+ *       403:
+ *         description: Forbidden - Admin access required
+ */
+router.get(
+	'/blocked',
+	verifyAccessToken,
+	authorize([Role.ADMIN]),
+	adminController.getBlockedUsers.bind(adminController)
+);
+
+/**
+ * @swagger
+ * /api/admin/users/{id}:
+ *   get:
+ *     tags: [Admin/Users]
+ *     summary: Get user by ID
+ *     description: Get detailed information about a specific user by ID
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: User details retrieved successfully
+ *       401:
+ *         description: Unauthorized
+ *       403:
+ *         description: Forbidden - Admin access required
+ *       404:
+ *         description: User not found
+ */
+router.get(
+	'/:id',
+	verifyAccessToken,
+	authorize([Role.ADMIN]),
+	adminController.getUserById.bind(adminController)
+);
+
+/**
+ * @swagger
  * /api/admin/users:
  *   get:
  *     tags: [Admin/Users]
@@ -261,7 +338,7 @@ router.post(
  *         description: User not found
  */
 router.put(
-	'/update/:email',
+	'/:email',
 	verifyAccessToken,
 	authorize([Role.ADMIN]),
 	updateUserValidator,
@@ -295,7 +372,7 @@ router.put(
  *         description: User not found
  */
 router.delete(
-	'/:email/delete',
+	'/:email',
 	verifyAccessToken,
 	authorize([Role.ADMIN]),
 	adminController.deleteUserByEmail.bind(adminController)
@@ -303,13 +380,20 @@ router.delete(
 
 /**
  * @swagger
- * /api/admin/users/block:
+ * /api/admin/users/{email}/block:
  *   put:
  *     tags: [Admin/Users]
  *     summary: Block user
  *     description: Block a user by admin
  *     security:
  *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: email
+ *         required: true
+ *         schema:
+ *           type: string
+ *           format: email
  *     requestBody:
  *       required: true
  *       content:
@@ -317,12 +401,8 @@ router.delete(
  *           schema:
  *             type: object
  *             required:
- *               - email
  *               - blockedReason
  *             properties:
- *               email:
- *                 type: string
- *                 format: email
  *               blockedReason:
  *                 type: string
  *                 description: Reason for blocking the user
@@ -347,25 +427,20 @@ router.put(
 
 /**
  * @swagger
- * /api/admin/users/unblock:
+ * /api/admin/users/{email}/unblock:
  *   put:
  *     tags: [Admin/Users]
  *     summary: Unblock user
  *     description: Unblock a user by admin
  *     security:
  *       - bearerAuth: []
- *     requestBody:
- *       required: true
- *       content:
- *         application/json:
- *           schema:
- *             type: object
- *             required:
- *               - email
- *             properties:
- *               email:
- *                 type: string
- *                 format: email
+ *     parameters:
+ *       - in: path
+ *         name: email
+ *         required: true
+ *         schema:
+ *           type: string
+ *           format: email
  *     responses:
  *       200:
  *         description: User unblocked successfully
@@ -383,83 +458,6 @@ router.put(
 	verifyAccessToken,
 	authorize([Role.ADMIN]),
 	adminController.unblockUser.bind(adminController)
-);
-
-/**
- * @swagger
- * /api/admin/users/blocked:
- *   get:
- *     tags: [Admin/Users]
- *     summary: Get blocked users
- *     description: Get a list of all blocked users
- *     security:
- *       - bearerAuth: []
- *     responses:
- *       200:
- *         description: List of blocked users retrieved successfully
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 status:
- *                   type: string
- *                   example: success
- *                 data:
- *                   type: array
- *                   items:
- *                     type: object
- *                     properties:
- *                       email:
- *                         type: string
- *                       firstName:
- *                         type: string
- *                       lastName:
- *                         type: string
- *                       role:
- *                         type: string
- *       401:
- *         description: Unauthorized
- *       403:
- *         description: Forbidden - Admin access required
- */
-router.get(
-	'/blocked',
-	verifyAccessToken,
-	authorize([Role.ADMIN]),
-	adminController.getBlockedUsers.bind(adminController)
-);
-
-/**
- * @swagger
- * /api/admin/users/{id}:
- *   get:
- *     tags: [Admin/Users]
- *     summary: Get user by ID
- *     description: Get detailed information about a specific user by ID
- *     security:
- *       - bearerAuth: []
- *     parameters:
- *       - in: path
- *         name: id
- *         required: true
- *         schema:
- *           type: string
- *     responses:
- *       200:
- *         description: User details retrieved successfully
- *       401:
- *         description: Unauthorized
- *       403:
- *         description: Forbidden - Admin access required
- *       404:
- *         description: User not found
- */
-router.get(
-	'/:id',
-	verifyAccessToken,
-	authorize([Role.ADMIN]),
-	adminController.getUserById.bind(adminController)
 );
 
 /**

@@ -1,7 +1,7 @@
 import express from 'express';
 import ProductController from '../controllers/product.controller.js';
 
-import getProductValidator from '../../../category/entry-points/middlewares/categoryGet.validator.js';
+import getProductValidator from '../middlewares/productGet.validator.js';
 
 const router = express.Router();
 const productController = new ProductController();

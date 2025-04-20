@@ -66,6 +66,11 @@ export const successCode = {
 		message: 'Blocked users fetched successfully',
 		status: APP_STATUS.SUCCESS,
 	},
+	ACCOUNT_VERIFIED: {
+		httpStatusCode: HTTP_STATUS.OK,
+		message: 'Account verified successfully',
+		status: APP_STATUS.SUCCESS,
+	},
 };
 
 export const errorCode = {

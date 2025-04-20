@@ -1,11 +1,10 @@
 class ResetPasswordRequestDTO {
-	constructor(token, newPassword) {
-		this.token = token;
+	constructor(newPassword) {
 		this.newPassword = newPassword;
 	}
 
 	static fromRequest(data) {
-		return new ResetPasswordRequestDTO(data.token, data.newPassword);
+		return new ResetPasswordRequestDTO(data.newPassword);
 	}
 }
 

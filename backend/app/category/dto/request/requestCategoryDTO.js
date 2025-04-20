@@ -1,11 +1,11 @@
 class RequestCategoryDTO {
-	constructor(name, description) {
-		this.name = name;
-		this.description = description;
+	constructor(data) {
+		this.name = data.name;
+		this.description = data.description;
 	}
 
-	static fromRequest(name, description) {
-		return new RequestCategoryDTO(name, description);
+	static fromRequest(data) {
+		return new RequestCategoryDTO(data);
 	}
 }
 

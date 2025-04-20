@@ -11,6 +11,10 @@ class AuthHelper {
 		return hashedPassword;
 	}
 
+	static async comparePassword(password, hashedPassword) {
+		return await bcrypt.compare(password, hashedPassword);
+	}
+
 	static async generateAccessToken(payload) {
 		return jwt.sign(payload, env.JWT_SECRET, {
 			expiresIn: env.JWT_SECRET_EXPIRE_TIME,

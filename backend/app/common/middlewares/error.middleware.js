@@ -4,7 +4,7 @@ import pkg from 'joi';
 const { ValidationError } = pkg;
 import { logger } from './logger.middleware.js';
 import env from '../config/env.js';
-
+import { errorCode } from '../constants/commonResponseCode.js';
 const errorHandler = (err, req, res, next) => {
 	// Generate unique error ID for tracking
 	const errorId = Math.random().toString(36).substring(7);
@@ -72,6 +72,37 @@ const errorHandler = (err, req, res, next) => {
 		);
 	}
 
+	// Handle Mongoose CastError (e.g., invalid ObjectId)
+	if (err instanceof mongoose.Error.CastError) {
+		const data = {
+			errorId,
+			field: err.path,
+			value: err.value,
+		};
+		const response = APIResponse.fail(
+			errorCode.INVALID_VALUE_FOR_FIELD.message,
+			data
+		);
+		return res.status(400).json(response);
+	}
+
+	if (err instanceof mongoose.Error.DocumentNotFoundError) {
+		const data = { errorId };
+		return res.status(404).json(APIResponse.fail('Resource not found', data));
+	}
+
+	if (err instanceof SyntaxError && err.status === 400 && 'body' in err) {
+		const data = { errorId };
+		return res
+			.status(400)
+			.json(APIResponse.fail('Malformed JSON in request body', data));
+	}
+
+	if (err.code === 'EBADCSRFTOKEN') {
+		const data = { errorId };
+		return res.status(403).json(APIResponse.fail('Invalid CSRF token', data));
+	}
+
 	// Handle JWT errors
 	if (err.name === 'JsonWebTokenError') {
 		const data = {
@@ -122,7 +153,6 @@ const errorHandler = (err, req, res, next) => {
 	const isProduction = env.NODE_ENV === 'production';
 	const data = {
 		errorId,
-		...(env.NODE_ENV === 'development' && { stack: err.stack }),
 	};
 	const response = APIResponse.fail(
 		isProduction ? 'Internal Server Error' : err.message,

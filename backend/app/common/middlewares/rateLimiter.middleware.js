@@ -18,7 +18,7 @@ const createRateLimiter = (options = {}) => {
 		max,
 		message: APIResponse.fail(error.code, error.message),
 		standardHeaders: true, // Return rate limit info in the `RateLimit-*` headers
-		legacyHeaders: false, // Disable the `X-RateLimit-*` headers
+		legacyHeaders: true, // Disable the `X-RateLimit-*` headers
 		handler: (req, res) => {
 			const rateLimiterError = new RateLimiterError(errorType);
 			res

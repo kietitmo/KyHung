@@ -52,7 +52,6 @@ const userController = new UserController();
 router.get(
 	'/:email',
 	verifyAccessToken,
-	authorize([Role.USER]),
 	userController.getUserByEmail.bind(userController)
 );
 
@@ -102,7 +101,6 @@ router.get(
 router.put(
 	'/:email',
 	verifyAccessToken,
-	authorize([Role.USER]),
 	updateUserValidator,
 	userController.updateUserByEmail.bind(userController)
 );

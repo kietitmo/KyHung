@@ -9,6 +9,7 @@ import sendEmail from '../../../common/services/mail-service/mailer.js';
 import TokenRepository from '../../data-access/repositories/token.repository.js';
 import EmailTemplateFactory from '../../../common/services/mail-service/templates/emailTemplateFactory.js';
 import TokenType from '../../domain/models/tokenType.enum.js';
+import State from '../../../user/domain/models/state.enum.js';
 
 dotenv.config();
 
@@ -113,7 +114,10 @@ class AuthService {
 			throw new CustomError(errorCode.USER_NOT_EXIST);
 		}
 
-		await this.userRepository.update({ email: user.email }, { isVerified: true });
+		await this.userRepository.update(
+			{ email: user.email },
+			{ state: State.ACTIVE }
+		);
 		await this.tokenRepository.delete({ _id: tokenInstance._id });
 
 		return user;
@@ -125,7 +129,7 @@ class AuthService {
 			throw new CustomError(errorCode.USER_NOT_EXIST);
 		}
 
-		if (user.isVerified) {
+		if (user.state === State.ACTIVE) {
 			throw new CustomError(errorCode.USER_ALREADY_VERIFIED);
 		}
 
@@ -165,14 +169,13 @@ class AuthService {
 			tokenValue: token,
 			email: email,
 			expiresAt: resetTokenExpires,
-			type: TokenType.PASSWORD_RESET,
+			type: TokenType.RESET_PASSWORD,
 		};
 
 		await this.tokenRepository.create(tokenData);
 
-		const resetUrl = `http://${env.APP_HOSTNAME || 'localhost:5001'}/api/auth/reset-password/${token}`;
 		const template = EmailTemplateFactory.getTemplate('forgotPassword', {
-			url: resetUrl,
+			token: token,
 			user: user,
 		});
 
@@ -182,9 +185,10 @@ class AuthService {
 	}
 
 	async resetPassword(token, newPassword) {
+		console.log('resetPassword', token, newPassword);
 		const tokenInstance = await this.tokenRepository.findOne({
 			tokenValue: token,
-			type: TokenType.PASSWORD_RESET,
+			type: TokenType.RESET_PASSWORD,
 		});
 
 		if (!tokenInstance) {
@@ -198,13 +202,14 @@ class AuthService {
 		const user = await this.userRepository.findOne({
 			email: tokenInstance.email,
 		});
+
 		if (!user) {
 			throw new CustomError(errorCode.USER_NOT_EXIST);
 		}
 
 		await this.userRepository.update(
 			{ email: user.email },
-			{ password: newPassword }
+			{ password: await AuthHelper.hashPassword(newPassword) }
 		);
 		await this.tokenRepository.delete({ _id: tokenInstance._id });
 
@@ -224,7 +229,7 @@ class AuthService {
 
 		await this.userRepository.update(
 			{ email },
-			{ password: env.DEFAULT_PASSWORD }
+			{ password: await AuthHelper.hashPassword(env.DEFAULT_PASSWORD) }
 		);
 
 		return user;
@@ -246,7 +251,7 @@ class AuthService {
 			throw new CustomError(errorCode.USER_NOT_EXIST);
 		}
 
-		await this.userRepository.update({ email }, { isVerified: true });
+		await this.userRepository.update({ email }, { state: State.ACTIVE });
 
 		return user;
 	}

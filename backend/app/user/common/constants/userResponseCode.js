@@ -274,6 +274,21 @@ export const errorCode = {
 		message: 'Failed to fetch OAuth users',
 		status: APP_STATUS.ERROR,
 	},
+	USER_NOT_DELETED: {
+		httpStatusCode: HTTP_STATUS.BAD_REQUEST,
+		message: 'User is not deleted',
+		status: APP_STATUS.ERROR,
+	},
+	USER_DELETED: {
+		httpStatusCode: HTTP_STATUS.BAD_REQUEST,
+		message: 'User is deleted',
+		status: APP_STATUS.ERROR,
+	},
+	USER_ALREADY_ACTIVE: {
+		httpStatusCode: HTTP_STATUS.BAD_REQUEST,
+		message: 'User is already active',
+		status: APP_STATUS.ERROR,
+	},
 };
 
 export default {

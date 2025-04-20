@@ -132,12 +132,16 @@ class UserService {
 	}
 
 	async restoreUser(email) {
-		const user = await this.userRepository.findOne({ email });
+		let user = await this.userRepository.findOne({ email });
 		if (!user) {
 			throw new CustomError(errorCode.USER_NOT_FOUND);
 		}
-		user.state = State.ACTIVE;
-		await user.save();
+
+		if (user.state !== State.DELETED) {
+			throw new CustomError(errorCode.USER_NOT_DELETED);
+		}
+
+		user = await this.userRepository.update({ email }, { state: State.ACTIVE });
 		return user;
 	}
 
@@ -152,12 +156,24 @@ class UserService {
 	}
 
 	async activateUser(email) {
-		const user = await this.userRepository.findOne({ email });
+		let user = await this.userRepository.findOne({ email });
 		if (!user) {
 			throw new CustomError(errorCode.USER_NOT_FOUND);
 		}
-		user.state = State.ACTIVE;
-		await user.save();
+
+		if (user.state === State.ACTIVE) {
+			throw new CustomError(errorCode.USER_ALREADY_ACTIVE);
+		}
+
+		if (user.state === State.DELETED) {
+			throw new CustomError(errorCode.USER_DELETED);
+		}
+
+		if (user.state === State.BLOCKED) {
+			throw new CustomError(errorCode.USER_BLOCKED);
+		}
+
+		user = await this.userRepository.update({ email }, { state: State.ACTIVE });
 		return user;
 	}
 

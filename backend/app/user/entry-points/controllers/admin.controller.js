@@ -100,7 +100,7 @@ class AdminController {
 	}
 
 	async blockUser(req, res, next) {
-		await handleAsync(req, res, next, async () => {
+		try {
 			const user = await this.userService.blockUser(req.params.email);
 			const userDTO = AdminUserDTO.fromEntity(user);
 
@@ -110,11 +110,13 @@ class AdminController {
 			);
 
 			res.status(successCode.USER_BLOCKED.httpStatusCode).json(response);
-		});
+		} catch (error) {
+			next(error);
+		}
 	}
 
 	async unblockUser(req, res, next) {
-		await handleAsync(req, res, next, async () => {
+		try {
 			const user = await this.userService.unblockUser(req.params.email);
 			const userDTO = AdminUserDTO.fromEntity(user);
 
@@ -124,11 +126,13 @@ class AdminController {
 			);
 
 			res.status(successCode.USER_UNBLOCKED.httpStatusCode).json(response);
-		});
+		} catch (error) {
+			next(error);
+		}
 	}
 
 	async getBlockedUsers(req, res, next) {
-		await handleAsync(req, res, next, async () => {
+		try {
 			const users = await this.userService.getBlockedUsers();
 			const userDTOs = users.map((user) => AdminUserDTO.fromEntity(user));
 
@@ -138,19 +142,23 @@ class AdminController {
 			);
 
 			res.status(successCode.BLOCKED_USERS_FETCHED.httpStatusCode).json(response);
-		});
+		} catch (error) {
+			next(error);
+		}
 	}
 
 	async deleteUserFromDatabase(req, res, next) {
-		await handleAsync(req, res, next, async () => {
+		try {
 			await this.userService.deleteUserFromDatabase(req.params.email);
 			const response = APIResponse.success(successCode.USER_DELETED.message, null);
 			return res.status(successCode.USER_DELETED.httpStatusCode).json(response);
-		});
+		} catch (error) {
+			next(error);
+		}
 	}
 
 	async restoreUser(req, res, next) {
-		await handleAsync(req, res, next, async () => {
+		try {
 			const user = await this.userService.restoreUser(req.params.email);
 			const userDTO = AdminUserDTO.fromEntity(user);
 			const response = APIResponse.success(
@@ -158,11 +166,13 @@ class AdminController {
 				userDTO
 			);
 			return res.status(successCode.USER_RESTORED.httpStatusCode).json(response);
-		});
+		} catch (error) {
+			next(error);
+		}
 	}
 
 	async getDeletedUsers(req, res, next) {
-		await handleAsync(req, res, next, async () => {
+		try {
 			const users = await this.userService.getDeletedUsers();
 			const userDTOs = users.map((user) => AdminUserDTO.fromEntity(user));
 
@@ -173,7 +183,9 @@ class AdminController {
 			return res
 				.status(successCode.DELETED_USERS_FETCHED.httpStatusCode)
 				.json(response);
-		});
+		} catch (error) {
+			next(error);
+		}
 	}
 
 	async getUserById(req, res, next) {

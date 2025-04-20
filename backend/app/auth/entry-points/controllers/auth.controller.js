@@ -63,9 +63,8 @@ class AuthController {
 	// Handle access token refresh
 	async refreshAccessToken(req, res, next) {
 		await handleAsync(req, res, next, async () => {
-			const refreshToken = req.cookies.refreshToken;
-			const newAccessToken =
-				await this.authService.refreshAccessToken(refreshToken);
+			const refreshToken = req.cookies.refreshToken || req.body.refreshToken;
+			const newAccessToken = await AuthService.refreshAccessToken(refreshToken);
 
 			const refreshTokenResponse = new RefreshTokenResponseDTO(newAccessToken);
 			const response = {
@@ -160,12 +159,13 @@ class AuthController {
 
 	// Handle password reset
 	async resetPassword(req, res, next) {
-		await handleAsync(req, res, next, async () => {
+		try {
+			const token = req.params.token;
 			const resetPasswordRequestDTO = ResetPasswordRequestDTO.fromRequest(
 				req.body
 			);
 			await this.authService.resetPassword(
-				resetPasswordRequestDTO.token,
+				token,
 				resetPasswordRequestDTO.newPassword
 			);
 
@@ -175,7 +175,9 @@ class AuthController {
 			);
 
 			res.status(successCode.PASSWORD_RESET_SUCCESS.httpStatusCode).json(response);
-		});
+		} catch (error) {
+			next(error);
+		}
 	}
 
 	// Handle user logout

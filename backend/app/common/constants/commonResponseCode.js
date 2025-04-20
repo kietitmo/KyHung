@@ -49,6 +49,11 @@ export const errorCode = {
 		message: 'Bad request',
 		status: APP_STATUS.ERROR,
 	},
+	INVALID_VALUE_FOR_FIELD: {
+		httpStatusCode: HTTP_STATUS.BAD_REQUEST,
+		message: 'Invalid value for field',
+		status: APP_STATUS.ERROR,
+	},
 };
 
 // Rate Limiter Success Codes

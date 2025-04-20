@@ -12,7 +12,7 @@ class AdminController {
 
 	async createCategory(req, res, next) {
 		try {
-			const categoryData = new RequestCategoryDTO(req.body);
+			const categoryData = RequestCategoryDTO.fromRequest(req.body);
 			const category = await this.categoryService.createCategory(categoryData);
 			const categoryDto = CategoryAdminDTO.fromEntity(category);
 			const response = APIResponse.success(
@@ -80,7 +80,8 @@ class AdminController {
 
 	async updateCategoryById(req, res, next) {
 		try {
-			const updateCategoryData = new RequestCategoryDTO(req.body);
+			const updateCategoryData = RequestCategoryDTO.fromRequest(req.body);
+
 			const category = await this.categoryService.updateCategoryById(
 				req.params.id,
 				updateCategoryData

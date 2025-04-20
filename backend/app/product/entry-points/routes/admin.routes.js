@@ -6,9 +6,9 @@ import {
 } from '../../../auth/entry-points/middlewares/auth.middleware.js';
 import Role from '../../../user/domain/models/role.enum.js';
 
-import createProductValidator from '../../../category/entry-points/middlewares/categoryCreate.validator.js';
-import updateProductValidator from '../../../category/entry-points/middlewares/categoryUpdate.validator.js';
-import getProductValidator from '../../../category/entry-points/middlewares/categoryGet.validator.js';
+import createProductValidator from '../middlewares/productCreate.validator.js';
+import updateProductValidator from '../middlewares/productUpdate.validator.js';
+import getProductValidator from '../middlewares/productGet.validator.js';
 
 const router = express.Router();
 const adminController = new AdminController();

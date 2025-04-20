@@ -3,11 +3,6 @@ import { errorCode } from '../../../common/constants/authResponseCode.js';
 import env from '../../../../common/config/env.js';
 
 const resetPasswordSchema = {
-	token: {
-		type: 'string',
-		regex: env.TOKEN_REGEXP,
-		errorCode: errorCode.USER_TOKEN_INVALID,
-	},
 	newPassword: {
 		type: 'string',
 		regex: env.PASSWORD_REGEXP,
@@ -18,7 +13,7 @@ const resetPasswordSchema = {
 export const resetPasswordValidator = (req, res, next) => {
 	try {
 		validateObjectWithSchema(req.body, resetPasswordSchema, {
-			required: ['token', 'newPassword'],
+			required: ['newPassword'],
 		});
 		next();
 	} catch (error) {

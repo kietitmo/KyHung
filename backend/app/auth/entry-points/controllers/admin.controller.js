@@ -2,6 +2,7 @@ import { successCode } from '../../common/constants/authResponseCode.js';
 import AuthService from '../../domain/services/auth.service.js';
 import { handleAsync } from '../../../common/utils/helper.js';
 import APIResponse from '../../../common/custom/apiResponse.js';
+import UserAdminDTO from '../../../user/dto/response/adminUserDTO.js';
 
 class AdminController {
 	constructor() {
@@ -27,11 +28,12 @@ class AdminController {
 		await handleAsync(req, res, next, async () => {
 			const email = req.body.email;
 
-			await this.authService.verifyAccount(email);
+			const user = await this.authService.verifyAccount(email);
+			const userResponse = UserAdminDTO.fromEntity(user);
 
 			const response = APIResponse.success(
 				successCode.ACCOUNT_VERIFIED.message,
-				null
+				userResponse
 			);
 
 			res.status(successCode.ACCOUNT_VERIFIED.httpStatusCode).json(response);

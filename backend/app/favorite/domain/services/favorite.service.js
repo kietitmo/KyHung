@@ -16,7 +16,7 @@ class FavoriteService {
 
 		const [user, product] = await Promise.all([
 			this.userRepository.findOne({ email }),
-			this.productRepository.findOne({ _id: productId }),
+			this.productRepository.findOne({ _id: productId }, ['category']),
 		]);
 
 		if (!user) {
@@ -116,7 +116,7 @@ class FavoriteService {
 			throw new CustomError(favoriteCode.PRODUCT_NOT_IN_FAVORITE);
 		}
 
-		const updatedFavorite = await this.favoriteRepository.findOneAndUpdate(
+		const updatedFavorite = await this.favoriteRepository.update(
 			{
 				user: user._id,
 				product: product._id,

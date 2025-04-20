@@ -2,7 +2,7 @@ import passport from 'passport';
 import { ExtractJwt, Strategy as JwtStrategy } from 'passport-jwt';
 import { Strategy as GoogleStrategy } from 'passport-google-oauth20';
 import env from './env.js';
-import AuthService from '../../auth/domain/services/auth.service.js';
+import UserRepository from '../../user/data-access/user.repository.js';
 import OAuthProvider from '../../user/domain/models/oauthprovider.enum.js';
 import State from '../../user/domain/models/state.enum.js';
 
@@ -25,25 +25,25 @@ passport.use(
 				const providerId = profile.id;
 				const fullName = profile.displayName;
 
-				const authService = new AuthService();
-				let user = await authService.getUserByOAuthProviderId(
-					OAuthProvider.GOOGLE,
-					providerId
-				);
+				const userRepository = new UserRepository();
+				let user = await userRepository.findOne({
+					'oauth.provider': OAuthProvider.GOOGLE,
+					'oauth.providerId': providerId,
+				});
 
 				if (user) return done(null, user);
 
-				const existingUser = await authService.getUserByEmail(email);
+				const existingUser = await userRepository.findOne({ email });
 				if (existingUser) {
-					const mergedUser = await authService.mergeAccount(
-						email,
+					const mergedUser = await userRepository.update(
+						{ email },
 						OAuthProvider.GOOGLE,
 						providerId
 					);
 					return done(null, mergedUser);
 				}
 
-				user = await authService.createUser({
+				user = await userRepository.create({
 					fullName,
 					email,
 					oauth: [
@@ -66,8 +66,8 @@ passport.use(
 passport.use(
 	new JwtStrategy(opts, async (jwt_payload, done) => {
 		try {
-			const authService = new AuthService();
-			const user = await authService.getProfile(jwt_payload.email);
+			const userRepository = new UserRepository();
+			const user = await userRepository.findOne({ email: jwt_payload.email });
 
 			if (!user) {
 				return done(null, false);

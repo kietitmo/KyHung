@@ -8,7 +8,7 @@ class ForgotPasswordTemplate extends EmailTemplate {
 
 	generate({ token, user }) {
 		// Construct reset URL using environment variables
-		const resetUrl = `${env.APP_PROTOCOL || 'http'}://${env.APP_HOSTNAME || 'localhost:5001'}/reset-password?token=${token}`;
+		const resetUrl = `${env.APP_PROTOCOL || 'http'}://${env.WEB_HOSTNAME || 'localhost:3000'}/reset-password?token=${token}`;
 
 		const content = `
             <h1 class="title">Password Reset Request</h1>

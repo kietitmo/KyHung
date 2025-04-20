@@ -72,12 +72,24 @@ class BaseRepository {
 		return docs.length;
 	}
 
-	async create(data) {
-		return this.model.create(data);
+	async create(data, populate = []) {
+		let doc = await this.model.create(data);
+
+		if (populate.length > 0) {
+			doc = await doc.populate(populate);
+		}
+
+		return doc;
 	}
 
-	async update(condition, data) {
-		return this.model.findOneAndUpdate(condition, data, { new: true });
+	async update(condition, data, populate = []) {
+		let doc = await this.model.findOneAndUpdate(condition, data, { new: true });
+
+		if (populate.length > 0) {
+			doc = await doc.populate(populate);
+		}
+
+		return doc;
 	}
 
 	async delete(condition) {

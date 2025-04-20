@@ -11,7 +11,7 @@ class UserController {
 
 	async getUserByEmail(req, res, next) {
 		try {
-			const user = await this.userService.getUserByEmail(req.params.email);
+			const user = await this.userService.getUserByEmail(req.user.email);
 
 			const userResponse = UserDTO.fromEntity(user);
 			const response = APIResponse.success(
@@ -28,7 +28,7 @@ class UserController {
 		try {
 			const updateUser = RequestUserDTO.fromRequest(req.body);
 			const user = await this.userService.updateUserByEmail(
-				req.params.email,
+				req.user.email,
 				updateUser
 			);
 

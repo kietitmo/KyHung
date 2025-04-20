@@ -42,6 +42,7 @@ const envSchema = joi
 			.valid('development', 'test', 'production')
 			.default('development'),
 		APP_HOSTNAME: joi.string().required(),
+		WEB_HOSTNAME: joi.string().required(),
 		PORT: joi.number().default(5000),
 		MONGODB_URI: joi.string().required(),
 		JWT_SECRET: joi.string().min(32).required(),
@@ -167,6 +168,7 @@ const validateEnv = (env) => {
 const envObj = {
 	NODE_ENV,
 	APP_HOSTNAME: process.env.APP_HOSTNAME,
+	WEB_HOSTNAME: process.env.WEB_HOSTNAME,
 	PORT: parseInt(process.env.PORT, 10) || 5000,
 	MONGODB_URI: process.env.MONGODB_URI,
 	JWT_SECRET: process.env.JWT_SECRET,
