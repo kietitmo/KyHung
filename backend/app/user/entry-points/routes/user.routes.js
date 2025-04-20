@@ -1,11 +1,10 @@
 import express from 'express';
 import UserController from '../../entry-points/controllers/user.controller.js';
+import { verifyAccessToken } from '../../../auth/entry-points/middlewares/auth.middleware.js';
 import {
-	verifyAccessToken,
-	authorize,
-} from '../../../auth/entry-points/middlewares/auth.middleware.js';
-import { updateUserValidator } from '../../entry-points/middlewares/userUpdate.validator.js';
-import Role from '../../domain/models/role.enum.js';
+	validateUserEmail,
+	validateUpdateUser,
+} from '../../entry-points/middlewares/user.validation.js';
 
 const router = express.Router();
 const userController = new UserController();
@@ -42,6 +41,14 @@ const userController = new UserController();
  *                   type: string
  *                 role:
  *                   type: string
+ *                 phoneNumber:
+ *                   type: string
+ *                 address:
+ *                   type: string
+ *                 createdAt:
+ *                   type: string
+ *                 updatedAt:
+ *                   type: string
  *       401:
  *         description: Unauthorized
  *       403:
@@ -52,25 +59,19 @@ const userController = new UserController();
 router.get(
 	'/:email',
 	verifyAccessToken,
+	validateUserEmail,
 	userController.getUserByEmail.bind(userController)
 );
 
 /**
  * @swagger
- * /api/users/{email}:
+ * /api/users:
  *   put:
  *     tags: [Users]
  *     summary: Update user by email
  *     description: Update user details by email address
  *     security:
  *       - bearerAuth: []
- *     parameters:
- *       - in: path
- *         name: email
- *         required: true
- *         schema:
- *           type: string
- *           format: email
  *     requestBody:
  *       required: true
  *       content:
@@ -78,13 +79,17 @@ router.get(
  *           schema:
  *             type: object
  *             properties:
- *               firstName:
- *                 type: string
- *               lastName:
+ *               fullName:
  *                 type: string
  *               phoneNumber:
  *                 type: string
  *               address:
+ *                 type: string
+ *               country:
+ *                 type: string
+ *               city:
+ *                 type: string
+ *               gender:
  *                 type: string
  *     responses:
  *       200:
@@ -99,9 +104,9 @@ router.get(
  *         description: User not found
  */
 router.put(
-	'/:email',
+	'/',
 	verifyAccessToken,
-	updateUserValidator,
+	validateUpdateUser,
 	userController.updateUserByEmail.bind(userController)
 );
 

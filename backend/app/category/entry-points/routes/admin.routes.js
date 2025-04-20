@@ -5,11 +5,13 @@ import {
 	authorize,
 } from '../../../auth/entry-points/middlewares/auth.middleware.js';
 import Role from '../../../user/domain/models/role.enum.js';
-import categoryMiddlewares from '../middlewares/index.js';
-
-import createCategoryValidator from '../middlewares/categoryCreate.validator.js';
-import updateCategoryValidator from '../middlewares/categoryUpdate.validator.js';
-import getCategoryValidator from '../middlewares/categoryGet.validator.js';
+import {
+	validateCreateCategory,
+	validateUpdateCategory,
+	validateGetAllCategory,
+	validateGetCategoryById,
+	validateDeleteCategoryById,
+} from '../middlewares/category.validation.js';
 
 const router = express.Router();
 const adminController = new AdminController();
@@ -51,7 +53,7 @@ router.post(
 	'/',
 	verifyAccessToken,
 	authorize([Role.ADMIN]),
-	createCategoryValidator,
+	validateCreateCategory,
 	adminController.createCategory.bind(adminController)
 );
 
@@ -130,7 +132,7 @@ router.get(
 	'/',
 	verifyAccessToken,
 	authorize([Role.ADMIN]),
-	getCategoryValidator,
+	validateGetAllCategory,
 	adminController.getCategories.bind(adminController)
 );
 
@@ -186,6 +188,7 @@ router.get(
 	'/:id',
 	verifyAccessToken,
 	authorize([Role.ADMIN]),
+	validateGetCategoryById,
 	adminController.getCategoryById.bind(adminController)
 );
 
@@ -231,7 +234,8 @@ router.put(
 	'/:id',
 	verifyAccessToken,
 	authorize([Role.ADMIN]),
-	updateCategoryValidator,
+	validateGetCategoryById,
+	validateUpdateCategory,
 	adminController.updateCategoryById.bind(adminController)
 );
 
@@ -264,6 +268,7 @@ router.delete(
 	'/:id',
 	verifyAccessToken,
 	authorize([Role.ADMIN]),
+	validateDeleteCategoryById,
 	adminController.deleteCategoryById.bind(adminController)
 );
 

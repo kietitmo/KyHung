@@ -46,10 +46,7 @@ class UserService {
 		if (user) {
 			throw new CustomError(errorCode.USER_ALREADY_EXISTS);
 		}
-		return this.userRepository.create({
-			...userData,
-			isVerified: true,
-		});
+		return this.userRepository.create(userData);
 	}
 
 	async updateUserByEmail(email, userData) {
@@ -173,7 +170,10 @@ class UserService {
 			throw new CustomError(errorCode.USER_BLOCKED);
 		}
 
-		user = await this.userRepository.update({ email }, { state: State.ACTIVE });
+		user = await this.userRepository.update(
+			{ email },
+			{ state: State.ACTIVE, activeAt: new Date() }
+		);
 		return user;
 	}
 

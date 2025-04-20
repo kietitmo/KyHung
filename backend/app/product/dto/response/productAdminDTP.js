@@ -7,8 +7,8 @@ class ProductAdminDTO {
 		this.category = CategoryAdminDTO.fromEntity(product.category);
 		this.price = product.price;
 		this.description = product.description;
-		this.imageUrl = product.imageUrl;
-		this.videoUrl = product.videoUrl;
+		this.images = product.images;
+		this.videos = product.videos;
 		this.createdAt = product.createdAt;
 		this.updatedAt = product.updatedAt;
 	}

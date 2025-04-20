@@ -1,6 +1,9 @@
 import express from 'express';
 import CategoryController from '../controllers/category.controller.js';
-import categoryMiddlewares from '../middlewares/index.js';
+import {
+	validateGetAllCategory,
+	validateGetCategoryById,
+} from '../middlewares/category.validation.js';
 const router = express.Router();
 const categoryController = new CategoryController();
 
@@ -75,7 +78,7 @@ const categoryController = new CategoryController();
  */
 router.get(
 	'/',
-	categoryMiddlewares.get,
+	validateGetAllCategory,
 	categoryController.getCategories.bind(categoryController)
 );
 
@@ -124,6 +127,10 @@ router.get(
  *       404:
  *         description: Category not found
  */
-router.get('/:id', categoryController.getCategoryById.bind(categoryController));
+router.get(
+	'/:id',
+	validateGetCategoryById,
+	categoryController.getCategoryById.bind(categoryController)
+);
 
 export default router;

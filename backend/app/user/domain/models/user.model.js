@@ -44,7 +44,7 @@ const userSchema = new mongoose.Schema(
 			enum: Object.values(State),
 			default: State.INACTIVE,
 		},
-		activeAt: { type: Date, required: false },
+		activeAt: { type: Date, default: Date.now(), required: true },
 	},
 	{ timestamps: true }
 );

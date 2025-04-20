@@ -122,7 +122,7 @@ class AuthService {
 
 		await this.userRepository.update(
 			{ email: user.email },
-			{ state: State.ACTIVE }
+			{ state: State.ACTIVE, activeAt: new Date() }
 		);
 		await this.tokenRepository.delete({ _id: tokenInstance._id });
 
@@ -257,7 +257,10 @@ class AuthService {
 			throw new CustomError(errorCode.USER_NOT_EXIST);
 		}
 
-		await this.userRepository.update({ email }, { state: State.ACTIVE });
+		await this.userRepository.update(
+			{ email },
+			{ state: State.ACTIVE, activeAt: new Date() }
+		);
 
 		return user;
 	}

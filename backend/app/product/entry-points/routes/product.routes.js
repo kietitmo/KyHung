@@ -1,8 +1,10 @@
 import express from 'express';
 import ProductController from '../controllers/product.controller.js';
 
-import getProductValidator from '../middlewares/productGet.validator.js';
-
+import {
+	validateGetAllProduct,
+	validateGetProductById,
+} from '../middlewares/product.validation.js';
 const router = express.Router();
 const productController = new ProductController();
 
@@ -88,7 +90,7 @@ const productController = new ProductController();
  */
 router.get(
 	'/',
-	getProductValidator,
+	validateGetAllProduct,
 	productController.getProducts.bind(productController)
 );
 
@@ -143,6 +145,10 @@ router.get(
  *       404:
  *         description: Product not found
  */
-router.get('/:id', productController.getProductById.bind(productController));
+router.get(
+	'/:id',
+	validateGetProductById,
+	productController.getProductById.bind(productController)
+);
 
 export default router;

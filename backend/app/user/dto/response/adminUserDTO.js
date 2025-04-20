@@ -8,10 +8,8 @@ class AdminUserDTO {
 		this.country = user.country;
 		this.gender = user.gender;
 		this.role = user.role;
-		this.isVerified = user.isVerified;
-		this.isBlocked = user.isBlocked;
-		this.blockedReason = user.blockedReason;
-		this.blockedAt = user.blockedAt;
+		this.state = user.state;
+		this.activeAt = user.activeAt;
 		this.createdAt = user.createdAt;
 		this.updatedAt = user.updatedAt;
 	}

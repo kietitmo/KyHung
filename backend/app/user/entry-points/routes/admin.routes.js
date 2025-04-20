@@ -5,9 +5,12 @@ import {
 	authorize,
 } from '../../../auth/entry-points/middlewares/auth.middleware.js';
 
-import { createUserValidator } from '../../entry-points/middlewares/userCreate.validator.js';
-import { updateUserValidator } from '../../entry-points/middlewares/userUpdate.validator.js';
-import { getUserValidator } from '../../entry-points/middlewares/userGet.validator.js';
+import {
+	validateUserEmail,
+	validateUpdateUser,
+	validateCreateUser,
+	validateGetAllUser,
+} from '../../entry-points/middlewares/user.validation.js';
 import Role from '../../domain/models/role.enum.js';
 
 const router = express.Router();
@@ -41,12 +44,20 @@ const adminController = new AdminController();
  *                     properties:
  *                       email:
  *                         type: string
- *                       firstName:
- *                         type: string
- *                       lastName:
+ *                       fullName:
  *                         type: string
  *                       role:
  *                         type: string
+ *                       state:
+ *                         type: string
+ *                       gender:
+ *                         type: string
+ *                       createdAt:
+ *                         type: string
+ *                         format: date-time
+ *                       updatedAt:
+ *                         type: string
+ *                         format: date-time
  *       401:
  *         description: Unauthorized
  *       403:
@@ -57,38 +68,6 @@ router.get(
 	verifyAccessToken,
 	authorize([Role.ADMIN]),
 	adminController.getBlockedUsers.bind(adminController)
-);
-
-/**
- * @swagger
- * /api/admin/users/{id}:
- *   get:
- *     tags: [Admin/Users]
- *     summary: Get user by ID
- *     description: Get detailed information about a specific user by ID
- *     security:
- *       - bearerAuth: []
- *     parameters:
- *       - in: path
- *         name: id
- *         required: true
- *         schema:
- *           type: string
- *     responses:
- *       200:
- *         description: User details retrieved successfully
- *       401:
- *         description: Unauthorized
- *       403:
- *         description: Forbidden - Admin access required
- *       404:
- *         description: User not found
- */
-router.get(
-	'/:id',
-	verifyAccessToken,
-	authorize([Role.ADMIN]),
-	adminController.getUserById.bind(adminController)
 );
 
 /**
@@ -148,9 +127,7 @@ router.get(
  *                     properties:
  *                       email:
  *                         type: string
- *                       firstName:
- *                         type: string
- *                       lastName:
+ *                       fullName:
  *                         type: string
  *                       role:
  *                         type: string
@@ -176,7 +153,7 @@ router.get(
 	'/',
 	verifyAccessToken,
 	authorize([Role.ADMIN]),
-	getUserValidator,
+	validateGetAllUser,
 	adminController.getUsers.bind(adminController)
 );
 
@@ -212,9 +189,7 @@ router.get(
  *                   properties:
  *                     email:
  *                       type: string
- *                     firstName:
- *                       type: string
- *                     lastName:
+ *                     fullName:
  *                       type: string
  *                     role:
  *                       type: string
@@ -237,6 +212,7 @@ router.get(
 	'/:email',
 	verifyAccessToken,
 	authorize([Role.ADMIN]),
+	validateUserEmail,
 	adminController.getUserByEmail.bind(adminController)
 );
 
@@ -258,8 +234,7 @@ router.get(
  *             required:
  *               - email
  *               - password
- *               - firstName
- *               - lastName
+ *               - fullName
  *               - role
  *             properties:
  *               email:
@@ -268,13 +243,23 @@ router.get(
  *               password:
  *                 type: string
  *                 format: password
- *               firstName:
- *                 type: string
- *               lastName:
+ *               fullName:
  *                 type: string
  *               role:
  *                 type: string
  *                 enum: [USER, ADMIN]
+ *               gender:
+ *                 type: string
+ *               country:
+ *                 type: string
+ *               city:
+ *                 type: string
+ *               state:
+ *                 type: string
+ *               phoneNumber:
+ *                 type: string
+ *               address:
+ *                 type: string
  *     responses:
  *       201:
  *         description: User created successfully
@@ -291,7 +276,7 @@ router.post(
 	'/',
 	verifyAccessToken,
 	authorize([Role.ADMIN]),
-	createUserValidator,
+	validateCreateUser,
 	adminController.createUser.bind(adminController)
 );
 
@@ -318,13 +303,23 @@ router.post(
  *           schema:
  *             type: object
  *             properties:
- *               firstName:
- *                 type: string
- *               lastName:
+ *               fullName:
  *                 type: string
  *               role:
  *                 type: string
  *                 enum: [USER, ADMIN]
+ *               gender:
+ *                 type: string
+ *               country:
+ *                 type: string
+ *               city:
+ *                 type: string
+ *               state:
+ *                 type: string
+ *               phoneNumber:
+ *                 type: string
+ *               address:
+ *                 type: string
  *     responses:
  *       200:
  *         description: User updated successfully
@@ -341,7 +336,7 @@ router.put(
 	'/:email',
 	verifyAccessToken,
 	authorize([Role.ADMIN]),
-	updateUserValidator,
+	validateUpdateUser,
 	adminController.updateUserByEmail.bind(adminController)
 );
 
@@ -375,6 +370,7 @@ router.delete(
 	'/:email',
 	verifyAccessToken,
 	authorize([Role.ADMIN]),
+	validateUserEmail,
 	adminController.deleteUserByEmail.bind(adminController)
 );
 
@@ -394,18 +390,6 @@ router.delete(
  *         schema:
  *           type: string
  *           format: email
- *     requestBody:
- *       required: true
- *       content:
- *         application/json:
- *           schema:
- *             type: object
- *             required:
- *               - blockedReason
- *             properties:
- *               blockedReason:
- *                 type: string
- *                 description: Reason for blocking the user
  *     responses:
  *       200:
  *         description: User blocked successfully
@@ -422,6 +406,7 @@ router.put(
 	'/:email/block',
 	verifyAccessToken,
 	authorize([Role.ADMIN]),
+	validateUserEmail,
 	adminController.blockUser.bind(adminController)
 );
 
@@ -457,6 +442,7 @@ router.put(
 	'/:email/unblock',
 	verifyAccessToken,
 	authorize([Role.ADMIN]),
+	validateUserEmail,
 	adminController.unblockUser.bind(adminController)
 );
 
@@ -502,6 +488,7 @@ router.put(
 	'/:email/role',
 	verifyAccessToken,
 	authorize([Role.ADMIN]),
+	validateUserEmail,
 	adminController.setUserRole.bind(adminController)
 );
 
@@ -537,9 +524,49 @@ router.put(
 	'/:email/activate',
 	verifyAccessToken,
 	authorize([Role.ADMIN]),
+	validateUserEmail,
 	adminController.activateUser.bind(adminController)
 );
 
+/**
+ * @swagger
+ * /api/admin/users/deleted:
+ *   get:
+ *     tags: [Admin/Users]
+ *     summary: Get deleted users
+ *     description: Get a list of all soft-deleted users
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: List of deleted users retrieved successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 status:
+ *                   type: string
+ *                   example: success
+ *                 data:
+ *                   type: array
+ *                   items:
+ *                     type: object
+ *                     properties:
+ *                       email:
+ *                         type: string
+ *                       fullName:
+ *                         type: string
+ *                       role:
+ *                         type: string
+ *                       deletedAt:
+ *                         type: string
+ *                         format: date-time
+ *       401:
+ *         description: Unauthorized
+ *       403:
+ *         description: Forbidden - Admin access required
+ */
 router.get(
 	'/deleted',
 	verifyAccessToken,
@@ -547,6 +574,46 @@ router.get(
 	adminController.getDeletedUsers.bind(adminController)
 );
 
+/**
+ * @swagger
+ * /api/admin/users/oauth:
+ *   get:
+ *     tags: [Admin/Users]
+ *     summary: Get OAuth users
+ *     description: Get a list of all users who registered via OAuth
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: List of OAuth users retrieved successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 status:
+ *                   type: string
+ *                   example: success
+ *                 data:
+ *                   type: array
+ *                   items:
+ *                     type: object
+ *                     properties:
+ *                       email:
+ *                         type: string
+ *                       firstName:
+ *                         type: string
+ *                       lastName:
+ *                         type: string
+ *                       role:
+ *                         type: string
+ *                       provider:
+ *                         type: string
+ *       401:
+ *         description: Unauthorized
+ *       403:
+ *         description: Forbidden - Admin access required
+ */
 router.get(
 	'/oauth',
 	verifyAccessToken,
@@ -554,17 +621,71 @@ router.get(
 	adminController.getOAuthUsers.bind(adminController)
 );
 
+/**
+ * @swagger
+ * /api/admin/users/{email}/restore:
+ *   get:
+ *     tags: [Admin/Users]
+ *     summary: Restore deleted user
+ *     description: Restore a soft-deleted user
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: email
+ *         required: true
+ *         schema:
+ *           type: string
+ *           format: email
+ *     responses:
+ *       200:
+ *         description: User restored successfully
+ *       401:
+ *         description: Unauthorized
+ *       403:
+ *         description: Forbidden - Admin access required
+ *       404:
+ *         description: User not found
+ */
 router.get(
 	'/:email/restore',
 	verifyAccessToken,
 	authorize([Role.ADMIN]),
+	validateUserEmail,
 	adminController.restoreUser.bind(adminController)
 );
 
+/**
+ * @swagger
+ * /api/admin/users/{email}/deleteFromDatabase:
+ *   delete:
+ *     tags: [Admin/Users]
+ *     summary: Permanently delete user
+ *     description: Permanently delete a user from the database
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: email
+ *         required: true
+ *         schema:
+ *           type: string
+ *           format: email
+ *     responses:
+ *       200:
+ *         description: User permanently deleted successfully
+ *       401:
+ *         description: Unauthorized
+ *       403:
+ *         description: Forbidden - Admin access required
+ *       404:
+ *         description: User not found
+ */
 router.delete(
 	'/:email/deleteFromDatabase',
 	verifyAccessToken,
 	authorize([Role.ADMIN]),
+	validateUserEmail,
 	adminController.deleteUserFromDatabase.bind(adminController)
 );
 

@@ -1,7 +1,12 @@
 import express from 'express';
 import FavoriteController from '../controllers/favorite.controller.js';
 import { verifyAccessToken } from '../../../auth/entry-points/middlewares/auth.middleware.js';
-import { validateFavoriteProduct } from '../middlewares/validators/favoriteProduct.validator.js';
+import {
+	validateCreateFavorite,
+	validateUpdateFavorite,
+	validateFavoriteByEmail,
+	validateFavoriteById,
+} from '../middlewares/favorite.validation.js';
 const router = express.Router();
 const favoriteController = new FavoriteController();
 
@@ -23,15 +28,42 @@ const favoriteController = new FavoriteController();
  *             required:
  *               - email
  *               - productId
+ *               - quantity
  *             properties:
  *               email:
  *                 type: string
  *                 format: email
+ *                 description: User's email address
  *               productId:
  *                 type: string
+ *                 description: ID of the product to add to favorites
+ *               quantity:
+ *                 type: number
+ *                 description: Quantity of the product to add to favorites
+ *               note:
+ *                 type: string
+ *                 description: Optional note about the favorite
  *     responses:
  *       201:
  *         description: Product added to favorites successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 status:
+ *                   type: string
+ *                   example: success
+ *                 data:
+ *                   type: object
+ *                   properties:
+ *                     email:
+ *                       type: string
+ *                     productId:
+ *                       type: string
+ *                     createdAt:
+ *                       type: string
+ *                       format: date-time
  *       400:
  *         description: Invalid input data
  *       401:
@@ -42,7 +74,7 @@ const favoriteController = new FavoriteController();
 router.post(
 	'/',
 	verifyAccessToken,
-	validateFavoriteProduct,
+	validateCreateFavorite,
 	favoriteController.createFavoriteProduct.bind(favoriteController)
 );
 
@@ -62,6 +94,7 @@ router.post(
  *         schema:
  *           type: string
  *           format: email
+ *         description: User's email address
  *     responses:
  *       200:
  *         description: List of favorite products retrieved successfully
@@ -103,6 +136,7 @@ router.post(
 router.get(
 	'/:email',
 	verifyAccessToken,
+	validateFavoriteByEmail,
 	favoriteController.getFavoriteProductsByEmail.bind(favoriteController)
 );
 
@@ -122,14 +156,38 @@ router.get(
  *         schema:
  *           type: string
  *           format: email
+ *         description: User's email address
  *       - in: path
  *         name: productId
  *         required: true
  *         schema:
  *           type: string
+ *         description: ID of the product to check
  *     responses:
  *       200:
  *         description: Favorite status retrieved successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 status:
+ *                   type: string
+ *                   example: success
+ *                 data:
+ *                   type: object
+ *                   properties:
+ *                     isFavorite:
+ *                       type: boolean
+ *                     favorite:
+ *                       type: object
+ *                       properties:
+ *                         email:
+ *                           type: string
+ *                         productId:
+ *                           type: string
+ *                         note:
+ *                           type: string
  *       401:
  *         description: Unauthorized
  *       404:
@@ -138,6 +196,8 @@ router.get(
 router.get(
 	'/:email/:productId',
 	verifyAccessToken,
+	validateFavoriteByEmail,
+	validateFavoriteById,
 	favoriteController.getFavoriteProductsByEmailAndProductId.bind(
 		favoriteController
 	)
@@ -159,11 +219,13 @@ router.get(
  *         schema:
  *           type: string
  *           format: email
+ *         description: User's email address
  *       - in: path
  *         name: productId
  *         required: true
  *         schema:
  *           type: string
+ *         description: ID of the product to update
  *     requestBody:
  *       required: true
  *       content:
@@ -173,9 +235,33 @@ router.get(
  *             properties:
  *               note:
  *                 type: string
+ *                 description: Optional note about the favorite
+ *               quantity:
+ *                 type: number
+ *                 description: Quantity of the product to update
  *     responses:
  *       200:
  *         description: Favorite product updated successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 status:
+ *                   type: string
+ *                   example: success
+ *                 data:
+ *                   type: object
+ *                   properties:
+ *                     email:
+ *                       type: string
+ *                     productId:
+ *                       type: string
+ *                     note:
+ *                       type: string
+ *                     updatedAt:
+ *                       type: string
+ *                       format: date-time
  *       400:
  *         description: Invalid input data
  *       401:
@@ -186,6 +272,9 @@ router.get(
 router.put(
 	'/:email/:productId',
 	verifyAccessToken,
+	validateFavoriteByEmail,
+	validateFavoriteById,
+	validateUpdateFavorite,
 	favoriteController.updateFavoriteProduct.bind(favoriteController)
 );
 
@@ -205,14 +294,27 @@ router.put(
  *         schema:
  *           type: string
  *           format: email
+ *         description: User's email address
  *       - in: path
  *         name: productId
  *         required: true
  *         schema:
  *           type: string
+ *         description: ID of the product to remove
  *     responses:
  *       200:
  *         description: Product removed from favorites successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 status:
+ *                   type: string
+ *                   example: success
+ *                 message:
+ *                   type: string
+ *                   example: Product removed from favorites successfully
  *       401:
  *         description: Unauthorized
  *       404:
@@ -221,6 +323,8 @@ router.put(
 router.delete(
 	'/:email/:productId',
 	verifyAccessToken,
+	validateFavoriteByEmail,
+	validateFavoriteById,
 	favoriteController.removeFavoriteProduct.bind(favoriteController)
 );
 
@@ -240,9 +344,21 @@ router.delete(
  *         schema:
  *           type: string
  *           format: email
+ *         description: User's email address
  *     responses:
  *       200:
  *         description: All favorite products removed successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 status:
+ *                   type: string
+ *                   example: success
+ *                 message:
+ *                   type: string
+ *                   example: All favorite products removed successfully
  *       401:
  *         description: Unauthorized
  *       404:
@@ -251,6 +367,7 @@ router.delete(
 router.delete(
 	'/:email',
 	verifyAccessToken,
+	validateFavoriteByEmail,
 	favoriteController.removeAllFavoriteProductsByEmail.bind(favoriteController)
 );
 

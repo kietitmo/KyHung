@@ -61,5 +61,4 @@ class ProductService {
 		return this.productRepository.delete({ _id: id });
 	}
 }
-
 export default ProductService;

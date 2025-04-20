@@ -54,6 +54,21 @@ export const errorCode = {
 		message: 'Invalid value for field',
 		status: APP_STATUS.ERROR,
 	},
+	VALIDATION_ERROR: {
+		httpStatusCode: HTTP_STATUS.BAD_REQUEST,
+		message: 'Validation Error',
+		status: APP_STATUS.ERROR,
+	},
+	TOO_MANY_REQUESTS: {
+		httpStatusCode: HTTP_STATUS.TOO_MANY_REQUESTS,
+		message: 'Too many requests',
+		status: APP_STATUS.ERROR,
+	},
+	INVALID_VALIDATION_SCHEMA: {
+		httpStatusCode: HTTP_STATUS.BAD_REQUEST,
+		message: 'Invalid validation schema',
+		status: APP_STATUS.ERROR,
+	},
 };
 
 // Rate Limiter Success Codes

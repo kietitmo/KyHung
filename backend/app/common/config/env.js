@@ -1,4 +1,4 @@
-import dotenv from 'dotenv';
+	import dotenv from 'dotenv';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import joi from 'joi';
@@ -74,6 +74,9 @@ const envSchema = joi
 		// Pagination Defaults
 		DEFAULT_PAGE_SIZE: joi.number().default(100),
 		MAX_PAGE_SIZE: joi.number().default(100),
+
+		// Mongo ID Regular Expression
+		MONGO_ID_REGEXP: joi.any().required(),
 
 		// Validation Regular Expressions
 		URL_REGEXP: joi.any().required(),
@@ -223,7 +226,9 @@ const envObj = {
 	),
 	PASSWORD_MIN_LENGTH: parseInt(process.env.PASSWORD_MIN_LENGTH, 10) || 8,
 	DEFAULT_PASSWORD: process.env.DEFAULT_PASSWORD || 'Kyhung@123',
-
+	MONGO_ID_REGEXP: new RegExp(
+		process.env.MONGO_ID_REGEXP || '^[0-9a-fA-F]{24}$'
+	),
 	// Google OAuth
 	GOOGLE_CLIENT_ID: process.env.GOOGLE_CLIENT_ID,
 	GOOGLE_CLIENT_SECRET: process.env.GOOGLE_CLIENT_SECRET,

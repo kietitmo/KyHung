@@ -6,10 +6,13 @@ import {
 } from '../../../auth/entry-points/middlewares/auth.middleware.js';
 import Role from '../../../user/domain/models/role.enum.js';
 
-import createProductValidator from '../middlewares/productCreate.validator.js';
-import updateProductValidator from '../middlewares/productUpdate.validator.js';
-import getProductValidator from '../middlewares/productGet.validator.js';
-
+import {
+	validateGetAllProduct,
+	validateGetProductById,
+	validateCreateProduct,
+	validateUpdateProduct,
+	validateDeleteProductById,
+} from '../middlewares/product.validation.js';
 const router = express.Router();
 const adminController = new AdminController();
 
@@ -60,7 +63,7 @@ router.post(
 	'/',
 	verifyAccessToken,
 	authorize([Role.ADMIN]),
-	createProductValidator,
+	validateCreateProduct,
 	adminController.createProduct.bind(adminController)
 );
 
@@ -152,7 +155,7 @@ router.get(
 	'/',
 	verifyAccessToken,
 	authorize([Role.ADMIN]),
-	getProductValidator,
+	validateGetAllProduct,
 	adminController.getProducts.bind(adminController)
 );
 
@@ -216,6 +219,7 @@ router.get(
 	'/:id',
 	verifyAccessToken,
 	authorize([Role.ADMIN]),
+	validateGetProductById,
 	adminController.getProductById.bind(adminController)
 );
 
@@ -269,7 +273,7 @@ router.put(
 	'/:id',
 	verifyAccessToken,
 	authorize([Role.ADMIN]),
-	updateProductValidator,
+	validateUpdateProduct,
 	adminController.updateProductById.bind(adminController)
 );
 
@@ -302,6 +306,7 @@ router.delete(
 	'/:id',
 	verifyAccessToken,
 	authorize([Role.ADMIN]),
+	validateDeleteProductById,
 	adminController.deleteProductById.bind(adminController)
 );
 

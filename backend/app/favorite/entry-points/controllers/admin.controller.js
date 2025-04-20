@@ -19,7 +19,6 @@ class AdminController {
 			const favoriteDto = FavoriteAdminDTO.fromEntity(favorite);
 
 			const response = APIResponse.success(
-				successCode.USER_ADDED_FAVORITE_PRODUCT.code,
 				successCode.USER_ADDED_FAVORITE_PRODUCT.message,
 				favoriteDto
 			);
@@ -43,7 +42,6 @@ class AdminController {
 			const favoriteDto = FavoriteAdminDTO.fromEntity(favorite);
 
 			const response = APIResponse.success(
-				successCode.USER_REMOVED_FAVORITE_PRODUCT.code,
 				successCode.USER_REMOVED_FAVORITE_PRODUCT.message,
 				favoriteDto
 			);
@@ -70,7 +68,6 @@ class AdminController {
 			const favoriteDto = FavoriteAdminDTO.fromEntity(favorite);
 
 			const response = APIResponse.success(
-				successCode.USER_UPDATED_FAVORITE_PRODUCT.code,
 				successCode.USER_UPDATED_FAVORITE_PRODUCT.message,
 				favoriteDto
 			);

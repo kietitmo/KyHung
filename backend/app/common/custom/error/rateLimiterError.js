@@ -14,7 +14,7 @@ class RateLimiterError extends CustomError {
 		const error = errorCode[type] || errorCode.RATE_LIMIT_EXCEEDED;
 		super(error);
 		this.name = 'RateLimiterError';
-		this.statusCode = error.code;
+		this.httpStatusCode = error.httpStatusCode;
 		this.status = error.status;
 		this.message = error.message;
 	}

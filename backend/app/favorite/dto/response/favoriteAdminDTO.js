@@ -8,7 +8,7 @@ class FavoriteAdminDTO {
 		this.updatedAt = favorite.updatedAt;
 	}
 
-	static fromRequest(favorite) {
+	static fromEntity(favorite) {
 		return new FavoriteAdminDTO(favorite);
 	}
 }
