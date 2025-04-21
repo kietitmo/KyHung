@@ -1,31 +1,46 @@
 import multer from 'multer';
-import CustomError from '../../favorite/domain/custom/customError.js';
-import { errorCode } from '../../utils/code/fileResponseCode.js';
-import env from '../config/env.js';
+import CustomError from '../../custom/error/customError.js';
+import { errorCode } from './fileResponseCode.js';
+import env from '../../config/env.js';
 
-// Configure multer for memory storage
 const storage = multer.memoryStorage();
 
-// File filter function
-const fileFilter = (req, file, cb) => {
-	// Allow images and videos
-	if (file.mimetype.startsWith('image/') || file.mimetype.startsWith('video/')) {
+const _validateFileType = (mimetype) => {
+	const allowedImageTypes = [
+		'image/jpeg',
+		'image/png',
+		'image/gif',
+		'image/webp',
+	];
+	const allowedVideoTypes = ['video/mp4', 'video/webm', 'video/quicktime'];
+
+	if (
+		!allowedImageTypes.includes(mimetype) &&
+		!allowedVideoTypes.includes(mimetype)
+	) {
+		console.log(`Rejected file with invalid mimetype: ${mimetype}`);
+		throw new CustomError(errorCode.INVALID_FILE_TYPE);
+	}
+
+	return true;
+};
+
+const _fileFilter = (req, file, cb) => {
+	if (_validateFileType(file.mimetype)) {
 		cb(null, true);
 	} else {
 		cb(new CustomError(errorCode.INVALID_FILE_TYPE), false);
 	}
 };
 
-// Create multer upload instance
 const upload = multer({
 	storage: storage,
-	fileFilter: fileFilter,
+	fileFilter: _fileFilter,
 	limits: {
-		fileSize: env.MAX_FILE_SIZE || 5 * 1024 * 1024, // 5MB default
+		fileSize: env.MAX_FILE_SIZE || 5 * 1024 * 1024,
 	},
 });
 
-// Middleware to handle file upload errors
 const handleFileUploadError = (err, req, res, next) => {
 	if (err instanceof multer.MulterError) {
 		if (err.code === 'LIMIT_FILE_SIZE') {

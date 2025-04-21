@@ -7,6 +7,7 @@ class UserDTO {
 		this.city = user.city;
 		this.country = user.country;
 		this.gender = user.gender;
+		this.activeAt = user.activeAt;
 	}
 
 	static fromEntity(user) {

@@ -5,7 +5,7 @@ import {
 	authorize,
 } from '../../../auth/entry-points/middlewares/auth.middleware.js';
 import Role from '../../../user/domain/models/role.enum.js';
-
+import { upload } from '../../../common/services/file-service/file.middleware.js';
 import {
 	validateGetAllProduct,
 	validateGetProductById,
@@ -13,6 +13,7 @@ import {
 	validateUpdateProduct,
 	validateDeleteProductById,
 } from '../middlewares/product.validation.js';
+
 const router = express.Router();
 const adminController = new AdminController();
 
@@ -64,6 +65,7 @@ router.post(
 	verifyAccessToken,
 	authorize([Role.ADMIN]),
 	validateCreateProduct,
+	upload.array('files', 10),
 	adminController.createProduct.bind(adminController)
 );
 
@@ -274,6 +276,7 @@ router.put(
 	verifyAccessToken,
 	authorize([Role.ADMIN]),
 	validateUpdateProduct,
+	upload.array('files', 10),
 	adminController.updateProductById.bind(adminController)
 );
 

@@ -1,4 +1,4 @@
-	import dotenv from 'dotenv';
+import dotenv from 'dotenv';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import joi from 'joi';
@@ -45,6 +45,10 @@ const envSchema = joi
 		WEB_HOSTNAME: joi.string().required(),
 		PORT: joi.number().default(5000),
 		MONGODB_URI: joi.string().required(),
+
+		PRODUCT_IMAGE_DIR: joi.string().required(),
+		PRODUCT_VIDEO_DIR: joi.string().required(),
+
 		JWT_SECRET: joi.string().min(32).required(),
 		JWT_SECRET_EXPIRE_TIME: joi.string().required(),
 		JWT_REFRESH_SECRET: joi.string().min(32).required(),
@@ -174,6 +178,10 @@ const envObj = {
 	WEB_HOSTNAME: process.env.WEB_HOSTNAME,
 	PORT: parseInt(process.env.PORT, 10) || 5000,
 	MONGODB_URI: process.env.MONGODB_URI,
+
+	PRODUCT_IMAGE_DIR: process.env.PRODUCT_IMAGE_DIR,
+	PRODUCT_VIDEO_DIR: process.env.PRODUCT_VIDEO_DIR,
+
 	JWT_SECRET: process.env.JWT_SECRET,
 	JWT_SECRET_EXPIRE_TIME: process.env.JWT_SECRET_EXPIRE_TIME,
 	JWT_REFRESH_SECRET: process.env.JWT_REFRESH_SECRET,

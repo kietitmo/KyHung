@@ -20,6 +20,7 @@ import categoryRoutes from './category/entry-points/routes/category.routes.js';
 import adminCategoryRoutes from './category/entry-points/routes/admin.routes.js';
 import adminFavoriteRoutes from './favorite/entry-points/routes/admin.route.js';
 import favoriteRoutes from './favorite/entry-points/routes/favorite.routes.js';
+import customCorsMiddleware from './common/middlewares/customCors.middleware.js';
 // import fileRoutes from './common/file-service/file.routes.js';
 
 // Middleware
@@ -58,11 +59,26 @@ class App {
 
 	// Initialize middleware
 	initializeMiddleware() {
+		this.app.use(customCorsMiddleware);
+
 		// Apply security middleware
 		applySecurityMiddleware(this.app);
 
 		// Apply logger
 		morganMiddleware(this.app);
+
+		const corsOptions = {
+			origin: env.WEB_HOSTNAME || 'http://localhost:5173',
+			credentials: true,
+			methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
+			allowedHeaders: ['Content-Type', 'Authorization'],
+			optionsSuccessStatus: 200,
+		};
+
+		this.app.use(cors(corsOptions));
+
+		// Xử lý preflight OPTIONS cho tất cả route
+		this.app.options('*', cors(corsOptions));
 
 		// Parse JSON bodies
 		this.app.use(express.json({ limit: env.REQUEST_BODY_LIMIT }));

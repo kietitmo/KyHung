@@ -1,4 +1,5 @@
 import ProductService from '../../domain/services/product.service.js';
+import FileService from '../../../common/services/file-service/file.service.js';
 import APIResponse from '../../../common/custom/apiResponse.js';
 import ProductAdminDTO from '../../dto/response/productAdminDTP.js';
 
@@ -7,21 +8,31 @@ import ProductRequestDTO from '../../dto/request/productRequestDTO.js';
 import Pagination from '../../../common/custom/pagination.js';
 
 import { successCode } from '../../common/constants/productResponseCode.js';
+import env from '../../../common/config/env.js';
+import path from 'path';
 
 class AdminController {
 	constructor() {
 		this.productService = new ProductService();
+		this.fileService = new FileService();
 	}
 
 	async createProduct(req, res, next) {
 		try {
 			const productRequest = ProductRequestDTO.fromRequest(req.body);
 			const product = await this.productService.createProduct(productRequest);
-			const productResponse = ProductAdminDTO.fromEntity(product);
 
-			return res
-				.status(successCode.PRODUCT_CREATED.httpStatusCode)
-				.json(productResponse);
+			if (req.files?.length) {
+				await this._processProductFiles(req.files, product);
+				await product.save();
+			}
+
+			const response = APIResponse.success(
+				successCode.PRODUCT_CREATED.message,
+				ProductAdminDTO.fromEntity(product)
+			);
+
+			return res.status(successCode.PRODUCT_CREATED.httpStatusCode).json(response);
 		} catch (error) {
 			next(error);
 		}
@@ -30,11 +41,13 @@ class AdminController {
 	async getProducts(req, res, next) {
 		try {
 			const getProductRequest = GetAllRequestDTO.fromRequest(req);
-			const products = await this.productService.getProducts(getProductRequest);
 
-			const total = await this.productService.getTotalProducts(
-				getProductRequest.filter
-			);
+			// Execute these in parallel to improve performance
+			const [products, total] = await Promise.all([
+				this.productService.getProducts(getProductRequest),
+				this.productService.getTotalProducts(getProductRequest.filter),
+			]);
+
 			const totalPages = Math.ceil(total / getProductRequest.limit);
 			const productDTO = products.map((product) =>
 				ProductAdminDTO.fromEntity(product)
@@ -65,11 +78,14 @@ class AdminController {
 	async getProductById(req, res, next) {
 		try {
 			const product = await this.productService.getProductById(req.params.id);
-			const productResponse = ProductAdminDTO.fromEntity(product);
+			const response = APIResponse.success(
+				successCode.PRODUCT_GET_BY_ID.message,
+				ProductAdminDTO.fromEntity(product)
+			);
 
 			return res
 				.status(successCode.PRODUCT_GET_BY_ID.httpStatusCode)
-				.json(productResponse);
+				.json(response);
 		} catch (error) {
 			next(error);
 		}
@@ -83,11 +99,16 @@ class AdminController {
 				updateProduct
 			);
 
-			const productResponse = ProductAdminDTO.fromEntity(product);
+			if (req.files?.length) {
+				await this._processProductFiles(req.files, product);
+				await product.save();
+			}
+
 			const response = APIResponse.success(
 				successCode.PRODUCT_UPDATED.message,
-				productResponse
+				ProductAdminDTO.fromEntity(product)
 			);
+
 			return res.status(successCode.PRODUCT_UPDATED.httpStatusCode).json(response);
 		} catch (error) {
 			next(error);
@@ -96,7 +117,17 @@ class AdminController {
 
 	async deleteProductById(req, res, next) {
 		try {
+			const product = await this.productService.getProductById(req.params.id);
+
+			// Delete files in parallel for better performance
+			const deletePromises = [
+				...product.images.map((fileUrl) => this.fileService.deleteFile(fileUrl)),
+				...product.videos.map((fileUrl) => this.fileService.deleteFile(fileUrl)),
+			];
+
+			await Promise.all(deletePromises);
 			await this.productService.deleteProductById(req.params.id);
+
 			const response = APIResponse.success(
 				successCode.PRODUCT_DELETED.message,
 				null
@@ -105,6 +136,24 @@ class AdminController {
 		} catch (error) {
 			next(error);
 		}
+	}
+
+	// Private helper method to process product files
+	async _processProductFiles(files, product) {
+		const imageDir = path.join(env.PRODUCT_IMAGE_DIR, product._id.toString());
+		const videoDir = path.join(env.PRODUCT_VIDEO_DIR, product._id.toString());
+
+		const uploadPromises = files.map(async (file) => {
+			if (file.mimetype.startsWith('image/')) {
+				const fileUrl = await this.fileService.uploadFile(file, imageDir);
+				product.images.push(fileUrl);
+			} else if (file.mimetype.startsWith('video/')) {
+				const fileUrl = await this.fileService.uploadFile(file, videoDir);
+				product.videos.push(fileUrl);
+			}
+		});
+
+		await Promise.all(uploadPromises);
 	}
 }
 

@@ -1,7 +1,7 @@
 import { Storage } from '@google-cloud/storage';
-import CustomError from '../../custom/error/customError.js';
-import { errorCode } from '../../../utils/code/fileResponseCode.js';
-import env from '../../config/env.js';
+import CustomError from '../../../custom/error/customError.js';
+import { errorCode } from '../fileResponseCode.js';
+import env from '../../../config/env.js';
 import IStorageProvider from './IStorageProvider.js';
 
 class GCSStorageProvider extends IStorageProvider {
@@ -12,26 +12,9 @@ class GCSStorageProvider extends IStorageProvider {
 			projectId: env.GCS_PROJECT_ID,
 		});
 		this.bucket = this.storage.bucket(env.GCS_BUCKET_NAME);
-		this.allowedTypes = [
-			'image/jpeg',
-			'image/png',
-			'image/gif',
-			'video/mp4',
-			'video/quicktime',
-		];
 	}
 
 	async uploadFile(file, folder = 'uploads', retries = 3) {
-		// Validate file size
-		if (file.size > (env.MAX_FILE_SIZE || 5 * 1024 * 1024)) {
-			throw new CustomError(errorCode.FILE_TOO_LARGE);
-		}
-
-		// Validate file type
-		if (!this.allowedTypes.includes(file.mimetype)) {
-			throw new CustomError(errorCode.INVALID_FILE_TYPE);
-		}
-
 		let blob;
 		for (let i = 0; i < retries; i++) {
 			try {

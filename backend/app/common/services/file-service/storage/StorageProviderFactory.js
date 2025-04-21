@@ -1,6 +1,6 @@
 import S3StorageProvider from './S3StorageProvider.js';
 import GCSStorageProvider from './GCSStorageProvider.js';
-import env from '../../config/env.js';
+import env from '../../../config/env.js';
 
 class StorageProviderFactory {
 	static createProvider() {

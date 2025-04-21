@@ -1,7 +1,7 @@
 import StorageProviderFactory from './storage/StorageProviderFactory.js';
-import CustomError from '../custom/error/customError.js';
-import { errorCode } from '../../utils/code/fileResponseCode.js';
-import env from '../config/env.js';
+import CustomError from '../../custom/error/customError.js';
+import { errorCode } from './fileResponseCode.js';
+import env from '../../config/env.js';
 
 class FileService {
 	constructor() {

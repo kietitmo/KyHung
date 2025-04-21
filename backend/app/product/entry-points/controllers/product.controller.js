@@ -4,29 +4,11 @@ import ProductRequestDTO from '../../dto/request/productRequestDTO.js';
 import ProductDTO from '../../dto/response/productDTO.js';
 import GetAllRequestDTO from '../../../common/dto/getAllRequestDTO.js';
 import { successCode } from '../../common/constants/productResponseCode.js';
-import controllerHelper from '../../../common/utils/helper.js';
 import Pagination from '../../../common/custom/pagination.js';
 
 class ProductController {
 	constructor() {
 		this.productService = new ProductService();
-	}
-
-	async createProduct(req, res, next) {
-		controllerHelper.handleAsync(async () => {
-			controllerHelper.log('info', 'Creating new product', req.body);
-			const productRequest = ProductRequestDTO.fromRequest(req.body);
-			const product = await this.productService.createProduct(productRequest);
-			const productResponse = ProductDTO.fromEntity(product);
-
-			controllerHelper.log('info', 'Product created successfully', {
-				id: product._id,
-				name: product.name,
-			});
-			return res
-				.status(successCode.PRODUCT_CREATED.httpStatusCode)
-				.json(productResponse);
-		});
 	}
 
 	async getProducts(req, res, next) {
@@ -87,19 +69,6 @@ class ProductController {
 				productResponse
 			);
 			return res.status(successCode.PRODUCT_UPDATED.httpStatusCode).json(response);
-		} catch (error) {
-			next(error);
-		}
-	}
-
-	async deleteProductById(req, res, next) {
-		try {
-			await this.productService.deleteProductById(req.params.id);
-			const response = APIResponse.success(
-				successCode.PRODUCT_DELETED.message,
-				Null
-			);
-			return res.status(successCode.PRODUCT_DELETED.httpStatusCode).json(response);
 		} catch (error) {
 			next(error);
 		}
