@@ -31,6 +31,7 @@ const api = axios.create({
     "Content-Type": "application/json",
   },
   withCredentials: true, // nếu dùng cookie JWT
+  optionsSuccessStatus: 200,
 });
 
 // Request interceptor
@@ -96,7 +97,10 @@ api.interceptors.response.use(
         const response = await axios.post(
           `${getBaseUrl()}/api/auth/refresh-token`,
           { refreshToken },
-          { headers: { "Content-Type": "application/json" } }
+          {
+            headers: { "Content-Type": "application/json" },
+            withCredentials: true, // THÊM DÒNG NÀY!
+          }
         );
 
         const { accessToken, refreshToken: newRefreshToken } =

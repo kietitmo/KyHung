@@ -19,7 +19,7 @@ export const useFavorites = () => {
       setLoading(true);
       // fetchAttemptsRef.current += 1;
 
-      const response = await api.get(`/favoriteProduct/${user.email}`);
+      const response = await api.get(`/favorite/${user.email}`);
 
       // Reset fetch attempts on success
       // fetchAttemptsRef.current = 0;
@@ -56,9 +56,15 @@ export const useFavorites = () => {
 
     try {
       setLoading(true);
-      const response = await api.post("/favoriteProduct", { email, productId });
+      const response = await api.post(`/favorite`, {
+        email,
+        productId,
+        quantity: 1,
+        note: "none",
+      });
 
       if (response.data && response.data.data) {
+        console.log(response.data);
         const resProduct = await api.get(
           `/products/${response.data.data.productId}`
         );
@@ -87,7 +93,7 @@ export const useFavorites = () => {
 
     try {
       setLoading(true);
-      await api.delete(`/favoriteProduct`, { data: { email, productId } });
+      await api.delete(`/favorite?email=${email}/${productId}`);
       setFavorites((prev) => prev.filter((fav) => fav.id !== productId));
       setError(null);
     } catch (err) {
@@ -120,7 +126,6 @@ export const useFavorites = () => {
     } else {
       setFavorites([]);
     }
-
   }, [isAuthenticated, user?.email, fetchFavorites]);
 
   return {

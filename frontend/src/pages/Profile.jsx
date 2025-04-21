@@ -84,15 +84,8 @@ const Profile = () => {
               <Typography color="textSecondary" gutterBottom>
                 {user?.email}
               </Typography>
-              <Typography
-                variant="body2"
-                color={user?.isVerified ? "success.main" : "error.main"}
-                sx={{ mt: 1 }}
-              >
-                {user?.isVerified ? "Verified User" : "Email Not Verified"}
-              </Typography>
               <Typography variant="body2" color="textSecondary" sx={{ mt: 1 }}>
-                Member since: {new Date(user?.createdAt).toLocaleDateString()}
+                Activated since: {new Date(user?.activeAt).toLocaleDateString()}
               </Typography>
             </Grid>
 

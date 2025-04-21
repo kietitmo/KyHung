@@ -52,7 +52,7 @@ const ProductList = () => {
     const fetchCategories = async () => {
       try {
         setCategoriesLoading(true);
-        const response = await api.get("/categories");
+        const response = await api.get("/categories?limit=100&page=1");
         setCategories(response.data || { data: { data: [] } });
       } catch (err) {
         console.error("Error fetching categories:", err);
@@ -75,7 +75,7 @@ const ProductList = () => {
           const categoryId = category;
           console.log("Category ID:", category);
           response = await api.get(
-            `/products?filter={"category":"${categoryId}"}`
+            `/products?filter=category:eq:${categoryId}`
           );
         } else {
           response = await api.get(`/products`);
