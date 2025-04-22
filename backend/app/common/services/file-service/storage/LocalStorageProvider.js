@@ -11,16 +11,15 @@ class LocalStorageProvider extends IStorageProvider {
 
 	async uploadFile(file, directory) {
 		try {
-			await fs.mkdir(directory, { recursive: true });
+			const filename = `${Date.now()}-${Math.random().toString(36).substring(7)}.${file.originalname.split('.').pop()}`;
+			const fullDir = path.resolve(directory);
+			await fs.mkdir(fullDir, { recursive: true });
 
-			const fileExtension = file.originalname.split('.').pop();
-			const filename = `${directory}/${Date.now()}-${Math.random().toString(36).substring(7)}.${fileExtension}`;
-
-			const filepath = path.join(directory, filename);
-
+			const filepath = path.join(fullDir, filename);
 			await fs.writeFile(filepath, file.buffer);
 
-			return filepath;
+			const publicPath = path.join(directory, filename);
+			return publicPath;
 		} catch (error) {
 			throw new CustomError(errorCode.FILE_UPLOAD_FAILED);
 		}
@@ -28,7 +27,9 @@ class LocalStorageProvider extends IStorageProvider {
 
 	async deleteFile(filepath) {
 		try {
-			await fs.unlink(filepath);
+			const absolutePath = path.resolve(filepath);
+			const parentDir = path.dirname(absolutePath);
+			await fs.rm(parentDir, { recursive: true, force: true });
 			return true;
 		} catch (error) {
 			throw new CustomError(errorCode.FILE_DELETE_FAILED);

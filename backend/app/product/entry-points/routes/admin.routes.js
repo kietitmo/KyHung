@@ -29,7 +29,7 @@ const adminController = new AdminController();
  *     requestBody:
  *       required: true
  *       content:
- *         application/json:
+ *         multipart/form-data:
  *           schema:
  *             type: object
  *             required:
@@ -46,13 +46,40 @@ const adminController = new AdminController();
  *                 type: number
  *               category:
  *                 type: string
- *               images:
+ *               files:
  *                 type: array
  *                 items:
  *                   type: string
+ *                   format: binary
+ *                 description: Product images (up to 10 files)
  *     responses:
  *       201:
  *         description: Product created successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 status:
+ *                   type: string
+ *                   example: success
+ *                 data:
+ *                   type: object
+ *                   properties:
+ *                     id:
+ *                       type: string
+ *                     name:
+ *                       type: string
+ *                     description:
+ *                       type: string
+ *                     price:
+ *                       type: number
+ *                     category:
+ *                       type: string
+ *                     images:
+ *                       type: array
+ *                       items:
+ *                         type: string
  *       400:
  *         description: Invalid input data
  *       401:
@@ -64,8 +91,8 @@ router.post(
 	'/',
 	verifyAccessToken,
 	authorize([Role.ADMIN]),
-	validateCreateProduct,
 	upload.array('files', 10),
+	validateCreateProduct,
 	adminController.createProduct.bind(adminController)
 );
 
@@ -243,7 +270,7 @@ router.get(
  *     requestBody:
  *       required: true
  *       content:
- *         application/json:
+ *         multipart/form-data:
  *           schema:
  *             type: object
  *             properties:
@@ -255,13 +282,40 @@ router.get(
  *                 type: number
  *               category:
  *                 type: string
- *               images:
+ *               files:
  *                 type: array
  *                 items:
  *                   type: string
+ *                   format: binary
+ *                 description: Product images (up to 10 files)
  *     responses:
  *       200:
  *         description: Product updated successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 status:
+ *                   type: string
+ *                   example: success
+ *                 data:
+ *                   type: object
+ *                   properties:
+ *                     id:
+ *                       type: string
+ *                     name:
+ *                       type: string
+ *                     description:
+ *                       type: string
+ *                     price:
+ *                       type: number
+ *                     category:
+ *                       type: string
+ *                     images:
+ *                       type: array
+ *                       items:
+ *                         type: string
  *       400:
  *         description: Invalid input data
  *       401:
@@ -275,8 +329,8 @@ router.put(
 	'/:id',
 	verifyAccessToken,
 	authorize([Role.ADMIN]),
-	validateUpdateProduct,
 	upload.array('files', 10),
+	validateUpdateProduct,
 	adminController.updateProductById.bind(adminController)
 );
 

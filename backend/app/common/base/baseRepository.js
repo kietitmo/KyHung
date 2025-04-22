@@ -83,7 +83,11 @@ class BaseRepository {
 	}
 
 	async update(condition, data, populate = []) {
-		let doc = await this.model.findOneAndUpdate(condition, data, { new: true });
+		let doc = await this.model.findOneAndUpdate(
+			condition,
+			{ $set: data },
+			{ new: true }
+		);
 
 		if (populate.length > 0) {
 			doc = await doc.populate(populate);

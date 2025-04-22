@@ -28,7 +28,7 @@ const adminController = new AdminController();
  *     requestBody:
  *       required: true
  *       content:
- *         application/json:
+ *         multipart/form-data:
  *           schema:
  *             type: object
  *             required:
@@ -39,9 +39,32 @@ const adminController = new AdminController();
  *                 type: string
  *               description:
  *                 type: string
+ *               file:
+ *                 type: string
+ *                 format: binary
+ *                 description: Category image
  *     responses:
  *       201:
  *         description: Category created successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 status:
+ *                   type: string
+ *                   example: success
+ *                 data:
+ *                   type: object
+ *                   properties:
+ *                     id:
+ *                       type: string
+ *                     name:
+ *                       type: string
+ *                     description:
+ *                       type: string
+ *                     image:
+ *                       type: string
  *       400:
  *         description: Invalid input data
  *       401:
@@ -210,7 +233,7 @@ router.get(
  *     requestBody:
  *       required: true
  *       content:
- *         application/json:
+ *         multipart/form-data:
  *           schema:
  *             type: object
  *             properties:
@@ -218,9 +241,32 @@ router.get(
  *                 type: string
  *               description:
  *                 type: string
+ *               file:
+ *                 type: string
+ *                 format: binary
+ *                 description: Category image
  *     responses:
  *       200:
  *         description: Category updated successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 status:
+ *                   type: string
+ *                   example: success
+ *                 data:
+ *                   type: object
+ *                   properties:
+ *                     id:
+ *                       type: string
+ *                     name:
+ *                       type: string
+ *                     description:
+ *                       type: string
+ *                     image:
+ *                       type: string
  *       400:
  *         description: Invalid input data
  *       401:

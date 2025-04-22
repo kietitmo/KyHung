@@ -122,7 +122,7 @@ const envSchema = joi
 		CORS_CREDENTIALS: joi.boolean().default(true),
 
 		// Storage Configuration
-		STORAGE_PROVIDER: joi.string().valid('s3', 'gcs').required(),
+		STORAGE_PROVIDER: joi.string().valid('s3', 'gcs', 'local').required(),
 		MAX_FILE_SIZE: joi.number().default(5 * 1024 * 1024), // 5MB
 		ALLOWED_FILE_TYPES: joi.string().default('image/jpeg,image/png,image/gif'),
 

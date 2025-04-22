@@ -100,6 +100,7 @@ class AdminController {
 			);
 
 			if (req.files?.length) {
+				await this._deleteFiles(product);
 				await this._processProductFiles(req.files, product);
 				await product.save();
 			}
@@ -119,13 +120,7 @@ class AdminController {
 		try {
 			const product = await this.productService.getProductById(req.params.id);
 
-			// Delete files in parallel for better performance
-			const deletePromises = [
-				...product.images.map((fileUrl) => this.fileService.deleteFile(fileUrl)),
-				...product.videos.map((fileUrl) => this.fileService.deleteFile(fileUrl)),
-			];
-
-			await Promise.all(deletePromises);
+			await this._deleteFiles(product);
 			await this.productService.deleteProductById(req.params.id);
 
 			const response = APIResponse.success(
@@ -142,7 +137,7 @@ class AdminController {
 	async _processProductFiles(files, product) {
 		const imageDir = path.join(env.PRODUCT_IMAGE_DIR, product._id.toString());
 		const videoDir = path.join(env.PRODUCT_VIDEO_DIR, product._id.toString());
-
+		console.log(imageDir);
 		const uploadPromises = files.map(async (file) => {
 			if (file.mimetype.startsWith('image/')) {
 				const fileUrl = await this.fileService.uploadFile(file, imageDir);
@@ -154,6 +149,19 @@ class AdminController {
 		});
 
 		await Promise.all(uploadPromises);
+	}
+
+	async _deleteFiles(product) {
+		// Delete files in parallel for better performance
+		const deletePromises = [
+			...product.images.map((fileUrl) => this.fileService.deleteFile(fileUrl)),
+			...product.videos.map((fileUrl) => this.fileService.deleteFile(fileUrl)),
+		];
+
+		product.images = [];
+		product.videos = [];
+
+		await Promise.all(deletePromises);
 	}
 }
 

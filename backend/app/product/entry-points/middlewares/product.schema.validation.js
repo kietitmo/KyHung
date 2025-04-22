@@ -29,16 +29,6 @@ export const createProductSchema = {
 			'string.empty': 'Category is required',
 			'any.required': 'Category is required',
 		}),
-
-		images: Joi.array().items(Joi.string().uri()).max(5).messages({
-			'array.max': 'Cannot exceed 5 images',
-			'string.uri': 'Invalid image URL',
-		}),
-
-		videos: Joi.array().items(Joi.string().uri()).max(3).messages({
-			'array.max': 'Cannot exceed 3 videos',
-			'string.uri': 'Invalid video URL',
-		}),
 	}),
 };
 
@@ -64,16 +54,6 @@ export const updateProductSchema = {
 
 		category: Joi.string().trim().messages({
 			'string.empty': 'Category cannot be empty',
-		}),
-
-		images: Joi.array().items(Joi.string().uri()).max(5).messages({
-			'array.max': 'Cannot exceed 5 images',
-			'string.uri': 'Invalid image URL',
-		}),
-
-		videos: Joi.array().items(Joi.string().uri()).max(3).messages({
-			'array.max': 'Cannot exceed 3 videos',
-			'string.uri': 'Invalid video URL',
 		}),
 	})
 		.min(1)

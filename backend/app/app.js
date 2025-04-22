@@ -5,7 +5,7 @@ import passport from 'passport';
 import 'module-alias/register.js';
 import swaggerUi from 'swagger-ui-express';
 import swaggerSpec from './common/config/swagger.js';
-
+import path from 'path'
 // Database
 import connectDB from './common/db/db.js';
 
@@ -126,6 +126,8 @@ class App {
 		this.app.use('/api/admin/products', adminProductRoutes);
 		this.app.use('/api/admin/categories', adminCategoryRoutes);
 		this.app.use('/api/admin/favorite', adminFavoriteRoutes);
+		this.app.use('/asset', express.static(path.join(process.cwd(), 'asset')));
+
 		// Handle 404 routes
 		this.app.use('*', (req, res) => {
 			res.status(404).json({
