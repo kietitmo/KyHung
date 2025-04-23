@@ -4,6 +4,7 @@ class ProductRequestDTO {
 		this.category = data.category;
 		this.price = data.price;
 		this.description = data.description;
+		this.thumbnail = data.thumbnail;
 		this.images = data.images;
 		this.videos = data.videos;
 	}

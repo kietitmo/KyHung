@@ -1,7 +1,4 @@
 import StorageProviderFactory from './storage/StorageProviderFactory.js';
-import CustomError from '../../custom/error/customError.js';
-import { errorCode } from './fileResponseCode.js';
-import env from '../../config/env.js';
 
 class FileService {
 	constructor() {
@@ -14,14 +11,6 @@ class FileService {
 
 	async deleteFile(fileUrl) {
 		return this.storageProvider.deleteFile(fileUrl);
-	}
-
-	async uploadFiles(files, folder = 'uploads') {
-		return this.storageProvider.uploadFiles(files, folder);
-	}
-
-	async deleteFiles(fileUrls) {
-		return this.storageProvider.deleteFiles(fileUrls);
 	}
 }
 

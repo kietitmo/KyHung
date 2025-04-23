@@ -91,7 +91,11 @@ router.post(
 	'/',
 	verifyAccessToken,
 	authorize([Role.ADMIN]),
-	upload.array('files', 10),
+	upload.fields([
+		{ name: 'images', maxCount: 5 },
+		{ name: 'videos', maxCount: 2 },
+		{ name: 'thumbnail', maxCount: 1 },
+	]),
 	validateCreateProduct,
 	adminController.createProduct.bind(adminController)
 );
@@ -329,7 +333,11 @@ router.put(
 	'/:id',
 	verifyAccessToken,
 	authorize([Role.ADMIN]),
-	upload.array('files', 10),
+	upload.fields([
+		{ name: 'images', maxCount: 5 },
+		{ name: 'videos', maxCount: 2 },
+		{ name: 'thumbnail', maxCount: 1 },
+	]),
 	validateUpdateProduct,
 	adminController.updateProductById.bind(adminController)
 );

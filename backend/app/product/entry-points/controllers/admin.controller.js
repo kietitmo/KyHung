@@ -1,7 +1,7 @@
 import ProductService from '../../domain/services/product.service.js';
 import FileService from '../../../common/services/file-service/file.service.js';
 import APIResponse from '../../../common/custom/apiResponse.js';
-import ProductAdminDTO from '../../dto/response/productAdminDTP.js';
+import ProductAdminDTO from '../../dto/response/productAdminDTO.js';
 
 import GetAllRequestDTO from '../../../common/dto/getAllRequestDTO.js';
 import ProductRequestDTO from '../../dto/request/productRequestDTO.js';
@@ -22,10 +22,22 @@ class AdminController {
 			const productRequest = ProductRequestDTO.fromRequest(req.body);
 			const product = await this.productService.createProduct(productRequest);
 
-			if (req.files?.length) {
-				await this._processProductFiles(req.files, product);
-				await product.save();
+			if (req.files?.images?.length) {
+				console.log(req.files.images);
+				await this._processImageFiles(req.files.images, product);
 			}
+
+			if (req.files?.videos?.length) {
+				console.log(req.files.videos);
+				await this._processVideoFiles(req.files.videos, product);
+			}
+
+			if (req.files?.thumbnail) {
+				console.log(req.files.thumbnail);
+				await this._processThumbnailFile(req.files.thumbnail[0], product);
+			}
+
+			await product.save();
 
 			const response = APIResponse.success(
 				successCode.PRODUCT_CREATED.message,
@@ -42,7 +54,6 @@ class AdminController {
 		try {
 			const getProductRequest = GetAllRequestDTO.fromRequest(req);
 
-			// Execute these in parallel to improve performance
 			const [products, total] = await Promise.all([
 				this.productService.getProducts(getProductRequest),
 				this.productService.getTotalProducts(getProductRequest.filter),
@@ -99,11 +110,21 @@ class AdminController {
 				updateProduct
 			);
 
-			if (req.files?.length) {
-				await this._deleteFiles(product);
-				await this._processProductFiles(req.files, product);
-				await product.save();
+			await this._deleteFiles(product); // Delete old files
+
+			if (req.files?.images?.length) {
+				await this._processImageFiles(req.files.images, product);
 			}
+
+			if (req.files?.videos?.length) {
+				await this._processVideoFiles(req.files.videos, product);
+			}
+
+			if (req.files?.thumbnail) {
+				await this._processThumbnailFile(req.files.thumbnail[0], product);
+			}
+
+			await product.save();
 
 			const response = APIResponse.success(
 				successCode.PRODUCT_UPDATED.message,
@@ -133,22 +154,38 @@ class AdminController {
 		}
 	}
 
-	// Private helper method to process product files
-	async _processProductFiles(files, product) {
+	// Private helper method to process image files
+	async _processImageFiles(files, product) {
 		const imageDir = path.join(env.PRODUCT_IMAGE_DIR, product._id.toString());
-		const videoDir = path.join(env.PRODUCT_VIDEO_DIR, product._id.toString());
-		console.log(imageDir);
 		const uploadPromises = files.map(async (file) => {
 			if (file.mimetype.startsWith('image/')) {
 				const fileUrl = await this.fileService.uploadFile(file, imageDir);
 				product.images.push(fileUrl);
-			} else if (file.mimetype.startsWith('video/')) {
+			}
+		});
+		await Promise.all(uploadPromises);
+	}
+
+	// Private helper method to process video files
+	async _processVideoFiles(files, product) {
+		const videoDir = path.join(env.PRODUCT_VIDEO_DIR, product._id.toString());
+		const uploadPromises = files.map(async (file) => {
+			if (file.mimetype.startsWith('video/')) {
 				const fileUrl = await this.fileService.uploadFile(file, videoDir);
 				product.videos.push(fileUrl);
 			}
 		});
-
 		await Promise.all(uploadPromises);
+	}
+
+	async _processThumbnailFile(file, product) {
+		if (!file) return;
+
+		const imageDir = path.join(env.PRODUCT_IMAGE_DIR, product._id.toString());
+		if (file.mimetype.startsWith('image/')) {
+			const fileUrl = await this.fileService.uploadFile(file, imageDir);
+			product.thumbnail = fileUrl;
+		}
 	}
 
 	async _deleteFiles(product) {
@@ -157,6 +194,11 @@ class AdminController {
 			...product.images.map((fileUrl) => this.fileService.deleteFile(fileUrl)),
 			...product.videos.map((fileUrl) => this.fileService.deleteFile(fileUrl)),
 		];
+
+		if (product.thumbnail) {
+			deletePromises.push(this.fileService.deleteFile(product.thumbnail));
+			product.thumbnail = null;
+		}
 
 		product.images = [];
 		product.videos = [];

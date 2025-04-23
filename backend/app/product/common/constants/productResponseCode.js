@@ -146,6 +146,11 @@ export const errorCode = {
 		message: 'Invalid product video URL',
 		status: APP_STATUS.ERROR,
 	},
+	INVALID_NUMBER_THUMBNAIL: {
+		httpStatusCode: HTTP_STATUS.UNPROCESSABLE_ENTITY,
+		message: 'Invalid number of product thumbnail',
+		status: APP_STATUS.ERROR,
+	},
 };
 
 export default {

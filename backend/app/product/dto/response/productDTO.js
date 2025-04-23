@@ -7,6 +7,7 @@ class ProductDTO {
 		this.category = CategoryDTO.fromEntity(product.category);
 		this.price = product.price;
 		this.description = product.description;
+		this.thumbnail = product.thumbnail;
 		this.images = product.images;
 		this.videos = product.videos;
 	}
