@@ -80,18 +80,6 @@ class GCSStorageProvider extends IStorageProvider {
 		}
 	}
 
-	async uploadFiles(files, folder = 'uploads', retries = 3) {
-		const uploadPromises = files.map((file) =>
-			this.uploadFile(file, folder, retries)
-		);
-		try {
-			const urls = await Promise.all(uploadPromises);
-			return urls;
-		} catch (error) {
-			throw new CustomError(errorCode.FILE_UPLOAD_FAILED);
-		}
-	}
-
 	async deleteFile(fileUrl) {
 		try {
 			const fileName = fileUrl.split(`${env.GCS_BUCKET_NAME}/`)[1];
@@ -100,16 +88,6 @@ class GCSStorageProvider extends IStorageProvider {
 			}
 
 			await this.bucket.file(fileName).delete();
-			return true;
-		} catch (error) {
-			throw new CustomError(errorCode.FILE_DELETE_FAILED);
-		}
-	}
-
-	async deleteFiles(fileUrls) {
-		try {
-			const deletePromises = fileUrls.map((url) => this.deleteFile(url));
-			await Promise.all(deletePromises);
 			return true;
 		} catch (error) {
 			throw new CustomError(errorCode.FILE_DELETE_FAILED);

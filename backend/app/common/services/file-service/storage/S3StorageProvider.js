@@ -47,18 +47,6 @@ class S3StorageProvider extends IStorageProvider {
 		}
 	}
 
-	async uploadFiles(files, folder = 'uploads', retries = 3) {
-		const uploadPromises = files.map((file) =>
-			this.uploadFile(file, folder, retries)
-		);
-		try {
-			const urls = await Promise.all(uploadPromises);
-			return urls;
-		} catch (error) {
-			throw new CustomError(errorCode.FILE_UPLOAD_FAILED);
-		}
-	}
-
 	async deleteFile(fileUrl) {
 		try {
 			const key = fileUrl.split(
@@ -74,16 +62,6 @@ class S3StorageProvider extends IStorageProvider {
 			});
 
 			await this.s3Client.send(command);
-			return true;
-		} catch (error) {
-			throw new CustomError(errorCode.FILE_DELETE_FAILED);
-		}
-	}
-
-	async deleteFiles(fileUrls) {
-		try {
-			const deletePromises = fileUrls.map((url) => this.deleteFile(url));
-			await Promise.all(deletePromises);
 			return true;
 		} catch (error) {
 			throw new CustomError(errorCode.FILE_DELETE_FAILED);
